@@ -1,13 +1,17 @@
+#include <Arduino.h>
+#include <HardwareSerial.h>
+
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <Wire.h>
-#include <HardwareSerial.h>
+
 #include <Nunchuk.h>
+
+#define BAUDRATE					9600
 
 #define NUNCHUK_ADDRESS 	0x52
 #define NUNCHUCK_WAIT			1000
-#define BAUDRATE					9600
 
 // prototypes
 bool show_state(void);
@@ -56,21 +60,21 @@ bool show_state(void)
 	}
 	Serial.println("------State data--------------------------");
 	Serial.print("Joy X: ");
-	Serial.print(Nunchuk.state.joy_x_axis, HEX);
+	Serial.print(Nunchuk.state.joy_x_axis);
 	Serial.print("\t\tAccel X: ");
-	Serial.print(Nunchuk.state.accel_x_axis, HEX);
+	Serial.print(Nunchuk.state.accel_x_axis);
 	Serial.print("\t\tButton C: ");
-	Serial.println(Nunchuk.state.c_button, HEX);
+	Serial.println(Nunchuk.state.c_button);
 
 	Serial.print("Joy Y: ");
-	Serial.print(Nunchuk.state.joy_y_axis, HEX);
+	Serial.print(Nunchuk.state.joy_y_axis);
 	Serial.print("\t\tAccel Y: ");
-	Serial.print(Nunchuk.state.accel_y_axis, HEX);
+	Serial.print(Nunchuk.state.accel_y_axis);
 	Serial.print("\t\tButton Z: ");
-	Serial.println(Nunchuk.state.z_button, HEX);
+	Serial.println(Nunchuk.state.z_button);
 
 	Serial.print("\t\t\tAccel Z: ");
-	Serial.println(Nunchuk.state.accel_z_axis, HEX);
+	Serial.println(Nunchuk.state.accel_z_axis);
 
 	return(true);
 }
