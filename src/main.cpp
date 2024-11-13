@@ -2,41 +2,15 @@
 #include <util/delay.h>
 #include <HardwareSerial.h>
 #include <ADCReading.h>
-
-// Define UART baud rate
-#define BAUD 9600
-#define MYUBRR F_CPU/16/BAUD-1
-
-
-int main(void) {   
-    ADCReading adc_read(0);
-    // Initialize UART and ADC
-    adc_read.begin();
-
-    Serial.begin(9600);
-    
-    while (1) {
-        // Read ADC value from channel 0 (potentiometer)
-        uint16_t pot_value = adc_read.read();
-
-        Serial.println(pot_value);
-
-        _delay_ms(100);  // Delay for readability, adjust as needed
-    }
-}
-
-#include <Arduino.h>
 #include <HardwareSerial.h>
-
-#include <avr/io.h>
-#include <util/delay.h>
 #include <avr/interrupt.h>
 #include <Wire.h>
 
 #include <Nunchuk.h>
 
-#define BAUDRATE					9600
-
+// Define UART baud rate
+#define BAUDRATE 9600
+#define MYUBRR F_CPU/16/BAUD-1
 #define NUNCHUK_ADDRESS 	0x52
 #define NUNCHUCK_WAIT			1000
 
@@ -49,6 +23,10 @@ int main(void) {
 
 	Serial.begin(BAUDRATE); // initialise serial
 
+    ADCReading adc_read(0);
+    // Initialize UART and ADC
+    adc_read.begin();
+
 	Wire.begin(); // join I2C bus as master
 
 	init_nunchuck(); // initialise nunchuck
@@ -56,6 +34,10 @@ int main(void) {
 	// endless loop
 	while(1) {
 		show_state();
+
+        uint16_t pot_value = adc_read.read();
+
+        Serial.println(pot_value);
 
 		// wait a while
 		_delay_ms(NUNCHUCK_WAIT);
