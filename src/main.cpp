@@ -1,3 +1,30 @@
+#include <avr/io.h>
+#include <util/delay.h>
+#include <HardwareSerial.h>
+#include <ADCReading.h>
+
+// Define UART baud rate
+#define BAUD 9600
+#define MYUBRR F_CPU/16/BAUD-1
+
+
+int main(void) {   
+    ADCReading adc_read(0);
+    // Initialize UART and ADC
+    adc_read.begin();
+
+    Serial.begin(9600);
+    
+    while (1) {
+        // Read ADC value from channel 0 (potentiometer)
+        uint16_t pot_value = adc_read.read();
+
+        Serial.println(pot_value);
+
+        _delay_ms(100);  // Delay for readability, adjust as needed
+    }
+}
+
 #include <Arduino.h>
 #include <HardwareSerial.h>
 
