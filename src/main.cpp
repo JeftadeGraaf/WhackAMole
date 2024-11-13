@@ -15,7 +15,7 @@
 #define NUNCHUCK_WAIT			1000
 
 // prototypes
-bool show_state(void);
+bool nunchuck_show_state_TEST(void);
 bool init_nunchuck();
 
 int main(void) {
@@ -29,7 +29,7 @@ int main(void) {
 
 	// endless loop
 	while(1) {
-		show_state();
+		nunchuck_show_state_TEST();
 
 		// wait a while
 		_delay_ms(NUNCHUCK_WAIT);
@@ -52,7 +52,7 @@ bool init_nunchuck(){
 	return true;
 }
 
-bool show_state(void)
+bool nunchuck_show_state_TEST(void)
 {
 	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
 		Serial.println("******** No nunchuk found");
