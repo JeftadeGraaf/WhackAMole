@@ -1,18 +1,76 @@
-#include <Arduino.h>
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+#include <Wire.h>
+#include <HardwareSerial.h>
+#include <Nunchuk.h>
 
-// put function declarations here:
-int myFunction(int, int);
+#define NUNCHUK_ADDRESS 	0x52
+#define NUNCHUCK_WAIT			1000
+#define BAUDRATE					9600
 
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+// prototypes
+bool show_state(void);
+bool init_nunchuck();
+
+int main(void) {
+	sei(); 	// enable global interrupts
+
+	Serial.begin(BAUDRATE); // initialise serial
+
+	Wire.begin(); // join I2C bus as master
+
+	init_nunchuck(); // initialise nunchuck
+
+	// endless loop
+	while(1) {
+		show_state();
+
+		// wait a while
+		_delay_ms(NUNCHUCK_WAIT);
+	}
+
+	return(0);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+bool init_nunchuck(){
+	Serial.print("-------- Connecting to nunchuk at address 0x");
+	Serial.println(NUNCHUK_ADDRESS, HEX);
+	if (!Nunchuk.begin(NUNCHUK_ADDRESS))
+	{
+		Serial.println("******** No nunchuk found");
+		Serial.flush();
+		return(false);
+	}
+	Serial.print("-------- Nunchuk with Id: ");
+	Serial.println(Nunchuk.id);
+	return true;
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+bool show_state(void)
+{
+	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
+		Serial.println("******** No nunchuk found");
+		Serial.flush();
+		return (false);
+	}
+	Serial.println("------State data--------------------------");
+	Serial.print("Joy X: ");
+	Serial.print(Nunchuk.state.joy_x_axis, HEX);
+	Serial.print("\t\tAccel X: ");
+	Serial.print(Nunchuk.state.accel_x_axis, HEX);
+	Serial.print("\t\tButton C: ");
+	Serial.println(Nunchuk.state.c_button, HEX);
+
+	Serial.print("Joy Y: ");
+	Serial.print(Nunchuk.state.joy_y_axis, HEX);
+	Serial.print("\t\tAccel Y: ");
+	Serial.print(Nunchuk.state.accel_y_axis, HEX);
+	Serial.print("\t\tButton Z: ");
+	Serial.println(Nunchuk.state.z_button, HEX);
+
+	Serial.print("\t\t\tAccel Z: ");
+	Serial.println(Nunchuk.state.accel_z_axis, HEX);
+
+	return(true);
 }
