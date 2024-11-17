@@ -1,12 +1,17 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <HardwareSerial.h>
-#include <ADCReading.h>
 #include <HardwareSerial.h>
 #include <avr/interrupt.h>
 #include <Wire.h>
 
 #include <Nunchuk.h>
+
+#include "SPI.h"
+#include "Adafruit_GFX.h"
+#include "Adafruit_ILI9341.h"
+
+#include <Display.h>
 
 // Define UART baud rate
 #define BAUDRATE 9600
@@ -14,36 +19,34 @@
 #define NUNCHUK_ADDRESS 	0x52
 #define NUNCHUCK_WAIT			1000
 
+#define BACKLIGHT_PIN 5
+
+
+// For the Adafruit shield, these are the default.
+#define TFT_CLK 13
+#define TFT_MISO 12
+#define TFT_MOSI 11
+#define TFT_DC 9
+#define TFT_CS 10
+#define TFT_RST 8
+// Use hardware SPI (on Uno, #13, #12, #11) and the above for CS/DC
+//Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
+// If using the breakout, change pins as desired
+Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
 // prototypes
-bool show_state(void);
-bool init_nunchuck();
 
 int main(void) {
-	sei(); 	// enable global interrupts
+	Display display(BACKLIGHT_PIN);
+	display.init();     // Initialize display
+    sei();              // Enable global interrupts
 
-	Serial.begin(BAUDRATE); // initialise serial
+    while (1) {
 
-    ADCReading adc_read(0);
-    // Initialize UART and ADC
-    adc_read.begin();
+        // Set the backlight brightness
+        display.refresh_backlight();
 
-	Wire.begin(); // join I2C bus as master
-
-	init_nunchuck(); // initialise nunchuck
-
-	// endless loop
-	while(1) {
-		show_state();
-
-        uint16_t pot_value = adc_read.read();
-
-        Serial.println(pot_value);
-
-		// wait a while
-		_delay_ms(NUNCHUCK_WAIT);
-	}
-
-	return(0);
+        _delay_ms(10);  // Small delay for stability
+    }
 }
 
 bool init_nunchuck(){
