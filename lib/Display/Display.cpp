@@ -1,9 +1,11 @@
 #include "Display.h"
+#include <Adafruit_ILI9341.h>
 
 
 // Initialize the display
 
-Display::Display(int backlight_pin) {
+Display::Display(int backlight_pin, int tft_cs, int tft_dc)
+    : _tft(tft_cs, tft_dc) {
     // Constructor
     _backlight_pin = backlight_pin;
 }
@@ -25,6 +27,9 @@ void Display::init() {
 
     // Set the backlight pin as output
     DDRD |= (1<<_backlight_pin);
+
+    _tft.begin();
+
 }
 
 void Display::refresh_backlight() {
@@ -34,4 +39,13 @@ void Display::refresh_backlight() {
     }
 
     ADCSRA |= (1<<ADSC);
+}
+
+void Display::drawGraphicalCursor(int x, int y, int size, uint16_t color) {
+    // Use the tft object
+    _tft.drawRect(x, y, size, size, color);  // Draw a square cursor
+}
+
+void Display::clearScreen() {
+    _tft.fillScreen(ILI9341_BLACK);
 }
