@@ -16,12 +16,10 @@
 
 // nunchuk memory addresses
 #define NCSTATE	0x00	// address of state (6 bytes)
-#define NCCAL	0x20	// address of callibration data (16 bytes)
 #define NCID	0xFA	// address of id (4 bytes)
 
 #define CHUNKLEN	32
 #define STATELEN	6
-#define CALLEN		16
 
 #define WAITFORREAD	1	// ms
 
@@ -37,18 +35,11 @@ NunChuk::NunChuk() {
 }
 
 /* ---- public methods ---- */
- 
+
 /*
  * do the handschake
  */
 bool NunChuk::begin(uint8_t address) {
-	if (ENCODED) {
-		Wire.beginTransmission(address);
-		Wire.write(0x40);
-		Wire.write(0x00);
-		Wire.endTransmission();
-	}
-	else {
 		Wire.beginTransmission(address);
 		Wire.write(0xF0);
 		Wire.write(0x55);
@@ -57,7 +48,6 @@ bool NunChuk::begin(uint8_t address) {
 		Wire.write(0xFB);
 		Wire.write(0x00);
 		Wire.endTransmission(true);
-	}
 
 	// get the id
 	if (!_getId(address))
@@ -94,56 +84,6 @@ bool NunChuk::getState(uint8_t address) {
 	return(true);
 }
 
-/*
- * test and debug
- */
-uint8_t NunChuk::read(uint8_t address, uint8_t offset, uint8_t len) {
-	return(_read(address, offset, len));
-}
-
-/*
- * get calibration data
- * calibration encoding 0G eand 1G
- *	byte 0: X0[9:2]
- *	byte 1: Y0[9:2]
- *	byte 2: Z0[9:2]
- *	byte 3: LSB_XYZ0[1:0]
- *	byte 4: X1[9:2]
- *	byte 5: Y1[9:2]
- *	byte 6: Z1[9:2]
- *	byte 7: LSB_XYZ1[1:0]
- *	byte 8: XMIN[7:0]
- *	byte 9: XMAX[7:0]
- *	byte 10: XCENTER[7:0]
- *	byte 11: YMIN[7:0]
- *	byte 12: YMAX[7:0]
- *	byte 13: YCENTER[7:0]
- *	byte 14: CHKSUM1[7:0]
- *	byte 15: CHKSUM2[7:0]
- */
-bool NunChuk::getCalibration(uint8_t address) {
-	// read state from memory address
-	if (_read(address, NCCAL, CALLEN) != CALLEN)
-		return(false);
-
-	// set parameters
-	cal.x0 = (buffer[0] << 2) | ((buffer[3] & 0x03));
-	cal.y0 = (buffer[1] << 2) | ((buffer[3] & 0x0B) >> 2);
-	cal.z0 = (buffer[2] << 2) | ((buffer[3] & 0x30) >> 4);
-	cal.x1 = (buffer[4] << 2) | ((buffer[7] & 0x03));
-	cal.y1 = (buffer[5] << 2) | ((buffer[7] & 0x0B) >> 2);
-	cal.z1 = (buffer[6] << 2) | ((buffer[7] & 0x30) >> 4);
-	cal.xmin = buffer[8];
-	cal.xmax = buffer[9];
-	cal.xcenter = buffer[10];
-	cal.ymin = buffer[11];
-	cal.ymax = buffer[12];
-	cal.ycenter = buffer[13];
-	cal.chksum = (buffer[14]<<8)|buffer[15];
-
-	return(true);
-}
-
 /* ---- private methods ---- */
 
 /*
@@ -167,14 +107,6 @@ bool NunChuk::_getId(uint8_t address) {
 }
 
 /*
- * decode byte
- */
-uint8_t NunChuk::_decode(uint8_t b)
-{
-	return((b^0x17) + 0x17);
-}
-
-/*
  * read buffer
  */
 uint8_t NunChuk::_read(uint8_t address, uint8_t offset, uint8_t len) {
@@ -192,13 +124,8 @@ uint8_t NunChuk::_read(uint8_t address, uint8_t offset, uint8_t len) {
 	Wire.requestFrom(address, len);
 
 	// read bytes
-	while (Wire.available() && n <= len) {
-		if (ENCODED)
-			buffer[n++] = _decode(Wire.read());
-		else
+	while (Wire.available() && n <= len)
 			buffer[n++] = Wire.read();
-
-	}
 
 	/* return nr bytes */
 	return(n);
