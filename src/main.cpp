@@ -83,16 +83,14 @@ int main(void) {
 	display.clearScreen();
 	init_nunchuck();
 
-	sei(); // Enable global interrupts
-
-	// Draw the initial cursor
 	while (1) {
 		// Refresh the backlight (simulate brightness adjustments)
 		
 		display.refresh_backlight();
-		// display.clearScreen();
-		// display.drawGraphicalCursor(cursor_x, cursor_y, 32, ILI9341_WHITE, cursorBitmap);
-		// update_cursor_coordinates();
+		display.clearScreen();
+		display.drawGraphicalCursor(cursor_x, cursor_y, 32, ILI9341_WHITE, cursorBitmap);
+		update_cursor_coordinates();
+		// nunchuck_show_state_TEST();
 		// _delay_ms(10);  // Small delay for stability
 	}
 
@@ -101,25 +99,31 @@ int main(void) {
 }
 
 void update_cursor_coordinates(){
+	Nunchuk.getState(NUNCHUK_ADDRESS);
 	int NunchukX = Nunchuk.state.joy_x_axis;
 	int NunchukY = Nunchuk.state.joy_y_axis;
 
-	if(NunchukX > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_x < 300){
-		cursor_x++;
-	}
-	else if(NunchukX < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_x > 100){
-		cursor_x--;
-	}
+	if (NunchukX > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_x < 300) {
+    cursor_x++;
+}
+else if (NunchukX < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_x > 100) {
+    cursor_x--;
+}
 
-	if(NunchukY > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_y < 200){
-		cursor_y++;
-	}
-	else if(NunchukY < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_y > 100){
-		cursor_y--;
-	}
+if (NunchukY > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_y < 200) {
+    cursor_y--;
+}
+else if (NunchukY < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_y > 100) {
+    cursor_y++;
+}
 
-	Serial.println("Cursor X = " + cursor_x);
-	Serial.println("Cursor Y = " + cursor_y);
+
+	Serial.print("Cursor X = ");
+	Serial.println(cursor_x);
+	Serial.print("Cursor Y = ");
+	Serial.println(cursor_y);
+	Serial.println();
+
 }
 
 bool init_nunchuck(){

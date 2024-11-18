@@ -29,6 +29,7 @@ void Display::init() {
     DDRD |= (1<<_backlight_pin);
 
     _tft.begin();
+    _tft.setRotation(1);
 
 }
 
