@@ -9,6 +9,9 @@
 
 #include <Nunchuk.h>
 
+// OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
+const int OCR0A_waarde = (16000000 / (2 * 1 * 56000)) - 1;
+
 #define BAUDRATE					9600
 
 #define NUNCHUK_ADDRESS 	0x52
@@ -17,6 +20,7 @@
 // prototypes
 bool nunchuck_show_state_TEST(void);
 bool init_nunchuck();
+void init_IR_transmitter_timer0();
 
 int main(void) {
 	sei(); 	// enable global interrupts
@@ -29,10 +33,7 @@ int main(void) {
 
 	// endless loop
 	while(1) {
-		nunchuck_show_state_TEST();
 
-		// wait a while
-		_delay_ms(NUNCHUCK_WAIT);
 	}
 
 	return(0);
@@ -41,8 +42,7 @@ int main(void) {
 bool init_nunchuck(){
 	Serial.print("-------- Connecting to nunchuk at address 0x");
 	Serial.println(NUNCHUK_ADDRESS, HEX);
-	if (!Nunchuk.begin(NUNCHUK_ADDRESS))
-	{
+	if (!Nunchuk.begin(NUNCHUK_ADDRESS)) {
 		Serial.println("******** No nunchuk found");
 		Serial.flush();
 		return(false);
@@ -52,8 +52,7 @@ bool init_nunchuck(){
 	return true;
 }
 
-bool nunchuck_show_state_TEST(void)
-{
+bool nunchuck_show_state_TEST(void) {
 	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
 		Serial.println("******** No nunchuk found");
 		Serial.flush();
@@ -77,5 +76,14 @@ bool nunchuck_show_state_TEST(void)
 	Serial.print("\t\t\tAccel Z: ");
 	Serial.println(Nunchuk.state.accel_z_axis);
 
+	// wait a while
+	_delay_ms(NUNCHUCK_WAIT);
+
 	return(true);
+}
+
+void init_IR_transmitter_timer0(){
+	TCCR0A |= (1 << WGM01); //CTC mode (reset bij bereiken OCR)
+	TCCR0A |= (1 << COM0A0); // toggle mode
+	OCR0A = OCR0A_waarde;
 }
