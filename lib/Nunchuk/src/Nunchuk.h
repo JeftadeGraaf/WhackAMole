@@ -6,8 +6,6 @@
 
 #include <inttypes.h>
 
-// don't encode
-#define ENCODED         0
 #define IDLEN		4 // bytes
 
 struct ncState {
@@ -42,16 +40,12 @@ class NunChuk {
 		bool		begin(uint8_t address);
 		bool		getState(uint8_t address);
 		ncState		state;
-		bool		getCalibration(uint8_t address);
-		ncCal		cal;
 		char		id[2*IDLEN+3]; // '0xAABBCCDD\0'
-		uint8_t		read(uint8_t address, uint8_t offset, uint8_t len);
 		static uint8_t	buffer[];
 
 	private:
 		bool	_getId(uint8_t address);
 		uint8_t _read(uint8_t address, uint8_t offset, uint8_t len);
-		uint8_t _decode(uint8_t b);
 };
 
 // Nunchuk globaly declared in Nunchuk.cpp

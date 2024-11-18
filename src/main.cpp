@@ -9,10 +9,11 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
+// OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
+const int OCR0A_waarde = (16000000 / (2 * 1 * 56000)) - 1;
 
 // Define UART baud rate
 #define BAUDRATE 9600
-#define MYUBRR F_CPU/16/BAUD-1
 
 #define NUNCHUK_ADDRESS 0x52
 #define NUNCHUCK_WAIT 1000
@@ -60,50 +61,47 @@ const uint8_t cursorBitmap[128] PROGMEM = {
 // Create display objects
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 
-// Function prototypes
+// prototypes
+bool nunchuck_show_state_TEST(void);
 bool init_nunchuck();
-bool show_state();
+void init_IR_transmitter_timer0();
 
 int main(void) {
-
-    // Initialize backlight
-    display.init();     
-    display.refresh_backlight();
+	Serial.begin(BAUDRATE);
+	// Initialize backlight
+	display.init();     
+	display.refresh_backlight();
 	display.clearScreen();
 
-    sei(); // Enable global interrupts
+	sei(); // Enable global interrupts
 
-    // Draw the initial cursor
+	// Draw the initial cursor
 	display.drawGraphicalCursor(120, 160, 32, ILI9341_WHITE, cursorBitmap);
-    while (1) {
-        // Refresh the backlight (simulate brightness adjustments)
-        display.refresh_backlight();
-        _delay_ms(10);  // Small delay for stability
-    }
+	while (1) {
+		// Refresh the backlight (simulate brightness adjustments)
+		display.refresh_backlight();
+		_delay_ms(10);  // Small delay for stability
+	}
+}
+bool init_nunchuck(){
+	Serial.print("-------- Connecting to nunchuk at address 0x");
+	Serial.println(NUNCHUK_ADDRESS, HEX);
+	if (!Nunchuk.begin(NUNCHUK_ADDRESS)) {
+		Serial.println("******** No nunchuk found");
+		Serial.flush();
+		return(false);
+	}
+	Serial.print("-------- Nunchuk with Id: ");
+	Serial.println(Nunchuk.id);
+	return true;
 }
 
-bool init_nunchuck() {
-    Serial.print("-------- Connecting to nunchuk at address 0x");
-    Serial.println(NUNCHUK_ADDRESS, HEX);
-
-    if (!Nunchuk.begin(NUNCHUK_ADDRESS)) {
-        Serial.println("******** No nunchuk found");
-        Serial.flush();
-        return false;
-    }
-
-    Serial.print("-------- Nunchuk with Id: ");
-    Serial.println(Nunchuk.id);
-    return true;
-}
-
-bool show_state(void) {
-    if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
-        Serial.println("******** No nunchuk found");
-        Serial.flush();
-        return false;
-    }
-
+bool nunchuck_show_state_TEST(void) {
+	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
+		Serial.println("******** No nunchuk found");
+		Serial.flush();
+		return (false);
+	}
     Serial.println("------State data--------------------------");
     Serial.print("Joy X: ");
     Serial.print(Nunchuk.state.joy_x_axis);
@@ -119,8 +117,16 @@ bool show_state(void) {
     Serial.print("\t\tButton Z: ");
     Serial.println(Nunchuk.state.z_button);
 
-    Serial.print("\t\t\tAccel Z: ");
-    Serial.println(Nunchuk.state.accel_z_axis);
+	// wait a while
+	_delay_ms(NUNCHUCK_WAIT);
 
-    return true;
+	return(true);
+}
+
+void init_IR_transmitter_timer0(){
+	DDRD |= (1 << DDD6);
+	TCCR0B |= (1 << CS00);
+	TCCR0A |= (1 << WGM01); //CTC mode (reset bij bereiken OCR)
+	TCCR0A |= (1 << COM0A0); // toggle mode
+	OCR0A = OCR0A_waarde;
 }
