@@ -29,7 +29,8 @@ int main(void) {
 
 	Wire.begin(); // join I2C bus as master
 
-	init_nunchuck(); // initialise nunchuck
+	init_nunchuck(); // initialiseer nunchuck
+	init_IR_transmitter_timer0(); // initialiseer Timer0 voor IR transmitter
 
 	// endless loop
 	while(1) {
