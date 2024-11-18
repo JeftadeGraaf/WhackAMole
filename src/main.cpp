@@ -9,6 +9,7 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
+
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
 const int OCR0A_waarde = (16000000 / (2 * 1 * 56000)) - 1;
 
