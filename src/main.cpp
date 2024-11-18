@@ -21,8 +21,8 @@ const int OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
 
 const int NUNCHUK_DEADZONE = 30;        //Deadzone against drift
 const int NUNCHUK_CENTER_VALUE = 128;   //value of x and y when joystick is idle
-const int NUNCHUK_X_SENSITIVITY = 20;   //sensitivity of cursor horizontal movements
-const int NUNCHUK_Y_SENSITIVITY = 20;   //sensitivity of cursor vertical movements
+const int NUNCHUK_X_SENSITIVITY = 5;   //sensitivity of cursor horizontal movements
+const int NUNCHUK_Y_SENSITIVITY = 5;   //sensitivity of cursor vertical movements
 const int DISPLAY_MAX_X = 300;          //Max horizontal movement of cursor (right)
 const int DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor (left)
 const int DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
