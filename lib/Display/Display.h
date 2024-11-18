@@ -10,7 +10,7 @@ public:
     void init();
     void refresh_backlight();
 
-    void drawGraphicalCursor(int x, int y, int size, uint16_t color);
+    void drawGraphicalCursor(int x, int y, int size, uint16_t color, const uint8_t cursor[]);
 
     void clearScreen();
 

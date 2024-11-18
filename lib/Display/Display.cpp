@@ -41,9 +41,9 @@ void Display::refresh_backlight() {
     ADCSRA |= (1<<ADSC);
 }
 
-void Display::drawGraphicalCursor(int x, int y, int size, uint16_t color) {
+void Display::drawGraphicalCursor(int x, int y, int size, uint16_t color, const uint8_t cursor[]) {
     // Use the tft object
-    _tft.drawRect(x, y, size, size, color);  // Draw a square cursor
+    _tft.drawBitmap(x, y, cursor, size, size, color);
 }
 
 void Display::clearScreen() {
