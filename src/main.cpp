@@ -10,25 +10,25 @@
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
 
+//OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
-const int OCR0A_waarde = (16000000 / (2 * 1 * 56000)) - 1;
+const int OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
 
-// Define UART baud rate
-#define BAUDRATE 9600
+#define BAUDRATE 9600           //UART baud rate
 
-#define NUNCHUK_ADDRESS 0x52
-#define NUNCHUCK_WAIT 1000
+#define NUNCHUK_ADDRESS 0x52    //Nunchuk I2c address
+#define NUNCHUCK_WAIT 1000      //Wait for nunchuk test function
 
-const int NUNCHUK_DEADZONE = 30;
-const int NUNCHUK_CENTER_VALUE = 128;
-const int NUNCHUK_X_SENSITIVITY = 20;
-const int NUNCHUK_Y_SENSITIVITY = 20;
-const int DISPLAY_MAX_X = 300;
-const int DISPLAY_MIN_X = 0;
-const int DISPLAY_MAX_Y = 220;
-const int DISPLAY_MIN_Y = 0;
-int cursor_x = 160; 
-int cursor_y = 130; 
+const int NUNCHUK_DEADZONE = 30;        //Deadzone against drift
+const int NUNCHUK_CENTER_VALUE = 128;   //value of x and y when joystick is idle
+const int NUNCHUK_X_SENSITIVITY = 20;   //sensitivity of cursor horizontal movements
+const int NUNCHUK_Y_SENSITIVITY = 20;   //sensitivity of cursor vertical movements
+const int DISPLAY_MAX_X = 300;          //Max horizontal movement of cursor (right)
+const int DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor (left)
+const int DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
+const int DISPLAY_MIN_Y = 0;            //Min vertical movement of cursor (up)
+int cursor_x = 160;                     //Starting cursor x coordinate
+int cursor_y = 130;                     //Starting cursor y coordinate
 
 #define BACKLIGHT_PIN 5
 
@@ -36,6 +36,7 @@ int cursor_y = 130;
 #define TFT_DC 9
 #define TFT_CS 10
 
+//Bitmap for cursor
 const uint8_t cursorBitmap[128] PROGMEM = {
   0x00, 0x00, 0x00, 0x00, // Row 1
   0x00, 0x00, 0x00, 0x00, // Row 2
@@ -75,10 +76,10 @@ const uint8_t cursorBitmap[128] PROGMEM = {
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 
 // prototypes
-bool nunchuck_show_state_TEST(); //!Let op! gebruikt delay!
-void update_cursor_coordinates();
-bool init_nunchuck();
-void init_IR_transmitter_timer0();
+bool nunchuck_show_state_TEST();    //Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
+void update_cursor_coordinates();   //Update the cursors coordinate based on nunchuk movement
+bool init_nunchuck();               //Initialise connection to nunchuk
+void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
 
 int main(void) {
 	sei(); // Enable global interrupts
@@ -105,48 +106,55 @@ int main(void) {
 }
 
 void update_cursor_coordinates(){
-	Nunchuk.getState(NUNCHUK_ADDRESS);
-	int NunchukX = Nunchuk.state.joy_x_axis;
+	Nunchuk.getState(NUNCHUK_ADDRESS);          //Update Nunchuk state
+
+    //Retrieve values from class
+	int NunchukX = Nunchuk.state.joy_x_axis;    
 	int NunchukY = Nunchuk.state.joy_y_axis;
 
+    //Horizontal movement
 	if (NunchukX > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_x < DISPLAY_MAX_X) {
-    cursor_x += NUNCHUK_X_SENSITIVITY; //move right
-}
-else if (NunchukX < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_x > DISPLAY_MIN_X) {
-    cursor_x -= NUNCHUK_X_SENSITIVITY; //move left
-}
+    cursor_x += NUNCHUK_X_SENSITIVITY;      //move right
+    } else if (NunchukX < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_x > DISPLAY_MIN_X) {
+        cursor_x -= NUNCHUK_X_SENSITIVITY;  //move left
+    }
 
-if (NunchukY > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_y > DISPLAY_MIN_Y) {
-    cursor_y -= NUNCHUK_Y_SENSITIVITY; //move up
-}
-else if (NunchukY < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_y < DISPLAY_MAX_Y) {
-    cursor_y += NUNCHUK_Y_SENSITIVITY; //move down
-}
+    //Vertical movement
+    if (NunchukY > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_y > DISPLAY_MIN_Y) {
+        cursor_y -= NUNCHUK_Y_SENSITIVITY;  //move up
+    } else if (NunchukY < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_y < DISPLAY_MAX_Y) {
+        cursor_y += NUNCHUK_Y_SENSITIVITY;  //move down
+    }
 
-
-	Serial.print("Cursor X = ");
-	Serial.println(cursor_x);
-	Serial.print("Cursor Y = ");
-	Serial.println(cursor_y);
-	Serial.println();
-
+    //Prints for tests
+	// Serial.print("Cursor X = ");
+	// Serial.println(cursor_x);
+	// Serial.print("Cursor Y = ");
+	// Serial.println(cursor_y);
+	// Serial.println();
 }
 
 bool init_nunchuck(){
 	Serial.print("-------- Connecting to nunchuk at address 0x");
 	Serial.println(NUNCHUK_ADDRESS, HEX);
+
+    //Make connection to Nunchuk
 	if (!Nunchuk.begin(NUNCHUK_ADDRESS)) {
+        //If nunchuk is not found, print error and return false
 		Serial.println("******** No nunchuk found");
 		Serial.flush();
 		return(false);
 	}
+    //After succesful handshake, print Nunchuk ID
 	Serial.print("-------- Nunchuk with Id: ");
 	Serial.println(Nunchuk.id);
 	return true;
 }
 
 bool nunchuck_show_state_TEST() {
+    //Print Nunchuk state
 	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
+        //If nunchuk is not found, print error and return false
 		Serial.println("******** No nunchuk found");
 		Serial.flush();
 		return (false);
@@ -167,7 +175,7 @@ bool nunchuck_show_state_TEST() {
     Serial.println(Nunchuk.state.z_button);
 
 		// wait a while
-		// _delay_ms(NUNCHUCK_WAIT);
+		_delay_ms(NUNCHUCK_WAIT);
 
 		return(true);
 }
