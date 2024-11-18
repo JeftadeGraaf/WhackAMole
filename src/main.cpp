@@ -9,10 +9,9 @@
 
 #include <Nunchuk.h>
 
-#define BAUDRATE					9600
-
+#define BAUDRATE			9600
 #define NUNCHUK_ADDRESS 	0x52
-#define NUNCHUCK_WAIT			1000
+#define NUNCHUCK_WAIT		1000
 
 // prototypes
 bool show_state(void);
@@ -26,6 +25,7 @@ int main(void) {
 	Wire.begin(); // join I2C bus as master
 
 	init_nunchuck(); // initialise nunchuck
+	Serial.println("Serial Ready!");
 
 	// endless loop
 	while(1) {
@@ -33,8 +33,19 @@ int main(void) {
 
 		// // wait a while
 		// _delay_ms(NUNCHUCK_WAIT);
-		Serial.write(69);
-		Serial.write('T');
+		// for (int i = 0; i < 100; i++)
+		// {
+		// 	Serial.write(i);
+		// 	_delay_ms(100);
+		// }
+		
+		if (Serial.available() >0)
+		{
+			if (Serial.read()!= 0)
+			{
+				Serial.println(Serial.read());
+			}
+		}
 	}
 
 	return(0);
