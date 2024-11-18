@@ -10,8 +10,8 @@
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
 
-// OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
-const int OCR0A_waarde = (16000000 / (2 * 1 * 38000)) - 1;
+// OCR0A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
+const uint8_t OCR0A_value = (16000000 / (2 * 1 * 38000)) - 1;
 
 // Define UART baud rate
 #define BAUDRATE 9600
@@ -127,7 +127,7 @@ bool nunchuck_show_state_TEST(void) {
 void init_IR_transmitter_timer0(){
 	DDRD |= (1 << DDD6);
 	TCCR0B |= (1 << CS00);
-	TCCR0A |= (1 << WGM01); //CTC mode (reset bij bereiken OCR)
+	TCCR0A |= (1 << WGM01); //CTC mode (reset at OCR)
 	TCCR0A |= (1 << COM0A0); // toggle mode
-	OCR0A = OCR0A_waarde;
+	OCR0A = OCR0A_value;
 }
