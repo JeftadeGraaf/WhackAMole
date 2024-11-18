@@ -18,6 +18,12 @@ const int OCR0A_waarde = (16000000 / (2 * 1 * 56000)) - 1;
 
 #define NUNCHUK_ADDRESS 0x52
 #define NUNCHUCK_WAIT 1000
+
+const int NUNCHUK_DEADZONE = 10;
+const int NUNCHUK_CENTER_VALUE = 128;
+int cursor_x = 120; //TODO value between 
+int cursor_y = 160; //TODO value between
+
 #define BACKLIGHT_PIN 5
 
 // For the Adafruit shield, these are the default.
@@ -63,27 +69,59 @@ const uint8_t cursorBitmap[128] PROGMEM = {
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 
 // prototypes
-bool nunchuck_show_state_TEST(void);
+bool nunchuck_show_state_TEST(); //!Let op! gebruikt delay!
+void update_cursor_coordinates();
 bool init_nunchuck();
 void init_IR_transmitter_timer0();
 
 int main(void) {
+	sei(); // Enable global interrupts
 	Serial.begin(BAUDRATE);
 	// Initialize backlight
 	display.init();     
 	display.refresh_backlight();
 	display.clearScreen();
+	init_nunchuck();
 
 	sei(); // Enable global interrupts
 
 	// Draw the initial cursor
-	display.drawGraphicalCursor(120, 160, 32, ILI9341_WHITE, cursorBitmap);
 	while (1) {
 		// Refresh the backlight (simulate brightness adjustments)
+		
 		display.refresh_backlight();
-		_delay_ms(10);  // Small delay for stability
+		// display.clearScreen();
+		// display.drawGraphicalCursor(cursor_x, cursor_y, 32, ILI9341_WHITE, cursorBitmap);
+		// update_cursor_coordinates();
+		// _delay_ms(10);  // Small delay for stability
 	}
+
+	//never reach
+	return 0;
 }
+
+void update_cursor_coordinates(){
+	int NunchukX = Nunchuk.state.joy_x_axis;
+	int NunchukY = Nunchuk.state.joy_y_axis;
+
+	if(NunchukX > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_x < 300){
+		cursor_x++;
+	}
+	else if(NunchukX < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_x > 100){
+		cursor_x--;
+	}
+
+	if(NunchukY > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_y < 200){
+		cursor_y++;
+	}
+	else if(NunchukY < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_y > 100){
+		cursor_y--;
+	}
+
+	Serial.println("Cursor X = " + cursor_x);
+	Serial.println("Cursor Y = " + cursor_y);
+}
+
 bool init_nunchuck(){
 	Serial.print("-------- Connecting to nunchuk at address 0x");
 	Serial.println(NUNCHUK_ADDRESS, HEX);
@@ -97,7 +135,7 @@ bool init_nunchuck(){
 	return true;
 }
 
-bool nunchuck_show_state_TEST(void) {
+bool nunchuck_show_state_TEST() {
 	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
 		Serial.println("******** No nunchuk found");
 		Serial.flush();
@@ -118,10 +156,10 @@ bool nunchuck_show_state_TEST(void) {
     Serial.print("\t\tButton Z: ");
     Serial.println(Nunchuk.state.z_button);
 
-	// wait a while
-	_delay_ms(NUNCHUCK_WAIT);
+		// wait a while
+		_delay_ms(NUNCHUCK_WAIT);
 
-	return(true);
+		return(true);
 }
 
 void init_IR_transmitter_timer0(){
