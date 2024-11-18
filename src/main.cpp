@@ -19,10 +19,16 @@ const int OCR0A_waarde = (16000000 / (2 * 1 * 56000)) - 1;
 #define NUNCHUK_ADDRESS 0x52
 #define NUNCHUCK_WAIT 1000
 
-const int NUNCHUK_DEADZONE = 10;
+const int NUNCHUK_DEADZONE = 30;
 const int NUNCHUK_CENTER_VALUE = 128;
-int cursor_x = 120; //TODO value between 
-int cursor_y = 160; //TODO value between
+const int NUNCHUK_X_SENSITIVITY = 20;
+const int NUNCHUK_Y_SENSITIVITY = 20;
+const int DISPLAY_MAX_X = 300;
+const int DISPLAY_MIN_X = 0;
+const int DISPLAY_MAX_Y = 220;
+const int DISPLAY_MIN_Y = 0;
+int cursor_x = 160; 
+int cursor_y = 130; 
 
 #define BACKLIGHT_PIN 5
 
@@ -90,8 +96,8 @@ int main(void) {
 		display.clearScreen();
 		display.drawGraphicalCursor(cursor_x, cursor_y, 32, ILI9341_WHITE, cursorBitmap);
 		update_cursor_coordinates();
-		// nunchuck_show_state_TEST();
-		// _delay_ms(10);  // Small delay for stability
+        // nunchuck_show_state_TEST();
+		_delay_ms(10);  // Small delay for stability
 	}
 
 	//never reach
@@ -103,18 +109,18 @@ void update_cursor_coordinates(){
 	int NunchukX = Nunchuk.state.joy_x_axis;
 	int NunchukY = Nunchuk.state.joy_y_axis;
 
-	if (NunchukX > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_x < 300) {
-    cursor_x++;
+	if (NunchukX > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_x < DISPLAY_MAX_X) {
+    cursor_x += NUNCHUK_X_SENSITIVITY; //move right
 }
-else if (NunchukX < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_x > 100) {
-    cursor_x--;
+else if (NunchukX < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_x > DISPLAY_MIN_X) {
+    cursor_x -= NUNCHUK_X_SENSITIVITY; //move left
 }
 
-if (NunchukY > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_y < 200) {
-    cursor_y--;
+if (NunchukY > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_y > DISPLAY_MIN_Y) {
+    cursor_y -= NUNCHUK_Y_SENSITIVITY; //move up
 }
-else if (NunchukY < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_y > 100) {
-    cursor_y++;
+else if (NunchukY < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_y < DISPLAY_MAX_Y) {
+    cursor_y += NUNCHUK_Y_SENSITIVITY; //move down
 }
 
 
@@ -161,7 +167,7 @@ bool nunchuck_show_state_TEST() {
     Serial.println(Nunchuk.state.z_button);
 
 		// wait a while
-		_delay_ms(NUNCHUCK_WAIT);
+		// _delay_ms(NUNCHUCK_WAIT);
 
 		return(true);
 }
