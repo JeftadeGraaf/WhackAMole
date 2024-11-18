@@ -29,10 +29,12 @@ int main(void) {
 
 	// endless loop
 	while(1) {
-		show_state();
+		// show_state();
 
-		// wait a while
-		_delay_ms(NUNCHUCK_WAIT);
+		// // wait a while
+		// _delay_ms(NUNCHUCK_WAIT);
+		Serial.write(69);
+		Serial.write('T');
 	}
 
 	return(0);
