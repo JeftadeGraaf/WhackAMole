@@ -58,8 +58,8 @@
    #define TFT_DC   10
    #define SD_CS    5
 #endif
-
-
+#define TFT_CS 10
+#define TFT_DC 9
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC);
 
 void setup() {

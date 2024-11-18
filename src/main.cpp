@@ -72,6 +72,9 @@ const uint8_t cursorBitmap[128] PROGMEM = {
   0x00, 0x00, 0x00, 0x00  // Row 32
 };
 
+int last_cursor_x;
+int last_cursor_y;
+
 // Create display objects
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 
@@ -91,15 +94,24 @@ int main(void) {
 	init_nunchuck();
 
 	while (1) {
-		// Refresh the backlight (simulate brightness adjustments)
-		
-		display.refresh_backlight();
-		display.clearScreen();
-		display.drawGraphicalCursor(cursor_x, cursor_y, 32, ILI9341_WHITE, cursorBitmap);
-		update_cursor_coordinates();
-        // nunchuck_show_state_TEST();
-		_delay_ms(10);  // Small delay for stability
-	}
+    // Refresh the backlight (simulate brightness adjustments)
+    display.refresh_backlight();
+
+    // Erase the previous cursor position
+    display.drawGraphicalCursor(last_cursor_x, last_cursor_y, 32, ILI9341_BLACK, cursorBitmap);
+
+    // Draw the new cursor position
+    display.drawGraphicalCursor(cursor_x, cursor_y, 32, ILI9341_WHITE, cursorBitmap);
+
+    // Update previous cursor coordinates
+    last_cursor_x = cursor_x;
+    last_cursor_y = cursor_y;
+
+    // Update the cursor coordinates based on nunchuk input
+    update_cursor_coordinates();
+
+    _delay_ms(10);  // Small delay for stability
+}
 
 	//never reach
 	return 0;
@@ -185,5 +197,5 @@ void init_IR_transmitter_timer0(){
 	TCCR0B |= (1 << CS00);
 	TCCR0A |= (1 << WGM01); //CTC mode (reset bij bereiken OCR)
 	TCCR0A |= (1 << COM0A0); // toggle mode
-	OCR0A = OCR0A_waarde;
-}
+	OCR0A = OCR0A_value;
+	}
