@@ -27,10 +27,10 @@ const uint16_t DISPLAY_MAX_X = 300;         //Max horizontal movement of cursor 
 const uint8_t DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor (left)
 const uint8_t DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
 const uint8_t DISPLAY_MIN_Y = 0;            //Min vertical movement of cursor (up)
-uint8_t cursor_x = 160;                     //Starting cursor x coordinate
+uint16_t cursor_x = 160;                     //Starting cursor x coordinate
 uint8_t cursor_y = 130;                     //Starting cursor y coordinate
-uint8_t last_cursor_x;                      //Used to temporarily store last cursor x coordinate for screen refresh
-uint8_t last_cursor_y;                      //Used to temporarily store last cursor y coordinate for screen refresh
+uint16_t last_cursor_x = 0;                  //Used to temporarily store last cursor x coordinate for screen refresh
+uint8_t last_cursor_y = 0;                  //Used to temporarily store last cursor y coordinate for screen refresh
 
 #define BACKLIGHT_PIN 5
 
@@ -140,12 +140,12 @@ void update_cursor_coordinates(){
         cursor_y += NUNCHUK_Y_SENSITIVITY;  //move down
     }
 
-    //Prints for tests
-	// Serial.print("Cursor X = ");
-	// Serial.println(cursor_x);
-	// Serial.print("Cursor Y = ");
-	// Serial.println(cursor_y);
-	// Serial.println();
+    // Prints for tests
+	Serial.print("Cursor X = ");
+	Serial.println(cursor_x);
+	Serial.print("Cursor Y = ");
+	Serial.println(cursor_y);
+	Serial.println();
 }
 
 bool init_nunchuck(){
