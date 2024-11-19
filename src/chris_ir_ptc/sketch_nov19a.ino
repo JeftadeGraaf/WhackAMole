@@ -1,25 +1,82 @@
 #define RX 2
 #define TX 6
+#define BIT_DURATION 100  // microseconds
+
+volatile unsigned long pulseWidth = 0;
+volatile bool pulseDetected = false;
 
 void setup() {
-  // put your setup code here, to run once:
   pinMode(RX, INPUT);
-  Serial.begin(9600);
   pinMode(TX, OUTPUT);
+  Serial.begin(9600);
+
+  attachInterrupt(digitalPinToInterrupt(RX), measurePulse, CHANGE);
 }
 
+int end_millis = 0;
+bool started = false;
+
 void loop() {
-    // Generate a 38 kHz square wave burst for 5 ms
-  tone(TX, 38000);  // Start 38 kHz signal on pin TX
-  delay(1);         // Duration of the burst
+  digitalWrite(13, digitalRead(RX));  // CONNECT LED TO 13 FOR DEBUGGING
+  if (pulseDetected) {
+    noInterrupts();
+    unsigned long currentPulseWidth = pulseWidth;
+    pulseDetected = false;
 
-  // put your main code here, to run repeatedly:
-    int pulseWidth = pulseIn(RX, LOW, 100000);
+    if (currentPulseWidth > 0) {
+      decodePulse(currentPulseWidth);
+    } 
+    interrupts();
+  }
 
-    if (pulseWidth > 0) {
-      Serial.println(pulseWidth);
+  // Start and stop the 38 kHz burst for 5 ms
+  if (!started) {
+    end_millis = millis() + 5;
+    if (millis() > end_millis) {
+      start38kHz();
+      started = true;
     }
+  } else {
+    end_millis = millis() + 5;
+    if (millis() > end_millis) {
+      stop38kHz();
+      started = false;
+    }
+  }
+}
 
-  noTone(TX);       // Stop the signal
-  delay(1);         // Wait 5 ms before the next burst
+void measurePulse() {
+  // measure the length of every LOW pulse
+  static unsigned long startTime = 0;
+
+  if (digitalRead(RX) == LOW) {
+    startTime = micros();
+  } else {
+    pulseWidth = micros() - startTime;
+    pulseDetected = true;
+  }
+}
+
+void decodePulse(int pulse) {
+  uint32_t cmd = 0;
+
+  int pulseWidthBitsAmt = pulse / BIT_DURATION;
+
+  for (int i = 0; i <= pulseWidthBitsAmt; i++) {
+    cmd++;
+    
+    if (i != pulseWidthBitsAmt) {
+      cmd <<= 1;
+    }
+  }
+
+  Serial.println(cmd, BIN);
+}
+
+void start38kHz() {
+  tone(TX, 38000);
+}
+
+void stop38kHz() {
+  noTone(TX);
 }
