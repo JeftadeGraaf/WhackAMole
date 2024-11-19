@@ -10,20 +10,35 @@
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
 
-// OCR0A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
-const uint8_t OCR0A_value = (16000000 / (2 * 1 * 38000)) - 1;
+// OCR value for Timer0, IR transmitter
+// OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
+const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
 
-// Define UART baud rate
-#define BAUDRATE 9600
+const uint16_t BAUDRATE = 9600;             //UART baud rate
 
-#define NUNCHUK_ADDRESS 0x52
-#define NUNCHUCK_WAIT 1000
+const uint8_t NUNCHUK_ADDRESS = 0x52;       //Nunchuk I2c address
+const uint16_t NUNCHUCK_WAIT = 1000;        //Wait for nunchuk test function
+
+const uint8_t NUNCHUK_DEADZONE = 30;        //Deadzone against drift
+const uint8_t NUNCHUK_CENTER_VALUE = 128;   //value of x and y when joystick is idle
+const uint8_t NUNCHUK_X_SENSITIVITY = 5;    //sensitivity of cursor horizontal movements
+const uint8_t NUNCHUK_Y_SENSITIVITY = 5;    //sensitivity of cursor vertical movements
+const uint16_t DISPLAY_MAX_X = 300;         //Max horizontal movement of cursor (right)
+const uint8_t DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor (left)
+const uint8_t DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
+const uint8_t DISPLAY_MIN_Y = 0;            //Min vertical movement of cursor (up)
+uint16_t cursor_x = 160;                     //Starting cursor x coordinate
+uint8_t cursor_y = 130;                     //Starting cursor y coordinate
+uint16_t last_cursor_x = 0;                  //Used to temporarily store last cursor x coordinate for screen refresh
+uint8_t last_cursor_y = 0;                  //Used to temporarily store last cursor y coordinate for screen refresh
+
 #define BACKLIGHT_PIN 5
 
 // For the Adafruit shield, these are the default.
 #define TFT_DC 9
 #define TFT_CS 10
 
+//Bitmap for cursor
 const uint8_t cursorBitmap[128] PROGMEM = {
   0x00, 0x00, 0x00, 0x00, // Row 1
   0x00, 0x00, 0x00, 0x00, // Row 2
@@ -63,42 +78,97 @@ const uint8_t cursorBitmap[128] PROGMEM = {
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 
 // prototypes
-bool nunchuck_show_state_TEST(void);
-bool init_nunchuck();
-void init_IR_transmitter_timer0();
+bool nunchuck_show_state_TEST();    //Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
+void update_cursor_coordinates();   //Update the cursors coordinate based on nunchuk movement
+bool init_nunchuck();               //Initialise connection to nunchuk
+void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
 
 int main(void) {
+	sei(); // Enable global interrupts
 	Serial.begin(BAUDRATE);
 	// Initialize backlight
 	display.init();     
 	display.refresh_backlight();
 	display.clearScreen();
+	init_nunchuck();
 
-	sei(); // Enable global interrupts
-
-	// Draw the initial cursor
-	display.drawGraphicalCursor(120, 160, 32, ILI9341_WHITE, cursorBitmap);
 	while (1) {
-		// Refresh the backlight (simulate brightness adjustments)
-		display.refresh_backlight();
-		_delay_ms(10);  // Small delay for stability
-	}
+    // Refresh the backlight (simulate brightness adjustments)
+    display.refresh_backlight();
+
+    if (cursor_x != last_cursor_x || cursor_y != last_cursor_y) {
+        // Perform erase and redraw
+        // Erase the previous cursor position
+        display.drawGraphicalCursor(last_cursor_x, last_cursor_y, 32, ILI9341_BLACK, cursorBitmap);
+
+        // Draw the new cursor position
+        display.drawGraphicalCursor(cursor_x, cursor_y, 32, ILI9341_WHITE, cursorBitmap);
+    }
+
+    // Update previous cursor coordinates
+    last_cursor_x = cursor_x;
+    last_cursor_y = cursor_y;
+
+    // Update the cursor coordinates based on nunchuk input
+    update_cursor_coordinates();
+
+    _delay_ms(10);  // Small delay for stability
 }
+
+	//never reach
+	return 0;
+}
+
+void update_cursor_coordinates(){
+	Nunchuk.getState(NUNCHUK_ADDRESS);          //Update Nunchuk state
+
+    //Retrieve values from class
+	uint8_t NunchukX = Nunchuk.state.joy_x_axis;    
+	uint8_t NunchukY = Nunchuk.state.joy_y_axis;
+
+    //Horizontal movement
+	if (NunchukX > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_x < DISPLAY_MAX_X) {
+    cursor_x += NUNCHUK_X_SENSITIVITY;      //move right
+    } else if (NunchukX < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_x > DISPLAY_MIN_X) {
+        cursor_x -= NUNCHUK_X_SENSITIVITY;  //move left
+    }
+
+    //Vertical movement
+    if (NunchukY > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_y > DISPLAY_MIN_Y) {
+        cursor_y -= NUNCHUK_Y_SENSITIVITY;  //move up
+    } else if (NunchukY < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_y < DISPLAY_MAX_Y) {
+        cursor_y += NUNCHUK_Y_SENSITIVITY;  //move down
+    }
+
+    // Prints for tests
+	// Serial.print("Cursor X = ");
+	// Serial.println(cursor_x);
+	// Serial.print("Cursor Y = ");
+	// Serial.println(cursor_y);
+	// Serial.println();
+}
+
 bool init_nunchuck(){
 	Serial.print("-------- Connecting to nunchuk at address 0x");
 	Serial.println(NUNCHUK_ADDRESS, HEX);
+
+    //Make connection to Nunchuk
 	if (!Nunchuk.begin(NUNCHUK_ADDRESS)) {
+        //If nunchuk is not found, print error and return false
 		Serial.println("******** No nunchuk found");
 		Serial.flush();
 		return(false);
 	}
+    //After succesful handshake, print Nunchuk ID
 	Serial.print("-------- Nunchuk with Id: ");
 	Serial.println(Nunchuk.id);
 	return true;
 }
 
-bool nunchuck_show_state_TEST(void) {
+bool nunchuck_show_state_TEST() {
+    //Print Nunchuk state
 	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
+        //If nunchuk is not found, print error and return false
 		Serial.println("******** No nunchuk found");
 		Serial.flush();
 		return (false);
@@ -118,10 +188,10 @@ bool nunchuck_show_state_TEST(void) {
     Serial.print("\t\tButton Z: ");
     Serial.println(Nunchuk.state.z_button);
 
-	// wait a while
-	_delay_ms(NUNCHUCK_WAIT);
+		// wait a while
+		_delay_ms(NUNCHUCK_WAIT);
 
-	return(true);
+		return(true);
 }
 
 void init_IR_transmitter_timer0(){
