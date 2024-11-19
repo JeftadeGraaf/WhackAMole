@@ -141,11 +141,11 @@ void update_cursor_coordinates(){
     }
 
     // Prints for tests
-	Serial.print("Cursor X = ");
-	Serial.println(cursor_x);
-	Serial.print("Cursor Y = ");
-	Serial.println(cursor_y);
-	Serial.println();
+	// Serial.print("Cursor X = ");
+	// Serial.println(cursor_x);
+	// Serial.print("Cursor Y = ");
+	// Serial.println(cursor_y);
+	// Serial.println();
 }
 
 bool init_nunchuck(){
