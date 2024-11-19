@@ -195,9 +195,9 @@ bool nunchuck_show_state_TEST() {
 }
 
 void init_IR_transmitter_timer0(){
-	DDRD |= (1 << DDD6);
-	TCCR0B |= (1 << CS00);
-	TCCR0A |= (1 << WGM01); //CTC mode (reset at OCR)
-	TCCR0A |= (1 << COM0A0); // toggle mode
+	DDRD |= (1 << DDD6);        // IR LED output
+	TCCR0B |= (1 << CS00);      // no prescaler
+	TCCR0A |= (1 << WGM01);     // CTC mode (reset at OCR)
+	TCCR0A |= (1 << COM0A0);    // toggle mode
 	OCR0A = OCR0A_value;
 }
