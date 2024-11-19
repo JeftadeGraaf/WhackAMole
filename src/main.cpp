@@ -12,23 +12,25 @@
 
 //OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
-const int OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
+const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
 
-#define BAUDRATE 9600           //UART baud rate
+const uint16_t BAUDRATE = 9600;             //UART baud rate
 
-#define NUNCHUK_ADDRESS 0x52    //Nunchuk I2c address
-#define NUNCHUCK_WAIT 1000      //Wait for nunchuk test function
+const uint8_t NUNCHUK_ADDRESS = 0x52;       //Nunchuk I2c address
+const uint16_t NUNCHUCK_WAIT = 1000;        //Wait for nunchuk test function
 
-const int NUNCHUK_DEADZONE = 30;        //Deadzone against drift
-const int NUNCHUK_CENTER_VALUE = 128;   //value of x and y when joystick is idle
-const int NUNCHUK_X_SENSITIVITY = 5;   //sensitivity of cursor horizontal movements
-const int NUNCHUK_Y_SENSITIVITY = 5;   //sensitivity of cursor vertical movements
-const int DISPLAY_MAX_X = 300;          //Max horizontal movement of cursor (right)
-const int DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor (left)
-const int DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
-const int DISPLAY_MIN_Y = 0;            //Min vertical movement of cursor (up)
-int cursor_x = 160;                     //Starting cursor x coordinate
-int cursor_y = 130;                     //Starting cursor y coordinate
+const uint8_t NUNCHUK_DEADZONE = 30;        //Deadzone against drift
+const uint8_t NUNCHUK_CENTER_VALUE = 128;   //value of x and y when joystick is idle
+const uint8_t NUNCHUK_X_SENSITIVITY = 5;    //sensitivity of cursor horizontal movements
+const uint8_t NUNCHUK_Y_SENSITIVITY = 5;    //sensitivity of cursor vertical movements
+const uint16_t DISPLAY_MAX_X = 300;         //Max horizontal movement of cursor (right)
+const uint8_t DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor (left)
+const uint8_t DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
+const uint8_t DISPLAY_MIN_Y = 0;            //Min vertical movement of cursor (up)
+uint8_t cursor_x = 160;                     //Starting cursor x coordinate
+uint8_t cursor_y = 130;                     //Starting cursor y coordinate
+uint8_t last_cursor_x;                      //Used to temporarily store last cursor x coordinate for screen refresh
+uint8_t last_cursor_y;                      //Used to temporarily store last cursor y coordinate for screen refresh
 
 #define BACKLIGHT_PIN 5
 
@@ -71,9 +73,6 @@ const uint8_t cursorBitmap[128] PROGMEM = {
   0x00, 0x00, 0x00, 0x00, // Row 31
   0x00, 0x00, 0x00, 0x00  // Row 32
 };
-
-int last_cursor_x;
-int last_cursor_y;
 
 // Create display objects
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
@@ -124,8 +123,8 @@ void update_cursor_coordinates(){
 	Nunchuk.getState(NUNCHUK_ADDRESS);          //Update Nunchuk state
 
     //Retrieve values from class
-	int NunchukX = Nunchuk.state.joy_x_axis;    
-	int NunchukY = Nunchuk.state.joy_y_axis;
+	uint8_t NunchukX = Nunchuk.state.joy_x_axis;    
+	uint8_t NunchukY = Nunchuk.state.joy_y_axis;
 
     //Horizontal movement
 	if (NunchukX > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_x < DISPLAY_MAX_X) {
