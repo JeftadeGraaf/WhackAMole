@@ -12,7 +12,7 @@
 
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
-const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
+const uint8_t OCR0A_value = (16000000 / (2 * 1 * 38000)) - 1;
 
 const uint16_t BAUDRATE = 9600;             //UART baud rate
 
@@ -83,9 +83,13 @@ void update_cursor_coordinates();   //Update the cursors coordinate based on nun
 bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
 
+
 int main(void) {
-	sei(); // Enable global interrupts
 	Serial.begin(BAUDRATE);
+    init_IR_transmitter_timer0();
+    sei(); // Enable global interrupts
+
+
 	// Initialize backlight
 	display.init();     
 	display.refresh_backlight();
@@ -197,7 +201,7 @@ bool nunchuck_show_state_TEST() {
 void init_IR_transmitter_timer0(){
 	DDRD |= (1 << DDD6);        // IR LED output
 	TCCR0B |= (1 << CS00);      // no prescaler
-	TCCR0A |= (1 << WGM01);     // CTC mode (reset at OCR)
-	TCCR0A |= (1 << COM0A0);    // toggle mode
+	TCCR0A |= (1 << WGM01) | (1<<COM0A0);     // CTC mode (reset at OCR), toggle mode
+	// TCCR0A |= (1 << COM0A0);    // 
 	OCR0A = OCR0A_value;
 }
