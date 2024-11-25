@@ -27,9 +27,9 @@ const uint16_t DISPLAY_MAX_X = 300;         //Max horizontal movement of cursor 
 const uint8_t DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor (left)
 const uint8_t DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
 const uint8_t DISPLAY_MIN_Y = 0;            //Min vertical movement of cursor (up)
-uint16_t cursor_x = 160;                     //Starting cursor x coordinate
+uint16_t cursor_x = 160;                    //Starting cursor x coordinate
 uint8_t cursor_y = 130;                     //Starting cursor y coordinate
-uint16_t last_cursor_x = 0;                  //Used to temporarily store last cursor x coordinate for screen refresh
+uint16_t last_cursor_x = 0;                 //Used to temporarily store last cursor x coordinate for screen refresh
 uint8_t last_cursor_y = 0;                  //Used to temporarily store last cursor y coordinate for screen refresh
 
 #define BACKLIGHT_PIN 5
@@ -80,6 +80,7 @@ Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 // prototypes
 bool nunchuck_show_state_TEST();    //Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
 void update_cursor_coordinates();   //Update the cursors coordinate based on nunchuk movement
+void draw_cursor();
 bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
 
@@ -96,8 +97,17 @@ int main(void) {
     // Refresh the backlight (simulate brightness adjustments)
     display.refresh_backlight();
 
+    // Update the cursor coordinates based on nunchuk input, also redraws the cursor
+    update_cursor_coordinates();
+
+    _delay_ms(10);  // Small delay for stability
+}
+	//never reach
+	return 0;
+}
+
+void redraw_cursor(){
     if (cursor_x != last_cursor_x || cursor_y != last_cursor_y) {
-        // Perform erase and redraw
         // Erase the previous cursor position
         display.drawGraphicalCursor(last_cursor_x, last_cursor_y, 32, ILI9341_BLACK, cursorBitmap);
 
@@ -108,19 +118,10 @@ int main(void) {
     // Update previous cursor coordinates
     last_cursor_x = cursor_x;
     last_cursor_y = cursor_y;
-
-    // Update the cursor coordinates based on nunchuk input
-    update_cursor_coordinates();
-
-    _delay_ms(10);  // Small delay for stability
-}
-
-	//never reach
-	return 0;
 }
 
 void update_cursor_coordinates(){
-	Nunchuk.getState(NUNCHUK_ADDRESS);          //Update Nunchuk state
+	Nunchuk.getState(NUNCHUK_ADDRESS);      //Update Nunchuk state
 
     //Retrieve values from class
 	uint8_t NunchukX = Nunchuk.state.joy_x_axis;    
@@ -128,7 +129,7 @@ void update_cursor_coordinates(){
 
     //Horizontal movement
 	if (NunchukX > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_x < DISPLAY_MAX_X) {
-    cursor_x += NUNCHUK_X_SENSITIVITY;      //move right
+        cursor_x += NUNCHUK_X_SENSITIVITY;      //move right
     } else if (NunchukX < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_x > DISPLAY_MIN_X) {
         cursor_x -= NUNCHUK_X_SENSITIVITY;  //move left
     }
@@ -140,12 +141,7 @@ void update_cursor_coordinates(){
         cursor_y += NUNCHUK_Y_SENSITIVITY;  //move down
     }
 
-    // Prints for tests
-	// Serial.print("Cursor X = ");
-	// Serial.println(cursor_x);
-	// Serial.print("Cursor Y = ");
-	// Serial.println(cursor_y);
-	// Serial.println();
+    redraw_cursor();
 }
 
 bool init_nunchuck(){

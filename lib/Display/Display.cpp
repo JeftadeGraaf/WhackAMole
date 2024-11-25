@@ -30,7 +30,6 @@ void Display::init() {
 
     _tft.begin();
     _tft.setRotation(1);
-
 }
 
 void Display::refresh_backlight() {
