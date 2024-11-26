@@ -12,7 +12,7 @@ volatile uint8_t bit_index = 0;
 volatile uint32_t received_data = 0;
 
 uint16_t data = 0x5555; // 16-bit data to send
-uint8_t nec_buffer[32];
+uint8_t nec_buffer[16];
 
 // Initialize Timer0 for 38kHz Carrier Signal
 void timer0_init() {
@@ -77,7 +77,7 @@ ISR(TIMER1_COMPA_vect) {
         if (bit_index == 0) {
             // After Leader Code, send space
             next_duration = 4500;
-        } else if (bit_index <= 32) {
+        } else if (bit_index <= 16) {
             // Send bits
             next_duration = 560; // Mark duration
         } else {
@@ -86,7 +86,7 @@ ISR(TIMER1_COMPA_vect) {
             return;
         }
     } else if (nec_state == SPACE) {
-        if (bit_index <= 32) {
+        if (bit_index <= 16) {
             // Send next bit
             nec_send_bit(nec_buffer[bit_index - 1]);
         } else {
@@ -120,7 +120,7 @@ ISR(INT0_vect) {
         
         // Decode the pulse
         if (last_pulse_duration > 1000) {  // Mark (1)
-            if (received_bits < 32) {
+            if (received_bits < 16) {
                 received_data |= (1 << received_bits);
             }
         } else if (last_pulse_duration > 400) {  // Space (0)
