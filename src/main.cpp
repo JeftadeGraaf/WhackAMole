@@ -9,14 +9,17 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
+#include <IR_protocol.h>
 
 enum role {
-    Idle,
     Reciever,
     Sender
 };
 
 role console_role;                          //Used for switchcase
+uint16_t last_data = 0;
+uint8_t NunchukX = 0;
+uint8_t NunchukY = 0;
 
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
@@ -99,6 +102,7 @@ int main(void) {
 	display.init();     
 	display.refresh_backlight();
 	display.clearScreen();
+
     if(init_nunchuck()){
         console_role = Sender;
     } else{
@@ -109,12 +113,31 @@ int main(void) {
     // Refresh the backlight (simulate brightness adjustments)
     display.refresh_backlight();
 
+    init_protocol();
+
     switch (console_role) {
         case Sender:
+            Nunchuk.getState(NUNCHUK_ADDRESS);      //Update Nunchuk state
+            NunchukX = Nunchuk.state.joy_x_axis;    
+            NunchukY = Nunchuk.state.joy_y_axis;
+
+            //combine to 16 bit
+            uint16_t combined = (NunchukX << 8) | NunchukY;
+            send(combined);
+            while (TIMSK1 & (1 << OCIE1A)) {}
+            
             //Code for sending cursor coordinates
             break;
         case Reciever:
-            //Code for using recieved data
+            uint16_t new_data = get_received_data();
+
+            if (last_data != new_data) {
+                // Extract x and y values from 16 bit data
+                NunchukX = (new_data >> 8) & 0xFF;
+                NunchukY = new_data & 0xFF;
+                redraw_cursor();
+            }
+
             update_cursor_coordinates();
             break;
         default:
@@ -145,11 +168,11 @@ void redraw_cursor(){
 }
 
 void update_cursor_coordinates(){
-	Nunchuk.getState(NUNCHUK_ADDRESS);      //Update Nunchuk state
+	// Nunchuk.getState(NUNCHUK_ADDRESS);      //Update Nunchuk state
 
-    //Retrieve values from class
-	uint8_t NunchukX = Nunchuk.state.joy_x_axis;    
-	uint8_t NunchukY = Nunchuk.state.joy_y_axis;
+    // //Retrieve values from class
+	// uint8_t NunchukX = Nunchuk.state.joy_x_axis;    
+	// uint8_t NunchukY = Nunchuk.state.joy_y_axis;
 
     //Horizontal movement
 	if (NunchukX > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_x < DISPLAY_MAX_X) {
@@ -212,12 +235,4 @@ bool nunchuck_show_state_TEST() {
 		_delay_ms(NUNCHUCK_WAIT);
 
 		return(true);
-}
-
-void init_IR_transmitter_timer0(){
-	DDRD |= (1 << DDD6);        // IR LED output
-	TCCR0B |= (1 << CS00);      // no prescaler
-	TCCR0A |= (1 << WGM01);     // CTC mode (reset at OCR)
-	TCCR0A |= (1 << COM0A0);    // toggle mode
-	OCR0A = OCR0A_value;
 }
