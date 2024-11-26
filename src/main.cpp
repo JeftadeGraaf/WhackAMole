@@ -17,9 +17,9 @@ enum role {
 };
 
 role console_role;                          //Used for switchcase
-uint16_t last_data = 0;
-uint8_t NunchukX = 0;
-uint8_t NunchukY = 0;
+uint16_t last_data = 0;                     //For accuracy in recieving data
+uint8_t NunchukX = 0;                       //For recieved data
+uint8_t NunchukY = 0;                       //For recieved data
 
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
@@ -91,7 +91,7 @@ Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 // prototypes
 bool nunchuck_show_state_TEST();    //Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
 void update_cursor_coordinates();   //Update the cursors coordinate based on nunchuk movement
-void draw_cursor();
+void redraw_cursor();
 bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
 
@@ -125,8 +125,6 @@ int main(void) {
             uint16_t combined = (NunchukX << 8) | NunchukY;
             send(combined);
             while (TIMSK1 & (1 << OCIE1A)) {}
-            
-            //Code for sending cursor coordinates
             break;
         case Reciever:
             uint16_t new_data = get_received_data();

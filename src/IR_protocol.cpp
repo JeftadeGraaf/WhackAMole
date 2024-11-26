@@ -10,6 +10,7 @@ volatile uint16_t next_duration = 0;
 volatile uint8_t send_carrier = 0;
 volatile uint8_t bit_index = 0;
 volatile uint16_t received_data = 0;
+volatile uint16_t received_data_definitive = 0;
 
 uint16_t data = 0x5555; // 16-bit data to send
 uint8_t nec_buffer[16];
@@ -131,6 +132,7 @@ ISR(INT0_vect) {
         
         // Check if we've received all bits (16 bits)
         if (received_bits >= 16) {
+            received_data_definitive = received_data;
             received_bits = 0;  // Reset bit counter
         }
     }
@@ -157,7 +159,7 @@ void send(uint16_t send_data) {
 }
 
 uint16_t get_received_data() {
-    return received_data;
+    return received_data_definitive;
 }
 
 void init_protocol() {
