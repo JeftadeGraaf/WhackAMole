@@ -19,11 +19,11 @@ void Display::init() {
     // Enable ADC
     ADCSRA |= (1<<ADEN);
 
-    // Fast PWM mode, non-inverting
-    TCCR0A |= (1<<WGM00) | (1<<WGM01);
-    TCCR0A |= (1<<COM0B1);
-    //Prescaler 64
-    TCCR0B |= (1<<CS00) | (1<<CS01);
+    // // Fast PWM mode, non-inverting
+    // TCCR0A |= (1<<WGM00) | (1<<WGM01);
+    // TCCR0A |= (1<<COM0B1);
+    // //Prescaler 64
+    // TCCR0B |= (1<<CS00) | (1<<CS01);
 
     // Set the backlight pin as output
     DDRD |= (1<<_backlight_pin);

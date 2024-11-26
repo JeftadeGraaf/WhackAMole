@@ -21,10 +21,6 @@ uint16_t last_data = 0;                     //For accuracy in recieving data
 uint8_t NunchukX = 0;                       //For recieved data
 uint8_t NunchukY = 0;                       //For recieved data
 
-// OCR value for Timer0, IR transmitter
-// OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
-const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
-
 const uint16_t BAUDRATE = 9600;             //UART baud rate
 
 const uint8_t NUNCHUK_ADDRESS = 0x52;       //Nunchuk I2c address
@@ -93,7 +89,6 @@ bool nunchuck_show_state_TEST();    //Print Nunchuk state for tests !USES NUNCHU
 void update_cursor_coordinates();   //Update the cursors coordinate based on nunchuk movement
 void redraw_cursor();
 bool init_nunchuck();               //Initialise connection to nunchuk
-void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
 
 int main(void) {
 	sei(); // Enable global interrupts
@@ -111,12 +106,12 @@ int main(void) {
 
 	while (1) {
     // Refresh the backlight (simulate brightness adjustments)
-    display.refresh_backlight();
+    // display.refresh_backlight();
 
     init_protocol();
 
     switch (console_role) {
-        case Sender:
+        case Sender: {
             Nunchuk.getState(NUNCHUK_ADDRESS);      //Update Nunchuk state
             NunchukX = Nunchuk.state.joy_x_axis;    
             NunchukY = Nunchuk.state.joy_y_axis;
@@ -124,28 +119,30 @@ int main(void) {
             //combine to 16 bit
             uint16_t combined = (NunchukX << 8) | NunchukY;
             send(combined);
-            while (TIMSK1 & (1 << OCIE1A)) {}
+            // while (TIMSK1 & (1 << OCIE1A)) {}
             break;
-        case Reciever:
+        }
+        case Reciever: {
             uint16_t new_data = get_received_data();
 
             if (last_data != new_data) {
                 // Extract x and y values from 16 bit data
                 NunchukX = (new_data >> 8) & 0xFF;
                 NunchukY = new_data & 0xFF;
-                redraw_cursor();
+                update_cursor_coordinates();
             }
-
-            update_cursor_coordinates();
+            last_data = new_data;
             break;
-        default:
+        }
+        default: {
             break;
+        }
     }
 
-    // Update the cursor coordinates based on nunchuk input, also redraws the cursor
-    update_cursor_coordinates();
+    // // Update the cursor coordinates based on nunchuk input, also redraws the cursor
+    // update_cursor_coordinates();
 
-    _delay_ms(10);  // Small delay for stability
+    // _delay_ms(10);  // Small delay for stability
 }
 	//never reach
 	return 0;

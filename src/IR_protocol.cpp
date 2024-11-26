@@ -1,6 +1,5 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
 
 #define MARK 1
 #define SPACE 0
@@ -58,7 +57,7 @@ void nec_prepare_data() {
 
     // Fill buffer with the 16-bit data (data)
     for (i = 0; i < 16; i++) {
-        nec_buffer[i] = (data >> i) & 0x01;
+        nec_buffer[i] = (data >> i) & 1;
     }
 
     // Leader code first
@@ -109,6 +108,7 @@ ISR(TIMER1_COMPA_vect) {
 
 // Interrupt for receiving NEC signal on PD2 (INT0)
 ISR(INT0_vect) {
+
     static uint16_t pulse_start = 0;
     static uint8_t received_bits = 0;
     static uint16_t last_pulse_duration = 0;
