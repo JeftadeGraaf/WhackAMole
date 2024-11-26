@@ -3,8 +3,25 @@
 #include <util/delay.h>
 #include <HardwareSerial.h>
 
+// demo/debug
+#define DO_PRINTS 0
+
+// doesnt want to listen to defines so well settle for consts
+const uint8_t DEMO_ENABLE_TRANSMITTER = 1;
+const uint8_t DEMO_ENABLE_RECEIVER = 1;
+
 #define MARK 1
 #define SPACE 0
+
+// these values have been carefully determined using the serial monitor and pulseview
+#define LOGICAL_1_RECV_MIN_TIME 1100
+#define LOGICAL_0_RECV_MIN_TIME 200
+
+// any signal outside of these bounds is considered invalid and will reset the receiver
+#define RECV_SIGNAL_MAX_LENGTH 8000
+#define RECV_SIGNAL_MIN_LENGTH LOGICAL_0_RECV_MIN_TIME
+
+volatile unsigned long TCNT_total = 0;
 
 volatile uint8_t nec_state = 0;
 volatile uint16_t next_duration = 0;
@@ -12,9 +29,17 @@ volatile uint8_t send_carrier = 0;
 volatile uint8_t bit_index = 0;
 volatile uint16_t received_data = 0;
 volatile uint16_t received_data_definitive = 0;
+volatile uint8_t data_ready = 0;
 
 uint16_t data = 0x5555; // 16-bit data to send
 uint8_t nec_buffer[16];
+
+unsigned long get_TCNT_time() {
+    uint16_t tcnt1;
+    tcnt1 = TCNT1;
+    unsigned long total = TCNT_total;
+    return total + tcnt1;  // Return total ticks
+}
 
 // Initialize Timer0 for 38kHz Carrier Signal
 void timer0_init() {
@@ -24,14 +49,12 @@ void timer0_init() {
     DDRD |= (1 << PD6);                    // Set OC0A (PD6) as output
 }
 
-// Enable the 38kHz Carrier
-void enable_carrier() {
-    TCCR0A |= (1 << COM0A0); // Toggle OC0A on compare match
+void enable_carrier() {  // carrier = 38kHz transmit signal
+    TCCR0A |= (1 << COM0A0); // enable compare match
 }
 
-// Disable the 38kHz Carrier
 void disable_carrier() {
-    TCCR0A &= ~(1 << COM0A0); // Stop toggling OC0A
+    TCCR0A &= ~(1 << COM0A0); // disable compare match
 }
 
 // Initialize Timer1 for NEC Protocol Timing
@@ -71,6 +94,10 @@ void nec_prepare_data() {
 
 // Timer1 Compare Match Interrupt for NEC Protocol Timing
 ISR(TIMER1_COMPA_vect) {
+    // add the current OCR1A value here, because at the end the value is different. 
+    // Also adding the value here means that the value is only added when the time has actually elapsed.
+    TCNT_total += OCR1A;
+
     if (nec_state == MARK) {
         disable_carrier();
         send_carrier = SPACE;
@@ -109,45 +136,96 @@ ISR(TIMER1_COMPA_vect) {
 }
 
 volatile uint8_t pulse_state; // Read PD2 (receiver state)
-volatile uint16_t pulse_start = 0;
-volatile uint8_t received_bits = 0;
-volatile uint16_t last_pulse_duration = 0;
+volatile unsigned long int pulse_start = 0;
+volatile unsigned long int last_pulse_duration = 0;
+volatile int8_t received_bits = 0; // cannot be unsigned because -1 is used as a special value
 volatile uint8_t receiving = 0;  // Flag to track if we are actively receiving data
 
 // Interrupt for receiving NEC signal on PD2 (INT0)
 ISR(INT0_vect) {
+    /*
+    Theory:
+
+    First FALLING means a transmission is starting.
+
+    First RISING means a bit is being started.
+        - Save time of RISING edge.
+
+    Next RISING marks the end of the last bit, and the start of a new one.
+        - Determine the bit based on elapsed time.
+
+    When the buffer index reaches 16, the next  RISING edge means the transmission is over.
+    */
+
     pulse_state = PIND & (1 << PD2); // Read PD2 (receiver state)
 
-    // Check if the receiver is currently in the HIGH state (idle)
-    if (pulse_state) {
-        if (pulse_start) {
-            last_pulse_duration = TCNT1 - pulse_start; // Calculate the pulse duration
-        
-            // Decode the pulse
-            if (last_pulse_duration > 1700) {  // Logical '1' mark (greater than 1690 µs)
-                if (received_bits < 16) {
-                    received_data |= (1 << received_bits);  // Set bit to 1
-                }
-            } else if (last_pulse_duration > 500) {  // Logical '0' mark (greater than 560 µs)
-                if (received_bits < 16) {
-                    received_data &= ~(1 << received_bits);  // Set bit to 0
-                }
+    // this check is in place to prevent the logic from triggering on the first FALLING edge, causing issues.
+    if (receiving) {
+        // Serial.println("Receiving");
+        // the first RISING edge means no data, but it does mean a new bit is incoming
+        if (received_bits == -1) {
+            if (pulse_state) {
+                pulse_start = get_TCNT_time();
+                received_bits++;
             }
-            received_bits++;
+        } 
+
+        else {
+            if (pulse_state) {
+                // this block executes when there is new data. this must be processed and then a new bit is expected.
+                last_pulse_duration = get_TCNT_time() - pulse_start;
+
+                if (DO_PRINTS) {
+                    Serial.print("L: ");  // short for last
+                    Serial.println(last_pulse_duration);
+
+                    Serial.print("B: ");  // short for bits
+                    Serial.println(received_bits);
+                }
+
+                // filter out invalid values
+                if (last_pulse_duration > RECV_SIGNAL_MAX_LENGTH || last_pulse_duration < RECV_SIGNAL_MIN_LENGTH) {
+                    received_bits = -1;  // restart the process
+                    receiving = 0;
+                    received_data = 0;
+                    return;
+                }
+
+                else if (last_pulse_duration > LOGICAL_1_RECV_MIN_TIME) {
+                    // Logical 1 is longest so handle first
+                    received_data |= (1 << received_bits);  // set bit at index received_bits
+                    received_bits++;
+                }
+
+                else if (last_pulse_duration > LOGICAL_0_RECV_MIN_TIME) {
+                    received_data &= ~(1 << received_bits);  // clear bit at index received_bits
+                    received_bits++;
+                }
+
+                // else do nothing, value is invalid
+                else {}
+
+                pulse_start = get_TCNT_time();
+            }
         }
     }
 
-    // Measure the duration of the pulse
-    if (pulse_state == 0) {  // Falling edge (this indicates the end of a mark)
-        pulse_start = TCNT1;  // Capture the start of the signal
+    // start transmission on first FALLING edge.
+    if (!receiving && pulse_state == 0) {
+        receiving = 1;
+        received_bits = -1;  // -1 because it needs to receive 1 extra to signal the start of a message
+        received_data = 0;
+        last_pulse_duration = 0;
+        return;
     }
 
-    // Check if we've received all bits (16 bits)
+    
     if (received_bits >= 16) {
-        received_data_definitive = received_data; // Store received data
-        pulse_start = 0;  // Reset pulse start
-        received_data = 0;  // Reset received data
-        received_bits = 0;  // Reset bit counter
+        cli();
+        receiving = 0;
+        received_data_definitive = received_data;
+        data_ready = 1;
+        sei();
     }
 }
 
@@ -169,32 +247,67 @@ void send(uint16_t send_data) {
     data = send_data;
     nec_prepare_data();
     TIMSK1 |= (1 << OCIE1A); // Enable Timer1 interrupts
+
+    while (TIMSK1 & (1 << OCIE1A)) {
+        // Wait for the message to be sent
+    }
 }
 
 uint16_t get_received_data() {
-    return received_data_definitive;
+    if (data_ready) {
+        data_ready = 0;
+        uint16_t recv_data = received_data_definitive;
+        received_data_definitive = 0;
+        return recv_data;
+    }
+    return 0;
 }
 
 void init_protocol() {
     cli();
+    receiver_init();
     timer0_init();
     timer1_init();
-    receiver_init();
     sei();
 }
 
-void TEST_IR_PROTOCOL() {
-    send(0x5555);
-    while (TIMSK1 & (1 << OCIE1A)) {
-        // Wait for the message to be sent
-    }
-    Serial.println(get_received_data(), HEX);
-    _delay_ms(500);
+// from https://forum.arduino.cc/t/leading-zeros-for-binary-in-serial-monitor-console/456892/4 
+void SerialPrintFormatBinaryNumber(uint16_t number) {
+    char binstr[]="0000000000000000";
+    uint8_t i=0;
+    uint16_t n=number;
 
-    send(0xAAAA);
-    while (TIMSK1 & (1 << OCIE1A)) {
-        // Wait for the message to be sent
+   while(n>0 && i<16){
+      binstr[16-1-i]=n%2+'0';
+      ++i;
+      n/=2;
+   }
+	
+   Serial.println(binstr);
+}
+
+void TEST_IR_PROTOCOL() {
+    // send(0x0F0F);
+
+    if (DO_PRINTS && DEMO_ENABLE_RECEIVER) {
+        // only print if the receiver is enabled
+        uint16_t received_data = get_received_data();
+        if (received_data) {
+            Serial.println(received_data, HEX);
+            SerialPrintFormatBinaryNumber(received_data);
+        }
     }
-    Serial.println(get_received_data(), HEX);
-    _delay_ms(500);
+    _delay_ms(250);
+
+    // send(0xF0F0);
+
+    if (DO_PRINTS && DEMO_ENABLE_RECEIVER) {
+        // only print if the receiver is enabled
+        uint16_t received_data = get_received_data();
+        if (received_data) {
+            Serial.println(received_data, HEX);
+            SerialPrintFormatBinaryNumber(received_data);
+        }
+    }
+    _delay_ms(250);
 }

@@ -2,9 +2,9 @@
 #include "IR_protocol.h"
 
 int main() {
-    Serial.begin(9600);
-
     init_protocol();
+
+    Serial.begin(9600);
 
     while (1) {
         TEST_IR_PROTOCOL();
