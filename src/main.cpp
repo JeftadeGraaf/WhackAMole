@@ -10,6 +10,8 @@
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
 
+#include "IR_protocol.h"
+
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
 const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;

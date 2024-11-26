@@ -9,7 +9,7 @@ volatile uint8_t nec_state = 0;
 volatile uint16_t next_duration = 0;
 volatile uint8_t send_carrier = 0;
 volatile uint8_t bit_index = 0;
-volatile uint32_t received_data = 0;
+volatile uint16_t received_data = 0;
 
 uint16_t data = 0x5555; // 16-bit data to send
 uint8_t nec_buffer[16];
@@ -154,6 +154,10 @@ void send(uint16_t send_data) {
     data = send_data;
     nec_prepare_data();
     TIMSK1 |= (1 << OCIE1A); // Enable Timer1 interrupts
+}
+
+uint16_t get_received_data() {
+    return received_data;
 }
 
 void init_protocol() {
