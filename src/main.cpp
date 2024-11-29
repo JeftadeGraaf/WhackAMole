@@ -28,7 +28,7 @@ int main()
     {
         if (ir.isBufferReady())
         {
-            ir.decodeIRMessage();
+            Serial.println(ir.decodeIRMessage());
         }
     }
 

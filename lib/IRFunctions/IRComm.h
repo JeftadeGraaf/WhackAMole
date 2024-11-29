@@ -21,7 +21,7 @@ public:
     void handleTimer0Compare();
 
     bool isBufferReady(); // Checks if any buffer is ready
-    void decodeIRMessage(); // Decodes the IR message
+    uint16_t decodeIRMessage(); // Decodes the IR message
 
 private:
     // Transmission state
@@ -51,7 +51,6 @@ private:
     void decodeBuffer();
     void processBuffer(uint8_t buffer_index);
     void validateFrame();
-    void debugDecodedFrame();
 };
 
 #endif // IR_COMM_H

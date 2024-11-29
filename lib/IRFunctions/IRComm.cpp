@@ -241,21 +241,6 @@ void IRComm::validateFrame()
     }
 
     is_frame_valid = true;
-    debugDecodedFrame();
-}
-
-// Helper function to debug the decoded frame
-void IRComm::debugDecodedFrame()
-{
-    if (is_frame_valid)
-    {
-        Serial.print("Decoded Frame: ");
-        for (uint8_t i = 0; i < 16; i++)
-        {
-            Serial.print(decoded_frame[i]);
-        }
-        Serial.println();
-    }
 }
 
 bool IRComm::isBufferReady()
@@ -263,9 +248,19 @@ bool IRComm::isBufferReady()
     return buffer_ready_flags[0] || buffer_ready_flags[1];
 }
 
-void IRComm::decodeIRMessage()
+uint16_t IRComm::decodeIRMessage()
 {
-    decodeBuffer();
-    validateFrame();
-    debugDecodedFrame();
+    decodeBuffer(); // Decode the buffer into the frame
+    validateFrame(); // Validate the frame
+
+    // Extract the message (12-bit data field) from the frame
+    uint16_t message = 0;
+    for (int i = 2; i < 14; i++)
+    {
+        message <<= 1;
+        message |= decoded_frame[i];
+    }
+
+    is_frame_valid = false; // Reset the frame validity flag for the next message
+    return message; // Return the extracted message
 }
