@@ -91,19 +91,13 @@ int main(void) {
 	display.refresh_backlight();
 	display.clearScreen();
 	init_nunchuck();
+    display.showStartMenu();
 
 	while (1) {
     // Refresh the backlight (simulate brightness adjustments)
     display.refresh_backlight();
 
-    if (cursor_x != last_cursor_x || cursor_y != last_cursor_y) {
-        // Perform erase and redraw
-        // Erase the previous cursor position
-        display.drawGraphicalCursor(last_cursor_x, last_cursor_y, 32, ILI9341_BLACK, cursorBitmap);
-
-        // Draw the new cursor position
-        display.drawGraphicalCursor(cursor_x, cursor_y, 32, ILI9341_WHITE, cursorBitmap);
-    }
+    
 
     // Update previous cursor coordinates
     last_cursor_x = cursor_x;

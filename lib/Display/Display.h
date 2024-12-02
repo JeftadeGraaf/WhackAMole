@@ -14,6 +14,8 @@ public:
 
     void clearScreen();
 
+    void showStartMenu();
+
 private:
     // Add private members and methods as needed
     int _backlight_pin;
