@@ -40,7 +40,7 @@ private:
     void createFrame(uint16_t data, bool (&frame)[16]);
 
     // Member variables for managing IR data
-    volatile bool half_bit_buffers[2][31];  // Buffer for received bits
+    volatile bool half_bit_buffers[2][32];   // Buffer for received bits
     uint8_t buffer_position[2];              // Current position in the buffer
     bool buffer_ready_flags[2];              // Flags to indicate buffer readiness
     uint8_t active_buffer_idx;               // Index of the active buffer

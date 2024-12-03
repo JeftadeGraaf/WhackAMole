@@ -49,8 +49,7 @@ void IRComm::onReceiveInterrupt()
     }
     else
     {
-        uint32_t elapsed_time = (overflow_count * 65536UL) + current_timer_value;
-        bit_duration = (elapsed_time - prev_timer_value) / 2;
+        bit_duration = ((overflow_count << 16) + current_timer_value - prev_timer_value) / 2;
 
         prev_timer_value = current_timer_value;
         overflow_count = 0;
