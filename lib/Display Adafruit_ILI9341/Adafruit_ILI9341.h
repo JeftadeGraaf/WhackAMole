@@ -123,6 +123,7 @@
 #define ILI9341_ORANGE 0xFD20      ///< 255, 165,   0
 #define ILI9341_GREENYELLOW 0xAFE5 ///< 173, 255,  41
 #define ILI9341_PINK 0xFC18        ///< 255, 130, 198
+#define SKY_BLUE 0x6D9B
 
 /**************************************************************************/
 /*!

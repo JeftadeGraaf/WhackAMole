@@ -10,14 +10,6 @@
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
 
-enum role {
-    Idle,
-    Reciever,
-    Sender
-};
-
-role console_role;                          //Used for switchcase
-
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
 const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
@@ -99,30 +91,13 @@ int main(void) {
 	display.init();     
 	display.refresh_backlight();
 	display.clearScreen();
-    if(init_nunchuck()){
-        console_role = Sender;
-    } else{
-        console_role = Reciever;
-    }
+    init_nunchuck();
+
+    display.drawGameOverMenu(123, 123);
 
 	while (1) {
     // Refresh the backlight (simulate brightness adjustments)
     display.refresh_backlight();
-
-    switch (console_role) {
-        case Sender:
-            //Code for sending cursor coordinates
-            break;
-        case Reciever:
-            //Code for using recieved data
-            update_cursor_coordinates();
-            break;
-        default:
-            break;
-    }
-
-    // Update the cursor coordinates based on nunchuk input, also redraws the cursor
-    update_cursor_coordinates();
 
     _delay_ms(10);  // Small delay for stability
 }
