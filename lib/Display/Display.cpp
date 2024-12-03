@@ -3,13 +3,14 @@
 #include "Fonts/InriaSans_Regular8pt7b.h"
 #include "Fonts/IrishGrover_Regular8pt7b.h"
 
-#define SCREEN_WIDTH 320
-#define SCREEN_HEIGHT 240
+const uint32_t SCREEN_WIDTH = 320;
+const uint16_t SCREEN_HEIGHT = 240;
 
 int16_t x1, y1;
 uint16_t textWidth, textHeight;
 int16_t x, y;
 String text;
+const uint8_t pixelSize = 10;
 
 
 // Initialize the display
@@ -56,9 +57,26 @@ void Display::drawGraphicalCursor(int x, int y, int size, uint16_t color, const 
     _tft.drawBitmap(x, y, cursor, size, size, color);
 }
 
+//TODO Mol of hamer tekenen
+//TODO knoppen reageren
 void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score){
-    _tft.fillRect(0, 0, 320, 37, SKY_BLUE);
-    _tft.fillRect(0, 37, 320, 206, ILI9341_DARKGREEN);
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
+
+    for(uint16_t j = 0; j < SCREEN_HEIGHT / pixelSize; j++){
+        for (uint16_t i = 0; i < SCREEN_WIDTH / pixelSize; i++)
+        {
+            // Generate random RGB values biased towards green
+            uint8_t red = 32 + rand() % 32;     // Red: 32 to 63 (brighter)
+            uint8_t green = 200 + rand() % 56; // Green: 200 to 255 (dominant)
+            uint8_t blue = 16 + rand() % 32;   // Blue: 16 to 47 (reduced range)
+
+            // Convert to RGB565
+            uint16_t color = ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
+
+            // Draw the rectangle with the random green shade
+            _tft.fillRect(i * pixelSize, 37 + j * pixelSize, pixelSize, pixelSize, color);
+        }
+    }
 
     _tft.setTextColor(ILI9341_BLACK);
 
@@ -69,7 +87,11 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score){
     _tft.setCursor(x, 30);
     _tft.print(text);
 
-    text = "You Lost!";
+    if(player_score > opponent_score){
+        text = "You Won!";
+    } else {
+        text = "You Lost!";
+    }
     calcCenterScreenText(text, 2);
     _tft.setCursor(x, 90);
     _tft.print(text);
@@ -84,6 +106,14 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score){
     text = "Opponents score: " + String(opponent_score);
     calcCenterScreenText(text, 1);
     _tft.setCursor(x, 136);
+    _tft.print(text);
+
+    text = "Z: Return to menu";
+    _tft.setCursor(11, 200);
+    _tft.print(text);
+
+    text = "C: Save name";
+    _tft.setCursor(11, 220);
     _tft.print(text);
 }
 

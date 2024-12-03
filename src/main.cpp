@@ -93,7 +93,7 @@ int main(void) {
 	display.clearScreen();
     init_nunchuck();
 
-    display.drawGameOverMenu(123, 123);
+    display.drawGameOverMenu(123, 100);
 
 	while (1) {
     // Refresh the backlight (simulate brightness adjustments)
