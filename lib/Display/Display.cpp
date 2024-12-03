@@ -1,11 +1,10 @@
 #include "Display.h"
 
-
 const uint32_t SCREEN_WIDTH = 320;
 const uint16_t SCREEN_HEIGHT = 240;
 
 //calcCenterScreenText function:
-uint16_t x1, y1;
+int16_t x1, y1;
 uint16_t textWidth, textHeight;
 uint16_t x, y;
 String text;
@@ -17,23 +16,125 @@ const uint8_t pixelSize = 10;
 uint8_t time = 60;    //starting time
 uint8_t oldScore = 0;   //starting score
 
-const uint32_t mol[16][16] = {
-    {0x00000000, 0x0A191919, 0x3B1E1919, 0x0D131327, 0x00000000, 0x06000000, 0x7A493616, 0xCF6B501B, 0xC8664C1A, 0x52372812, 0x00000000, 0x00000000, 0x19141428, 0x29181218, 0x00000000, 0x00000000},
-    {0x00000000, 0x3F282424, 0xE8352F2A, 0x7B2D251A, 0x04000000, 0x96624717, 0xFF976F1D, 0xFFAB7F22, 0xFFA67B21, 0xF7886419, 0x514B3812, 0x0E000000, 0xA8362C1E, 0xC8342D2B, 0x33282323, 0x00000000},
-    {0x00000000, 0x4519161D, 0xF95C4723, 0xF9886726, 0xA7402F12, 0xFE7D6027, 0xFF947A45, 0xFF5C4D34, 0xFF685637, 0xFFA08651, 0xE3614A20, 0xBB4F3A15, 0xFF94702A, 0xEC493B24, 0x2F1B1B20, 0x00000000},
-    {0x00000000, 0x220F0F16, 0xEE66522D, 0xFFB08F4B, 0xFF7D5B17, 0xFFABA59D, 0xFFF8FAFE, 0xFF8E8D90, 0xFFB1B1B4, 0xFFFBFDFF, 0xFF988E7E, 0xFF8A651A, 0xFFAC8F53, 0xDC4A3B22, 0x15181818, 0x00000000},
-    {0x00000000, 0x02000000, 0xA35D4619, 0xFFAC8025, 0xFF9E741E, 0xFFB1A99A, 0xFFD8D4CD, 0xFFB4AEA6, 0xFFADA69B, 0xFFCDC9C2, 0xFFA39375, 0xFFA67A1E, 0xFF9F7724, 0x74463418, 0x00000000, 0x00000000},
-    {0x00000000, 0x00000000, 0x41362713, 0xFC956F21, 0xFFAD8022, 0xFF9C7524, 0xFF9B8250, 0xFF826938, 0xFF836937, 0xFF9B7F47, 0xFFA0751D, 0xFFAE8224, 0xEF896620, 0x1617170B, 0x3319140F, 0x3C191111},
-    {0x3A1A1111, 0x2E1B1010, 0x00000000, 0xB9664A1A, 0xFFAD8123, 0xFFDDCAA3, 0xFFFCFCFB, 0xFFD8D5D0, 0xFFDEDCD9, 0xFFFDFCFA, 0xFFD5BE8F, 0xFFAA7E20, 0x925C4418, 0x430B0F1E, 0xF43F3B3C, 0xED363231},
-    {0xFD393434, 0xF1413E3F, 0x6F19161D, 0xC5684B12, 0xFFC7A662, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFEFEFD, 0xFFBD9A52, 0xD95C4211, 0xF15C4722, 0xFF4A4541, 0xF1434043},
-    {0xFF444143, 0xFF4E453A, 0xFF7A5D24, 0xFF735213, 0xFFD1BD93, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFC4AF83, 0xFF886317, 0xFFB08223, 0xFF926E23, 0xEE4F412D},
-    {0xEE4C3E28, 0xFF9C7422, 0xFFA97D1F, 0xFFA17519, 0xFFCEB889, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFCDB480, 0xFFA4771A, 0xFF9C782D, 0xFFAB8027, 0xD77A5A1B},
-    {0xA6634917, 0xFFA67E29, 0xFFB1955A, 0xFFA17B2D, 0xFFB79346, 0xFFFBF9F6, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFCFAF7, 0xFFB69144, 0xFFA48038, 0xFFDEC48C, 0xFFA8863D, 0xA2614614},
-    {0x462F200A, 0xFD89692B, 0xFFF1D596, 0xFFC4A86B, 0xFFA0741A, 0xFFC7A969, 0xFFF4EEE2, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFF8F4EC, 0xFFCCB178, 0xFFA27619, 0xFFBEA163, 0xFFF1D597, 0xFD8E6F31, 0x4633200A},
-    {0x02000000, 0xAB4D3814, 0xFFB5985B, 0xFFBEA163, 0xFFA67B22, 0xFF9B711C, 0xFFB18833, 0xFFC09F5B, 0xFFC2A361, 0xFFB78F3C, 0xFF9C721D, 0xFFA17721, 0xFFAC883D, 0xFFA98947, 0xA75D4416, 0x02000000},
-    {0x00000000, 0x1800000A, 0xC24D3815, 0xFF8A6720, 0xFD7D5D1E, 0x86332613, 0xBF584015, 0xFFA3771D, 0xFFA87B1D, 0xD1604615, 0x7A342514, 0x954D3817, 0xDE72551A, 0xA7523D13, 0x1300000D, 0x00000000},
-    {0x00000000, 0x00000000, 0x09000000, 0x4C241A10, 0x3F181410, 0x00000000, 0x0D000000, 0xD774561C, 0xF17B5C1D, 0x2100000F, 0x00000000, 0x00000000, 0x0B000000, 0x00000000, 0x00000000, 0x00000000},
-    {0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x43221A13, 0x62271C12, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000}
+const uint8_t mol[8][8] = {
+    {36, 13, 34, 10, 26, 38, 13, 37},
+    {39, 4, 17, 6, 6, 19, 4, 2},
+    {0, 23, 16, 5, 5, 3, 24, 2},
+    {35, 31, 15, 14, 14, 7, 28, 30},
+    {4, 21, 11, 1, 1, 11, 8, 20},
+    {9, 12, 25, 1, 1, 7, 12, 18},
+    {27, 8, 22, 3, 3, 10, 9, 29},
+    {0, 2, 0, 33, 32, 0, 0, 0},
+};
+const uint8_t mol_palette[120] = {
+    0, 0, 2,
+    254, 252, 249,
+    20, 17, 18,
+    166, 132, 61,
+    108, 86, 44,
+    175, 162, 139,
+    167, 156, 135,
+    204, 177, 122,
+    154, 119, 48,
+    139, 109, 47,
+    128, 93, 24,
+    229, 219, 198,
+    199, 164, 90,
+    50, 43, 34,
+    238, 234, 227,
+    210, 186, 136,
+    177, 144, 74,
+    140, 118, 75,
+    144, 114, 53,
+    135, 111, 67,
+    131, 101, 40,
+    138, 102, 28,
+    133, 99, 29,
+    138, 101, 28,
+    128, 95, 30,
+    203, 175, 117,
+    123, 90, 21,
+    82, 64, 34,
+    91, 67, 21,
+    91, 72, 31,
+    64, 59, 57,
+    86, 62, 17,
+    88, 63, 14,
+    88, 62, 14,
+    78, 53, 4,
+    48, 46, 53,
+    39, 39, 39,
+    36, 36, 36,
+    57, 38, 0,
+    33, 26, 26,
+};
+
+const uint8_t hol[8][8] = {
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 4, 4, 14, 13, 9},
+    {7, 7, 10, 5, 1, 5, 6, 15},
+    {2, 2, 1, 1, 1, 1, 6, 8},
+    {11, 2, 3, 1, 1, 3, 8, 12},
+};
+const uint8_t hol_palette[48] = {
+    0, 0, 0,
+    105, 69, 4,
+    90, 61, 6,
+    94, 62, 4,
+    111, 73, 9,
+    108, 71, 4,
+    65, 44, 5,
+    93, 63, 9,
+    54, 37, 5,
+    51, 51, 0,
+    102, 71, 10,
+    69, 48, 5,
+    55, 39, 5,
+    53, 37, 5,
+    58, 39, 0,
+    45, 31, 4,
+};
+
+const uint8_t hamer[8][8] = {
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {22, 23, 16, 0, 0, 0, 0, 0},
+    {24, 17, 14, 0, 0, 0, 0, 0},
+    {1, 20, 13, 4, 5, 3, 2, 12},
+    {1, 18, 15, 10, 9, 8, 6, 7},
+    {21, 19, 25, 0, 0, 0, 0, 11},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+};
+const uint8_t hamer_palette[78] = {
+    0, 0, 0,
+    60, 2, 0,
+    248, 201, 20,
+    251, 180, 24,
+    253, 161, 25,
+    250, 166, 25,
+    250, 150, 29,
+    244, 148, 28,
+    247, 141, 29,
+    246, 133, 31,
+    249, 127, 30,
+    255, 51, 51,
+    235, 215, 19,
+    174, 106, 43,
+    146, 114, 94,
+    135, 81, 56,
+    255, 255, 218,
+    114, 69, 53,
+    93, 48, 33,
+    92, 57, 34,
+    86, 39, 27,
+    85, 0, 0,
+    63, 31, 0,
+    171, 136, 118,
+    59, 2, 0,
+    0, 85, 85,
 };
 
 // Initialize the display
@@ -79,27 +180,32 @@ void Display::drawGraphicalCursor(int x, int y, int size, uint16_t color, const 
     _tft.drawBitmap(x, y, cursor, size, size, color);
 }
 
-void Display::drawPixelArray(const uint32_t pixelArray[16][16], uint8_t pixelSize, uint16_t startX, uint16_t startY){
-    for (int y = 0; y < 16; y++) {
-        for (int x = 0; x < 16; x++) {
-            uint32_t color = pixelArray[y][x];
+void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart) {
+  // Iterate through each pixel in the 8x8 pixel array
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            // Get the pixel index from the array
+            uint8_t pixelIndex = pixels[y][x];
 
-            // Extract RGBA components
-            uint8_t alpha = (color >> 24) & 0xFF;  // Extract alpha (transparency)
-            uint8_t r = (color >> 16) & 0xFF;      // Extract red
-            uint8_t g = (color >> 8) & 0xFF;       // Extract green
-            uint8_t b = color & 0xFF;              // Extract blue
-
-            // If alpha is 0, skip drawing the pixel (transparent)
-            if (alpha == 0) {
-                continue;  // Skip the pixel, making it transparent
+            // If the pixel is black (assuming black is represented by 0 in the palette)
+            if (pixelIndex == 0) {
+                continue; // Skip drawing black pixels
             }
-            // Otherwise, draw the pixel using RGB565 color format
-            _tft.fillRect(startX + x * pixelSize, startY + y * pixelSize, pixelSize, pixelSize, _tft.color565(r, g, b));
+
+            // Get the corresponding color from the palette
+            uint8_t red = palette[pixelIndex * 3];
+            uint8_t green = palette[pixelIndex * 3 + 1];
+            uint8_t blue = palette[pixelIndex * 3 + 2];
+
+            // Calculate the position where the pixel will be drawn
+            int xPos = xStart + x * pixelSize;
+            int yPos = yStart + y * pixelSize;
+
+            // Draw the pixel (or rectangle for the given pixel size)
+            _tft.fillRect(xPos, yPos, pixelSize, pixelSize, _tft.color565(red, green, blue));
         }
     }
 }
-
 
 //TODO Mol of hamer tekenen
 //TODO knoppen reageren
@@ -161,6 +267,7 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score){
     _tft.print(text);
 }
 
+//TODO tekenen dynamische molshopen
 void Display::drawGame(){
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
 
@@ -198,7 +305,9 @@ void Display::drawGame(){
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 15);
         _tft.print(text);
 
-        drawPixelArray(mol, 6, 100, 100);
+        drawPixelArray(mol, mol_palette, 4, 100, 100);
+        drawPixelArray(hol, hol_palette, 4, 100, 160);
+        drawPixelArray(hamer, hamer_palette, 4, 150, 100);
 }
 
 //TODO tijd afnemen
