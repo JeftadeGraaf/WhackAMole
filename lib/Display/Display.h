@@ -5,6 +5,9 @@
 #include "Fonts/InriaSans_Regular8pt7b.h"
 #include "Fonts/IrishGrover_Regular8pt7b.h"
 
+#include <SD.h>
+#include <SPI.h>
+
 class Display {
 public:
     Display(int backlight_pin, int tft_cs, int tft_dc);
@@ -12,7 +15,7 @@ public:
     void refresh_backlight();
     void drawGraphicalCursor(int x, int y, int size, uint16_t color, const uint8_t cursor[]);
     void drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart);
-    void drawGameOverMenu(uint8_t player_score, uint8_t opponent_score);
+    void drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mol_win);
     void drawGame();
     void updateGame(uint8_t score);
     void calcCenterScreenText(String text, uint8_t textSize);

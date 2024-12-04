@@ -105,7 +105,7 @@ const uint8_t hamer[8][8] = {
     {24, 17, 14, 0, 0, 0, 0, 0},
     {1, 20, 13, 4, 5, 3, 2, 12},
     {1, 18, 15, 10, 9, 8, 6, 7},
-    {21, 19, 25, 0, 0, 0, 0, 11},
+    {21, 19, 25, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0},
 };
 const uint8_t hamer_palette[78] = {
@@ -166,6 +166,7 @@ void Display::init() {
     _tft.setRotation(1);
 }
 
+// Change the brightness of the display based on the potmeter value
 void Display::refresh_backlight() {
     // Add code to refresh the backlight as needed
     if(!(ADCSRA & (1<<ADSC))){
@@ -175,11 +176,13 @@ void Display::refresh_backlight() {
     ADCSRA |= (1<<ADSC);
 }
 
+// Draw a bitmap
 void Display::drawGraphicalCursor(int x, int y, int size, uint16_t color, const uint8_t cursor[]) {
     // Use the tft object
     _tft.drawBitmap(x, y, cursor, size, size, color);
 }
 
+// Draw a pixelarray with the palette
 void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart) {
   // Iterate through each pixel in the 8x8 pixel array
     for (int y = 0; y < 8; y++) {
@@ -207,9 +210,8 @@ void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[]
     }
 }
 
-//TODO Mol of hamer tekenen
 //TODO knoppen reageren
-void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score){
+void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mol_win){
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
 
     for(uint16_t j = 0; j < SCREEN_HEIGHT / pixelSize; j++){
@@ -217,8 +219,8 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score){
         {
             // Generate random RGB values biased towards green
             uint8_t red = 32 + rand() % 32;     // Red: 32 to 63 (brighter)
-            uint8_t green = 200 + rand() % 56; // Green: 200 to 255 (dominant)
-            uint8_t blue = 16 + rand() % 32;   // Blue: 16 to 47 (reduced range)
+            uint8_t green = 200 + rand() % 56;  // Green: 200 to 255 (dominant)
+            uint8_t blue = 16 + rand() % 32;    // Blue: 16 to 47 (reduced range)
 
             // Convert to RGB565
             uint16_t color = ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
@@ -265,6 +267,15 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score){
     text = "C: Save name";
     _tft.setCursor(11, 220);
     _tft.print(text);
+
+    if(mol_win){
+        drawPixelArray(mol, mol_palette, 8, 150, 150);
+        drawPixelArray(hol, hol_palette, 8, 150, 160);
+        drawPixelArray(hamer, hamer_palette, 8, 230, 150);
+    } else {
+        drawPixelArray(hol, hol_palette, 8, 180, 160);
+        drawPixelArray(hamer, hamer_palette, 8, 200, 150);
+    }
 }
 
 //TODO tekenen dynamische molshopen
@@ -327,7 +338,7 @@ void Display::updateGame(uint8_t score){
 
     _tft.setTextColor(ILI9341_BLACK);
         _tft.setCursor(2, 30);
-        _tft.print(String(time--));
+        _tft.print(String(time--)); //Nieuwe tijd meegeven
         
         text = String(score);
         calcCenterScreenText(text, 1);

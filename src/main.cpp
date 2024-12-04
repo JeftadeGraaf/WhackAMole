@@ -93,9 +93,9 @@ int main(void) {
 	display.clearScreen();
     init_nunchuck();
 
-    // display.drawGameOverMenu(120, 188);
-    display.drawGame();
-    display.updateGame(0); //both range within 0-255
+    display.drawGameOverMenu(120, 188, false);
+    // display.drawGame();
+    // display.updateGame(0); //both range within 0-255
 
 	while (1) {
     // Refresh the backlight (simulate brightness adjustments)
