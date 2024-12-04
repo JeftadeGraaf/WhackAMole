@@ -34,7 +34,6 @@ uint8_t last_cursor_y = 0;                  //Used to temporarily store last cur
 
 #define BACKLIGHT_PIN 5
 
-// For the Adafruit shield, these are the default.
 #define TFT_DC 9
 #define TFT_CS 10
 
@@ -53,21 +52,34 @@ int main(void) {
 	display.init();     
 	display.refreshBacklight();
 	display.clearScreen();
-    init_nunchuck();
+    // init_nunchuck();
 
     // display.drawGameOverMenu(120, 188, false);
-    // display.drawGame();
+    // display.drawGame(9);
     // display.updateGame(0); //both range within 0-255
     // display.drawStartMenu();
     // display.drawChooseCharacter();
-    display.drawHighscores();
+    // display.drawHighscores();
 
 	while (1) {
-    // Refresh the backlight (simulate brightness adjustments)
-    display.refreshBacklight();
+        // Refresh the backlight (simulate brightness adjustments)
+        display.refreshBacklight();
 
-    _delay_ms(10);  // Small delay for stability
-}
+        display.drawGameOverMenu(120, 188, false);
+        _delay_ms(3000);
+        display.drawGameOverMenu(150, 120, true);
+        _delay_ms(3000);
+        display.drawGame(9);
+        _delay_ms(3000);
+        display.updateGame(0); //both range within 0-255
+        _delay_ms(3000);
+        display.drawStartMenu();
+        _delay_ms(3000);
+        display.drawChooseCharacter();
+        _delay_ms(3000);
+        display.drawHighscores();
+        _delay_ms(3000);
+    }
 	//never reach
 	return 0;
 }
