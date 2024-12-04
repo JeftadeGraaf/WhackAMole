@@ -38,49 +38,11 @@ uint8_t last_cursor_y = 0;                  //Used to temporarily store last cur
 #define TFT_DC 9
 #define TFT_CS 10
 
-//Bitmap for cursor
-const uint8_t cursorBitmap[128] PROGMEM = {
-  0x00, 0x00, 0x00, 0x00, // Row 1
-  0x00, 0x00, 0x00, 0x00, // Row 2
-  0x00, 0x0C, 0x00, 0x00, // Row 3
-  0x00, 0x12, 0x00, 0x00, // Row 4
-  0x00, 0x12, 0x00, 0x00, // Row 5
-  0x00, 0x12, 0x00, 0x00, // Row 6
-  0x00, 0x12, 0x00, 0x00, // Row 7
-  0x00, 0x12, 0x00, 0x00, // Row 8
-  0x00, 0x13, 0x80, 0x00, // Row 9
-  0x00, 0x12, 0x78, 0x00, // Row 10
-  0x00, 0x12, 0x78, 0x00, // Row 11
-  0x00, 0x12, 0x46, 0x00, // Row 12
-  0x00, 0x12, 0x45, 0x00, // Row 13
-  0x01, 0xD2, 0x44, 0x80, // Row 14
-  0x01, 0xD0, 0x04, 0x80, // Row 15
-  0x01, 0x30, 0x04, 0x80, // Row 16
-  0x01, 0x10, 0x00, 0x80, // Row 17
-  0x00, 0x80, 0x00, 0x80, // Row 18
-  0x00, 0x40, 0x00, 0x80, // Row 19
-  0x00, 0x40, 0x00, 0x80, // Row 20
-  0x00, 0x40, 0x00, 0x80, // Row 21
-  0x00, 0x20, 0x00, 0x80, // Row 22
-  0x00, 0x20, 0x01, 0x00, // Row 23
-  0x00, 0x10, 0x01, 0x00, // Row 24
-  0x00, 0x10, 0x01, 0x00, // Row 25
-  0x00, 0x10, 0x01, 0x00, // Row 26
-  0x00, 0x08, 0x02, 0x00, // Row 27
-  0x00, 0x08, 0x02, 0x00, // Row 28
-  0x00, 0x08, 0x02, 0x00, // Row 29
-  0x00, 0x0F, 0xFE, 0x00, // Row 30
-  0x00, 0x00, 0x00, 0x00, // Row 31
-  0x00, 0x00, 0x00, 0x00  // Row 32
-};
-
 // Create display objects
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 
 // prototypes
-bool nunchuck_show_state_TEST();    //Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
-void update_cursor_coordinates();   //Update the cursors coordinate based on nunchuk movement
-void draw_cursor();
+bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
 bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
 
@@ -89,17 +51,20 @@ int main(void) {
 	Serial.begin(BAUDRATE);
 	// Initialize backlight
 	display.init();     
-	display.refresh_backlight();
+	display.refreshBacklight();
 	display.clearScreen();
     init_nunchuck();
 
-    display.drawGameOverMenu(120, 188, false);
+    // display.drawGameOverMenu(120, 188, false);
     // display.drawGame();
     // display.updateGame(0); //both range within 0-255
+    // display.drawStartMenu();
+    display.drawChooseCharacter();
+    // display.drawHighscores();
 
 	while (1) {
     // Refresh the backlight (simulate brightness adjustments)
-    display.refresh_backlight();
+    display.refreshBacklight();
 
     _delay_ms(10);  // Small delay for stability
 }
@@ -107,44 +72,7 @@ int main(void) {
 	return 0;
 }
 
-void redraw_cursor(){
-    if (cursor_x != last_cursor_x || cursor_y != last_cursor_y) {
-        // Erase the previous cursor position
-        display.drawGraphicalCursor(last_cursor_x, last_cursor_y, 32, ILI9341_BLACK, cursorBitmap);
-
-        // Draw the new cursor position
-        display.drawGraphicalCursor(cursor_x, cursor_y, 32, ILI9341_WHITE, cursorBitmap);
-    }
-
-    // Update previous cursor coordinates
-    last_cursor_x = cursor_x;
-    last_cursor_y = cursor_y;
-}
-
-void update_cursor_coordinates(){
-	Nunchuk.getState(NUNCHUK_ADDRESS);      //Update Nunchuk state
-
-    //Retrieve values from class
-	uint8_t NunchukX = Nunchuk.state.joy_x_axis;    
-	uint8_t NunchukY = Nunchuk.state.joy_y_axis;
-
-    //Horizontal movement
-	if (NunchukX > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_x < DISPLAY_MAX_X) {
-        cursor_x += NUNCHUK_X_SENSITIVITY;      //move right
-    } else if (NunchukX < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_x > DISPLAY_MIN_X) {
-        cursor_x -= NUNCHUK_X_SENSITIVITY;  //move left
-    }
-
-    //Vertical movement
-    if (NunchukY > NUNCHUK_CENTER_VALUE + NUNCHUK_DEADZONE && cursor_y > DISPLAY_MIN_Y) {
-        cursor_y -= NUNCHUK_Y_SENSITIVITY;  //move up
-    } else if (NunchukY < NUNCHUK_CENTER_VALUE - NUNCHUK_DEADZONE && cursor_y < DISPLAY_MAX_Y) {
-        cursor_y += NUNCHUK_Y_SENSITIVITY;  //move down
-    }
-
-    redraw_cursor();
-}
-
+//Init nunchuk
 bool init_nunchuck(){
 	Serial.print("-------- Connecting to nunchuk at address 0x");
 	Serial.println(NUNCHUK_ADDRESS, HEX);
@@ -162,6 +90,7 @@ bool init_nunchuck(){
 	return true;
 }
 
+//Nunchuk test function
 bool nunchuck_show_state_TEST() {
     //Print Nunchuk state
 	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
@@ -173,15 +102,11 @@ bool nunchuck_show_state_TEST() {
     Serial.println("------State data--------------------------");
     Serial.print("Joy X: ");
     Serial.print(Nunchuk.state.joy_x_axis);
-    Serial.print("\t\tAccel X: ");
-    Serial.print(Nunchuk.state.accel_x_axis);
     Serial.print("\t\tButton C: ");
     Serial.println(Nunchuk.state.c_button);
 
     Serial.print("Joy Y: ");
     Serial.print(Nunchuk.state.joy_y_axis);
-    Serial.print("\t\tAccel Y: ");
-    Serial.print(Nunchuk.state.accel_y_axis);
     Serial.print("\t\tButton Z: ");
     Serial.println(Nunchuk.state.z_button);
 
@@ -191,6 +116,7 @@ bool nunchuck_show_state_TEST() {
 		return(true);
 }
 
+//Init IR settings
 void init_IR_transmitter_timer0(){
 	DDRD |= (1 << DDD6);        // IR LED output
 	TCCR0B |= (1 << CS00);      // no prescaler

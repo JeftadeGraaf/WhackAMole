@@ -1,21 +1,5 @@
 #include "Display.h"
 
-const uint32_t SCREEN_WIDTH = 320;
-const uint16_t SCREEN_HEIGHT = 240;
-
-//calcCenterScreenText function:
-int16_t x1, y1;
-uint16_t textWidth, textHeight;
-uint16_t x, y;
-String text;
-
-//Draw screens functions
-const uint8_t pixelSize = 10;
-
-//updateGame function
-uint8_t time = 60;    //starting time
-uint8_t oldScore = 0;   //starting score
-
 const uint8_t mol[8][8] = {
     {36, 13, 34, 10, 26, 38, 13, 37},
     {39, 4, 17, 6, 6, 19, 4, 2},
@@ -167,19 +151,13 @@ void Display::init() {
 }
 
 // Change the brightness of the display based on the potmeter value
-void Display::refresh_backlight() {
+void Display::refreshBacklight() {
     // Add code to refresh the backlight as needed
     if(!(ADCSRA & (1<<ADSC))){
         OCR0B = ADCH;
     }
 
     ADCSRA |= (1<<ADSC);
-}
-
-// Draw a bitmap
-void Display::drawGraphicalCursor(int x, int y, int size, uint16_t color, const uint8_t cursor[]) {
-    // Use the tft object
-    _tft.drawBitmap(x, y, cursor, size, size, color);
 }
 
 // Draw a pixelarray with the palette
@@ -210,93 +188,10 @@ void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[]
     }
 }
 
-//TODO knoppen reageren
-void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mol_win){
-    _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
-
-    for(uint16_t j = 0; j < SCREEN_HEIGHT / pixelSize; j++){
-        for (uint16_t i = 0; i < SCREEN_WIDTH / pixelSize; i++)
-        {
-            // Generate random RGB values biased towards green
-            uint8_t red = 32 + rand() % 32;     // Red: 32 to 63 (brighter)
-            uint8_t green = 200 + rand() % 56;  // Green: 200 to 255 (dominant)
-            uint8_t blue = 16 + rand() % 32;    // Blue: 16 to 47 (reduced range)
-
-            // Convert to RGB565
-            uint16_t color = ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
-
-            // Draw the rectangle with the random green shade
-            _tft.fillRect(i * pixelSize, 37 + j * pixelSize, pixelSize, pixelSize, color);
-        }
-    }
-
-    _tft.setTextColor(ILI9341_BLACK);
-
-    _tft.setFont(&IrishGrover_Regular8pt7b);
-
-    text = "Whack a Mole";
-    calcCenterScreenText(text, 2);
-    _tft.setCursor(x, 30);
-    _tft.print(text);
-
-    if(player_score > opponent_score){
-        text = "You Won!";
-    } else {
-        text = "You Lost!";
-    }
-    calcCenterScreenText(text, 2);
-    _tft.setCursor(x, 90);
-    _tft.print(text);
-
-    _tft.setFont(&InriaSans_Regular8pt7b);
-
-    text = "Your score: " + String(player_score);
-    calcCenterScreenText(text, 1);
-    _tft.setCursor(x, 120);
-    _tft.print(text);
-
-    text = "Opponents score: " + String(opponent_score);
-    calcCenterScreenText(text, 1);
-    _tft.setCursor(x, 136);
-    _tft.print(text);
-
-    text = "Z: Return to menu";
-    _tft.setCursor(11, 200);
-    _tft.print(text);
-
-    text = "C: Save name";
-    _tft.setCursor(11, 220);
-    _tft.print(text);
-
-    if(mol_win){
-        drawPixelArray(mol, mol_palette, 8, 150, 150);
-        drawPixelArray(hol, hol_palette, 8, 150, 160);
-        drawPixelArray(hamer, hamer_palette, 8, 230, 150);
-    } else {
-        drawPixelArray(hol, hol_palette, 8, 180, 160);
-        drawPixelArray(hamer, hamer_palette, 8, 200, 150);
-    }
-}
-
 //TODO tekenen dynamische molshopen
-void Display::drawGame(){
+void Display::drawGame(uint8_t heaps){
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
-
-    for(uint16_t j = 0; j < SCREEN_HEIGHT / pixelSize; j++){
-        for (uint16_t i = 0; i < SCREEN_WIDTH / pixelSize; i++)
-        {
-            // Generate random RGB values biased towards green
-            uint8_t red = 32 + rand() % 32;     // Red: 32 to 63 (brighter)
-            uint8_t green = 200 + rand() % 56; // Green: 200 to 255 (dominant)
-            uint8_t blue = 16 + rand() % 32;   // Blue: 16 to 47 (reduced range)
-
-            // Convert to RGB565
-            uint16_t color = ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
-
-            // Draw the rectangle with the random green shade
-            _tft.fillRect(i * pixelSize, 37 + j * pixelSize, pixelSize, pixelSize, color);
-        }
-    }
+    drawPixelField(37);
 
     _tft.setTextColor(ILI9341_BLACK);
 
@@ -346,12 +241,171 @@ void Display::updateGame(uint8_t score){
         _tft.print(text);
 }
 
+//TODO knoppen reageren
+void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mol_win){
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
+    drawPixelField(37);
+
+    _tft.setTextColor(ILI9341_BLACK);
+
+    _tft.setFont(&IrishGrover_Regular8pt7b);
+        text = "Whack a Mole";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 30);
+        _tft.print(text);
+
+        if(player_score > opponent_score){
+            text = "You Won!";
+        } else {
+            text = "You Lost!";
+        }
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 90);
+        _tft.print(text);
+
+    _tft.setFont(&InriaSans_Regular8pt7b);
+        text = "Your score: " + String(player_score);
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(x, 120);
+        _tft.print(text);
+
+        text = "Opponents score: " + String(opponent_score);
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(x, 136);
+        _tft.print(text);
+
+        text = "Z: Return to menu";
+        _tft.setCursor(11, 200);
+        _tft.print(text);
+
+        text = "C: Save name";
+        _tft.setCursor(11, 220);
+        _tft.print(text);
+
+    if(mol_win){
+        drawPixelArray(mol, mol_palette, 8, 150, 150);
+        drawPixelArray(hol, hol_palette, 8, 150, 160);
+        drawPixelArray(hamer, hamer_palette, 8, 230, 150);
+    } else {
+        drawPixelArray(hol, hol_palette, 8, 180, 160);
+        drawPixelArray(hamer, hamer_palette, 8, 200, 150);
+    }
+}
+
+//TODO geselecteerd knop duidelijk maken
+//TODO knoppen reageren
+void Display::drawStartMenu(){
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 155, SKY_BLUE);
+    drawPixelField(155);
+
+    _tft.setTextColor(ILI9341_BLACK);
+
+    _tft.setFont(&IrishGrover_Regular8pt7b);
+        text = "Whack a Mole";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 30);
+        _tft.print(text);
+
+    _tft.setFont(&InriaSans_Regular8pt7b);
+        _tft.setTextSize(2);
+        _tft.setCursor(30, 80);
+        _tft.print("Start");
+
+        _tft.setCursor(30, 115);
+        _tft.print("Highscores");
+
+    drawPixelArray(mol, mol_palette, 10, 200, 50);
+    drawPixelArray(hol, hol_palette, 10, 200, 130);
+}
+
+//TODO geselecteerd karakter duidelijk maken
+//Todo selectie reageert
+void Display::drawChooseCharacter(){
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 155, SKY_BLUE);
+    drawPixelField(155);
+
+    _tft.setTextColor(ILI9341_BLACK);
+
+    _tft.setFont(&IrishGrover_Regular8pt7b);
+        text = "Choose your";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 40);
+        _tft.print(text);
+        text = "character";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 80);
+        _tft.print(text);
+
+    _tft.setFont(&InriaSans_Regular8pt7b);
+        text = "Mole";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x / 2 - 20, 120);
+        _tft.print(text);
+        drawPixelArray(mol, mol_palette, 8, x / 2 - 20, 150);
+        drawPixelArray(hol, hol_palette, 8, x / 2 - 20, 160);
+        text = "Hammer";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x * 1.5 + 20, 120);
+        _tft.print(text);
+        drawPixelArray(hamer, hamer_palette, 8, x * 2 + 10, 150);
+
+}
+
+void Display::drawHighscores(){
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 189, SKY_BLUE);
+    drawPixelField(189);
+
+    _tft.setTextColor(ILI9341_BLACK);
+
+    _tft.setFont(&IrishGrover_Regular8pt7b);
+        text = "Whack a Mole";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 35);
+        _tft.print(text);
+    
+    _tft.drawLine(20, 70, 300, 70, ILI9341_BLACK);      //Horizontal
+    _tft.drawLine(160, 55, 160, 180, ILI9341_BLACK);    //Vertical
+
+    _tft.setFont(&InriaSans_Regular8pt7b);
+        text = "Highscores";
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(x, 51);
+        _tft.print(text);
+
+        text = "Mole";
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(x * 1.5, 68);
+        _tft.print(text);
+        text = "Hammer";
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(x / 2, 68);
+        _tft.print(text);
+}
+
 void Display::calcCenterScreenText(String text, uint8_t textSize){
     _tft.setTextSize(textSize);
     _tft.getTextBounds(text, 0, 0, &x1, &y1, &textWidth, &textHeight);
     // Center the text on the screen
     x = (SCREEN_WIDTH - textWidth) / 2;
     y = (SCREEN_HEIGHT - textHeight) / 2;
+}
+
+void Display::drawPixelField(uint8_t y){
+    for(uint16_t j = 0; j < SCREEN_HEIGHT / pixelSize; j++){
+        for (uint16_t i = 0; i < SCREEN_WIDTH / pixelSize; i++)
+        {
+            // Generate random RGB values biased towards green
+            uint8_t red = 32 + rand() % 32;     // Red: 32 to 63 (brighter)
+            uint8_t green = 200 + rand() % 56;  // Green: 200 to 255 (dominant)
+            uint8_t blue = 16 + rand() % 32;    // Blue: 16 to 47 (reduced range)
+
+            // Convert to RGB565
+            uint16_t color = ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
+
+            // Draw the rectangle with the random green shade
+            _tft.fillRect(i * pixelSize, y + j * pixelSize, pixelSize, pixelSize, color);
+        }
+    }
 }
 
 void Display::clearScreen() {
