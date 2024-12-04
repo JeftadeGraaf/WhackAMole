@@ -68,7 +68,6 @@ int main(void) {
     sei(); // Enable global interrupts
     uint16_t msg = 0b00000000000;
 
-
 	// Initialize backlight
 	display.init();     
 	display.refreshBacklight();
