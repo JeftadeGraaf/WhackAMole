@@ -59,8 +59,8 @@ int main(void) {
     // display.drawGame();
     // display.updateGame(0); //both range within 0-255
     // display.drawStartMenu();
-    display.drawChooseCharacter();
-    // display.drawHighscores();
+    // display.drawChooseCharacter();
+    display.drawHighscores();
 
 	while (1) {
     // Refresh the backlight (simulate brightness adjustments)

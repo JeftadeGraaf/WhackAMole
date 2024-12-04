@@ -351,6 +351,7 @@ void Display::drawChooseCharacter(){
 
 }
 
+//TODO highscores opslaan en displayen (EEPROM)
 void Display::drawHighscores(){
     _tft.fillRect(0, 0, SCREEN_WIDTH, 189, SKY_BLUE);
     drawPixelField(189);
@@ -380,6 +381,20 @@ void Display::drawHighscores(){
         calcCenterScreenText(text, 1);
         _tft.setCursor(x / 2, 68);
         _tft.print(text);
+
+        uint8_t highscoresY = 85;
+        for(uint8_t i = 0; i < 5; i++){
+            _tft.setCursor(24, highscoresY);
+            _tft.print(String(123));            //TODO aanpassen naar highscore
+            _tft.setCursor(90, highscoresY);    //TODO tweaken voor lengte naam
+            _tft.print("opponent");             //TODO aanpassen naar speler naam
+
+            _tft.setCursor(164, highscoresY);
+            _tft.print(String(123));            //TODO aanpassen naar highscore
+            _tft.setCursor(230, highscoresY);   //TODO tweaken voor lengte naam
+            _tft.print("opponent");             //TODO aanpassen naar speler naam
+            highscoresY+=18;
+        }
 }
 
 void Display::calcCenterScreenText(String text, uint8_t textSize){
