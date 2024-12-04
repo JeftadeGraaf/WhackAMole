@@ -1,4 +1,4 @@
-#include <avr/io.h>
+#include <IRComm.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <Wire.h>
@@ -9,6 +9,9 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
+
+// Instance of IR object
+IRComm ir;
 
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
@@ -45,14 +48,32 @@ bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCH
 bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
 
+//Interrupts
+ISR(INT0_vect){
+    ir.onReceiveInterrupt();
+}
+
+ISR(TIMER1_OVF_vect){
+    ir.onTimer1Overflow();
+}
+
+ISR(TIMER0_COMPA_vect){
+    ir.onTimer0CompareMatch();
+}
+
 int main(void) {
-	sei(); // Enable global interrupts
-	Serial.begin(BAUDRATE);
+
+    Serial.begin(BAUDRATE);
+    ir.initialize();
+    sei(); // Enable global interrupts
+    uint16_t msg = 0b00000000000;
+
+
 	// Initialize backlight
 	display.init();     
 	display.refreshBacklight();
 	display.clearScreen();
-    // init_nunchuck();
+    init_nunchuck();
 
     // display.drawGameOverMenu(120, 188, false);
     // display.drawGame(9);
@@ -65,20 +86,16 @@ int main(void) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
 
-        display.drawGameOverMenu(120, 188, false);
-        _delay_ms(3000);
-        display.drawGameOverMenu(150, 120, true);
-        _delay_ms(3000);
-        display.drawGame(9);
-        _delay_ms(3000);
-        display.updateGame(0); //both range within 0-255
-        _delay_ms(3000);
-        display.drawStartMenu();
-        _delay_ms(3000);
-        display.drawChooseCharacter();
-        _delay_ms(3000);
-        display.drawHighscores();
-        _delay_ms(3000);
+        if(ir.isBufferReady()){
+            uint16_t data = ir.decodeIRMessage();
+            Serial.print("Received data: ");
+            Serial.println(data);
+            msg = data + 1;
+            _delay_ms(200);
+        }
+        else {
+            ir.sendFrame(msg);
+        }
     }
 	//never reach
 	return 0;
