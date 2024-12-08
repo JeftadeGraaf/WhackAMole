@@ -23,6 +23,16 @@ public:
 
     void clearScreen();
 
+    enum Screens {
+        game,
+        gameOver,
+        startMenu,
+        chooseCharacter,
+        highscores
+    };
+
+    Screens displayedScreen;
+
 private:
     void calcCenterScreenText(String text, uint8_t textSize);
     void drawPixelField(uint8_t y);
@@ -46,7 +56,11 @@ private:
     //Draw screens() variables
     const uint8_t pixelSize = 10;
 
-    
+    //updateGame() variables
+    uint8_t time = 60;    //starting time
+    uint8_t oldScore = 0; //starting score
+
+    //Variables for selector and heap generation. updateGame() and drawGame() functions
     uint16_t selectWidthHeight = 0;
     uint8_t multiplySize = 0;
 
@@ -58,10 +72,6 @@ private:
     uint8_t Ycrement = 0;
     uint16_t Xmax = 0;
     uint8_t Ymax = 0;
-
-    //updateGame() variables
-    uint8_t time = 60;    //starting time
-    uint8_t oldScore = 0; //starting score
 };
 
 #endif

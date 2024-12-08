@@ -163,13 +163,12 @@ void Display::refreshBacklight() {
 
 // Draw a pixelarray with the palette
 void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart) {
-  // Iterate through each pixel in the 8x8 pixel array
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
             // Get the pixel index from the array
             uint8_t pixelIndex = pixels[y][x];
 
-            // If the pixel is black (assuming black is represented by 0 in the palette)
+            // If the pixel is black
             if (pixelIndex == 0) {
                 continue; // Skip drawing black pixels
             }
@@ -183,18 +182,20 @@ void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[]
             int xPos = xStart + x * pixelSize;
             int yPos = yStart + y * pixelSize;
 
-            // Draw the pixel (or rectangle for the given pixel size)
+            // Draw the pixel
             _tft.fillRect(xPos, yPos, pixelSize, pixelSize, _tft.color565(red, green, blue));
         }
     }
 }
 
 void Display::drawGame(uint8_t heaps){
+    displayedScreen = game;
+    //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
     drawPixelField(37);
 
+    //Write text
     _tft.setTextColor(ILI9341_BLACK);
-
     _tft.setFont(&IrishGrover_Regular8pt7b);
         text = "Whack a Mole";
         calcCenterScreenText(text, 2);
@@ -281,11 +282,12 @@ void Display::drawGame(uint8_t heaps){
 
 //TODO tijd afnemen
 //TODO score incrementen
-//TODO geselecteerde molshoop duidelijk maken
+//TODO geselecteerde molshoop reageren op knop
+//TODO mol of hamer reageren
 void Display::updateGame(uint8_t score){
+    //Dynamic Time and Score
     _tft.setFont(&InriaSans_Regular8pt7b);
     _tft.setTextSize(1);
-
     _tft.setTextColor(SKY_BLUE);
         _tft.setCursor(2, 30);
         _tft.print(String(time));
@@ -297,13 +299,14 @@ void Display::updateGame(uint8_t score){
 
     _tft.setTextColor(ILI9341_BLACK);
         _tft.setCursor(2, 30);
-        _tft.print(String(time)); //Nieuwe tijd meegeven
+        _tft.print(String(time));
         
         text = String(score);
         calcCenterScreenText(text, 1);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
         _tft.print(text);
 
+    //Update te selected hole
     _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
         if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartX != Xmax){
             dynamicStartX+=Xcrement; //Move right
@@ -321,18 +324,21 @@ void Display::updateGame(uint8_t score){
 }
 
 //TODO knoppen reageren
-void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mol_win){
+void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mole_win){
+    displayedScreen = gameOver;
+    //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
     drawPixelField(37);
 
+    //Write text
     _tft.setTextColor(ILI9341_BLACK);
-
     _tft.setFont(&IrishGrover_Regular8pt7b);
         text = "Whack a Mole";
         calcCenterScreenText(text, 2);
         _tft.setCursor(x, 30);
         _tft.print(text);
 
+        //If player won
         if(player_score > opponent_score){
             text = "You Won!";
         } else {
@@ -361,7 +367,8 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
         _tft.setCursor(11, 220);
         _tft.print(text);
 
-    if(mol_win){
+    //If mole won, draw mole. Else, draw hammer
+    if(mole_win){
         drawPixelArray(mol, mol_palette, 8, 150, 150);
         drawPixelArray(hol, hol_palette, 8, 150, 160);
         drawPixelArray(hamer, hamer_palette, 8, 230, 150);
@@ -374,11 +381,13 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
 //TODO geselecteerd knop duidelijk maken
 //TODO knoppen reageren
 void Display::drawStartMenu(){
+    displayedScreen = startMenu;
+    //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 155, SKY_BLUE);
     drawPixelField(155);
 
+    //Write text
     _tft.setTextColor(ILI9341_BLACK);
-
     _tft.setFont(&IrishGrover_Regular8pt7b);
         text = "Whack a Mole";
         calcCenterScreenText(text, 2);
@@ -400,6 +409,7 @@ void Display::drawStartMenu(){
 //TODO geselecteerd karakter duidelijk maken
 //Todo selectie reageert
 void Display::drawChooseCharacter(){
+    displayedScreen = chooseCharacter;
     _tft.fillRect(0, 0, SCREEN_WIDTH, 155, SKY_BLUE);
     drawPixelField(155);
 
@@ -432,11 +442,13 @@ void Display::drawChooseCharacter(){
 
 //TODO highscores opslaan en displayen (EEPROM)
 void Display::drawHighscores(){
+    displayedScreen = highscores;
+    //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 189, SKY_BLUE);
     drawPixelField(189);
 
+    //Write text
     _tft.setTextColor(ILI9341_BLACK);
-
     _tft.setFont(&IrishGrover_Regular8pt7b);
         text = "Whack a Mole";
         calcCenterScreenText(text, 2);

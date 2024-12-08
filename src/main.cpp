@@ -79,8 +79,8 @@ int main(void) {
 	display.clearScreen();
     init_nunchuck();
 
-    // display.drawGameOverMenu(120, 188, false);
-    display.drawGame(hammerEasy_moleHard);
+    display.drawGameOverMenu(120, 188, false);
+    // display.drawGame(hammerEasy_moleHard);
     // display.drawStartMenu();
     // display.drawChooseCharacter();
     // display.drawHighscores();
@@ -90,7 +90,6 @@ int main(void) {
         display.refreshBacklight();
 
         Nunchuk.getState(NUNCHUK_ADDRESS);
-        display.updateGame(score); //both range within 0-255
 
         if(ir.isBufferReady()){
             uint16_t data = ir.decodeIRMessage();
