@@ -1,7 +1,7 @@
 #include "Display.h"
 
 const uint8_t mol[8][8] = {
-    {36, 13, 34, 10, 26, 38, 13, 37},
+    {0, 13, 34, 10, 26, 38, 13, 0},
     {39, 4, 17, 6, 6, 19, 4, 2},
     {0, 23, 16, 5, 5, 3, 24, 2},
     {35, 31, 15, 14, 14, 7, 28, 30},
@@ -188,7 +188,6 @@ void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[]
     }
 }
 
-//TODO tekenen dynamische molshopen
 void Display::drawGame(uint8_t heaps){
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
     drawPixelField(37);
@@ -211,13 +210,49 @@ void Display::drawGame(uint8_t heaps){
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 15);
         _tft.print(text);
 
-        drawPixelArray(mol, mol_palette, 4, 100, 100);
-        drawPixelArray(hol, hol_palette, 4, 100, 160);
-        drawPixelArray(hamer, hamer_palette, 4, 150, 100);
+    if(heaps == 4){
+        int startX = 60;
+        int startY = 70;
+        for(uint8_t i = 0; i < 2; i++){
+            for(uint8_t i = 0; i < 2; i++){
+                drawPixelArray(hol, hol_palette, 6, startX, startY);
+                startX += 150;
+            }
+            startX = 60;
+            startY += 100;
+        }
+    }
+
+    if(heaps == 9){
+        int startX = 50;
+        int startY = 55;
+        for(uint8_t i = 0; i < 3; i++){
+            for(uint8_t i = 0; i < 3; i++){
+                drawPixelArray(hol, hol_palette, 5, startX, startY);
+                startX += 90;
+            }
+            startX = 50;
+            startY += 70;
+        }
+    }
+
+    if(heaps == 16){
+        int startX = 15;
+        int startY = 54;
+        for(uint8_t i = 0; i < 4; i++){
+            for(uint8_t i = 0; i < 4; i++){
+                drawPixelArray(hol, hol_palette, 4, startX, startY);
+                startX += 88;
+            }
+            startX = 15;
+            startY += 45;
+        }
+    }
 }
 
 //TODO tijd afnemen
 //TODO score incrementen
+//TODO geselecteerde molshoop duidelijk maken
 void Display::updateGame(uint8_t score){
     _tft.setFont(&InriaSans_Regular8pt7b);
     _tft.setTextSize(1);
@@ -239,6 +274,8 @@ void Display::updateGame(uint8_t score){
         calcCenterScreenText(text, 1);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
         _tft.print(text);
+
+    
 }
 
 //TODO knoppen reageren

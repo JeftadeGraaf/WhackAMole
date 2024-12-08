@@ -5,7 +5,6 @@
 #include "Fonts/InriaSans_Regular8pt7b.h"
 #include "Fonts/IrishGrover_Regular8pt7b.h"
 
-#include <SD.h>
 #include <SPI.h>
 
 class Display {

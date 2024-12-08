@@ -30,10 +30,14 @@ const uint16_t DISPLAY_MAX_X = 300;         //Max horizontal movement of cursor 
 const uint8_t DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor (left)
 const uint8_t DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
 const uint8_t DISPLAY_MIN_Y = 0;            //Min vertical movement of cursor (up)
-uint16_t cursor_x = 160;                    //Starting cursor x coordinate
-uint8_t cursor_y = 130;                     //Starting cursor y coordinate
-uint16_t last_cursor_x = 0;                 //Used to temporarily store last cursor x coordinate for screen refresh
-uint8_t last_cursor_y = 0;                  //Used to temporarily store last cursor y coordinate for screen refresh
+
+//Difficulty levels
+uint8_t hammerEasy_moleHard = 4;
+uint8_t medium = 9;
+uint8_t hammerHard_moleEasy = 16;
+
+//Game variables
+uint16_t score = 100;
 
 #define BACKLIGHT_PIN 5
 
@@ -75,8 +79,7 @@ int main(void) {
     init_nunchuck();
 
     // display.drawGameOverMenu(120, 188, false);
-    // display.drawGame(9);
-    // display.updateGame(0); //both range within 0-255
+    display.drawGame(hammerHard_moleEasy);
     // display.drawStartMenu();
     // display.drawChooseCharacter();
     // display.drawHighscores();
@@ -84,6 +87,9 @@ int main(void) {
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
+
+        Nunchuk.getState(NUNCHUK_ADDRESS);
+        display.updateGame(score); //both range within 0-255
 
         if(ir.isBufferReady()){
             uint16_t data = ir.decodeIRMessage();
