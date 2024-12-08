@@ -1,4 +1,5 @@
 #include "Display.h"
+#include "Nunchuk.h"
 
 const uint8_t mol[8][8] = {
     {0, 13, 34, 10, 26, 38, 13, 0},
@@ -211,48 +212,68 @@ void Display::drawGame(uint8_t heaps){
         _tft.print(text);
 
     if(heaps == 4){
-        multiplySize = 6;
-        startX = 60;
-        startY = 70;
+        multiplySize= 6;
+        startX      = 60;
+        startY      = 70;
+        dynamicStartX      = 15;
+        dynamicStartY      = 54;
+        Xcrement    = 150;
+        Ycrement    = 100;
+        Xmax        = 210;
+        Ymax        = 170;
         for(uint8_t i = 0; i < heaps/2; i++){
             for(uint8_t i = 0; i < heaps/2; i++){
                 drawPixelArray(hol, hol_palette, multiplySize, startX, startY);
-                startX += 150;
+                startX += Xcrement;
             }
             startX = 60;
-            startY += 100;
+            startY += Ycrement;
         }
         startY = 70;
+        dynamicStartX      = startX;
+        dynamicStartY      = startY;
     }
 
     if(heaps == 9){
-        multiplySize = 5;
-        startX = 50;
-        startY = 55;
+        multiplySize= 5;
+        startX      = 50;
+        startY      = 55;
+        Xcrement    = 90;
+        Ycrement    = 70;
+        Xmax        = 230;
+        Ymax        = 195;
         for(uint8_t i = 0; i < heaps/3; i++){
             for(uint8_t i = 0; i < heaps/3; i++){
                 drawPixelArray(hol, hol_palette, multiplySize, startX, startY);
-                startX += 90;
+                startX += Xcrement;
             }
             startX = 50;
-            startY += 70;
+            startY += Ycrement;
         }
         startY = 55;
+        dynamicStartX      = startX;
+        dynamicStartY      = startY;
     }
 
     if(heaps == 16){
-        multiplySize = 4;
-        startX = 15;
-        startY = 54;
+        multiplySize= 4;
+        startX      = 15;
+        startY      = 54;
+        Xcrement    = 88;
+        Ycrement    = 45;
+        Xmax        = 279;
+        Ymax        = 189;
         for(uint8_t i = 0; i < heaps/4; i++){
             for(uint8_t i = 0; i < heaps/4; i++){
                 drawPixelArray(hol, hol_palette, multiplySize, startX, startY);
-                startX += 88;
+                startX += Xcrement;
             }
             startX = 15;
-            startY += 45;
+            startY += Ycrement;
         }
         startY = 54;
+        dynamicStartX      = startX;
+        dynamicStartY      = startY;
     }
 
     selectWidthHeight = picturePixelSize * multiplySize;
@@ -283,9 +304,20 @@ void Display::updateGame(uint8_t score){
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
         _tft.print(text);
 
-    _tft.drawRect(startX-2, startY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
-    
-    _tft.drawRect(startX-2, startY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
+    _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
+        if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartX != Xmax){
+            dynamicStartX+=Xcrement; //Move right
+        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartX != startX){
+            dynamicStartX-=Xcrement; //Move left
+        }
+
+        if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartY != Ymax){
+            dynamicStartY+=Ycrement; //Move down
+        } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartY != startY){
+            dynamicStartY-=Ycrement; //Move up
+        }
+
+    _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
 }
 
 //TODO knoppen reageren

@@ -80,7 +80,7 @@ int main(void) {
     init_nunchuck();
 
     // display.drawGameOverMenu(120, 188, false);
-    display.drawGame(medium);
+    display.drawGame(hammerEasy_moleHard);
     // display.drawStartMenu();
     // display.drawChooseCharacter();
     // display.drawHighscores();

@@ -46,10 +46,18 @@ private:
     //Draw screens() variables
     const uint8_t pixelSize = 10;
 
-    int startX = 0;
-    int startY = 0;
+    
     uint16_t selectWidthHeight = 0;
     uint8_t multiplySize = 0;
+
+    unsigned int startX = 0;
+    unsigned int startY = 0;
+    unsigned int dynamicStartX = 0;
+    unsigned int dynamicStartY = 0;
+    uint8_t Xcrement = 0;
+    uint8_t Ycrement = 0;
+    uint16_t Xmax = 0;
+    uint8_t Ymax = 0;
 
     //updateGame() variables
     uint8_t time = 60;    //starting time
