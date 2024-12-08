@@ -31,6 +31,7 @@ const uint8_t DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor 
 const uint8_t DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
 const uint8_t DISPLAY_MIN_Y = 0;            //Min vertical movement of cursor (up)
 
+//TODO alleen 4, 9, 16 kunnen meegegeven worden aan drawGame() functie
 //Difficulty levels
 uint8_t hammerEasy_moleHard = 4;
 uint8_t medium = 9;
@@ -79,7 +80,7 @@ int main(void) {
     init_nunchuck();
 
     // display.drawGameOverMenu(120, 188, false);
-    display.drawGame(hammerHard_moleEasy);
+    display.drawGame(medium);
     // display.drawStartMenu();
     // display.drawChooseCharacter();
     // display.drawHighscores();

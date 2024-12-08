@@ -211,43 +211,51 @@ void Display::drawGame(uint8_t heaps){
         _tft.print(text);
 
     if(heaps == 4){
-        int startX = 60;
-        int startY = 70;
-        for(uint8_t i = 0; i < 2; i++){
-            for(uint8_t i = 0; i < 2; i++){
-                drawPixelArray(hol, hol_palette, 6, startX, startY);
+        multiplySize = 6;
+        startX = 60;
+        startY = 70;
+        for(uint8_t i = 0; i < heaps/2; i++){
+            for(uint8_t i = 0; i < heaps/2; i++){
+                drawPixelArray(hol, hol_palette, multiplySize, startX, startY);
                 startX += 150;
             }
             startX = 60;
             startY += 100;
         }
+        startY = 70;
     }
 
     if(heaps == 9){
-        int startX = 50;
-        int startY = 55;
-        for(uint8_t i = 0; i < 3; i++){
-            for(uint8_t i = 0; i < 3; i++){
-                drawPixelArray(hol, hol_palette, 5, startX, startY);
+        multiplySize = 5;
+        startX = 50;
+        startY = 55;
+        for(uint8_t i = 0; i < heaps/3; i++){
+            for(uint8_t i = 0; i < heaps/3; i++){
+                drawPixelArray(hol, hol_palette, multiplySize, startX, startY);
                 startX += 90;
             }
             startX = 50;
             startY += 70;
         }
+        startY = 55;
     }
 
     if(heaps == 16){
-        int startX = 15;
-        int startY = 54;
-        for(uint8_t i = 0; i < 4; i++){
-            for(uint8_t i = 0; i < 4; i++){
-                drawPixelArray(hol, hol_palette, 4, startX, startY);
+        multiplySize = 4;
+        startX = 15;
+        startY = 54;
+        for(uint8_t i = 0; i < heaps/4; i++){
+            for(uint8_t i = 0; i < heaps/4; i++){
+                drawPixelArray(hol, hol_palette, multiplySize, startX, startY);
                 startX += 88;
             }
             startX = 15;
             startY += 45;
         }
+        startY = 54;
     }
+
+    selectWidthHeight = picturePixelSize * multiplySize;
 }
 
 //TODO tijd afnemen
@@ -268,14 +276,16 @@ void Display::updateGame(uint8_t score){
 
     _tft.setTextColor(ILI9341_BLACK);
         _tft.setCursor(2, 30);
-        _tft.print(String(time--)); //Nieuwe tijd meegeven
+        _tft.print(String(time)); //Nieuwe tijd meegeven
         
         text = String(score);
         calcCenterScreenText(text, 1);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
         _tft.print(text);
 
+    _tft.drawRect(startX-2, startY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
     
+    _tft.drawRect(startX-2, startY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
 }
 
 //TODO knoppen reageren

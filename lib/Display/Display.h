@@ -22,6 +22,7 @@ public:
     void drawHighscores();
 
     void clearScreen();
+
 private:
     void calcCenterScreenText(String text, uint8_t textSize);
     void drawPixelField(uint8_t y);
@@ -31,6 +32,7 @@ private:
     
     const uint32_t SCREEN_WIDTH = 320;
     const uint16_t SCREEN_HEIGHT = 240;
+    const uint8_t picturePixelSize = 8;
 
     //refresh
     int _backlight_pin;
@@ -43,6 +45,11 @@ private:
 
     //Draw screens() variables
     const uint8_t pixelSize = 10;
+
+    int startX = 0;
+    int startY = 0;
+    uint16_t selectWidthHeight = 0;
+    uint8_t multiplySize = 0;
 
     //updateGame() variables
     uint8_t time = 60;    //starting time
