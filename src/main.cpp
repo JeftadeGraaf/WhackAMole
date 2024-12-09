@@ -78,14 +78,16 @@ int main(void) {
 	display.clearScreen();
     init_nunchuck();
 
-    // uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
+    // pass the timer1 overflow variable from the IR protocol to the Display lib
+    uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
+    display.setTimingVariable(timer1_overflow_count);
 
     // display.drawGameOverMenu(120, 188, false);
     // display.drawGame(hammerEasy_moleHard);
     // display.drawGameOverMenu(120, 188, false);
-    // display.drawGame(nine);
+    display.drawGame(Display::Difficulty::nine);
     // display.drawStartMenu();
-    display.drawChooseCharacter();
+    // display.drawChooseCharacter();
     // display.drawDifficulty();
     // display.drawHighscores();
 
