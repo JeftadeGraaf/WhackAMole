@@ -33,6 +33,8 @@ public:
 
     void clearScreen();
 
+    void setTimingVariable(uint32_t *timer1_overflows_32ms);
+
     enum Screens {
         game,
         gameOver,

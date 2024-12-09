@@ -1,6 +1,12 @@
 #include "Display.h"
 #include "Nunchuk.h"
 
+uint32_t *timer1_all_overflows;
+
+uint32_t get_t1_overflows(){
+    return *timer1_all_overflows;
+}
+
 const uint8_t mole[8][8] = {
     {0, 13, 34, 10, 26, 38, 13, 0},
     {39, 4, 17, 6, 6, 19, 4, 2},
@@ -329,22 +335,32 @@ void Display::updateGame(uint8_t score, bool ZPressed){
     _tft.setTextSize(1);
     //Remove old text
     _tft.setTextColor(SKY_BLUE);
-        _tft.setCursor(2, 30);
-        _tft.print(String(time));
-        
-        text = String(oldScore);
-        calcCenterScreenText(text, 1);
-        _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
-        _tft.print(text);
-    //print new text
-    _tft.setTextColor(ILI9341_BLACK);
-        _tft.setCursor(2, 30);
-        _tft.print(String(time)); //TODO change time
+    _tft.setCursor(2, 30);
+    _tft.print(String(time));
     
-        text = String(score);
-        calcCenterScreenText(text, 1);
-        _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
-        _tft.print(text);
+    text = String(oldScore);
+    calcCenterScreenText(text, 1);
+    _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
+    _tft.print(text);
+
+    // set time variable
+    if ((int) (get_t1_overflows() / 30) > 60 - time) {
+        time--;
+    }
+
+    if (time == 0) {
+        // Game over
+        drawGameOverMenu(10, 10, true);
+    }
+
+    _tft.setTextColor(ILI9341_BLACK);
+    _tft.setCursor(2, 30);
+    _tft.print(String(time));
+    
+    text = String(score);
+    calcCenterScreenText(text, 1);
+    _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
+    _tft.print(text);
 
     oldSelectedHeap = selectedHeap;
     oldDynamicStartX = dynamicStartX;
@@ -681,4 +697,8 @@ void Display::drawPixelField(uint8_t y){
 
 void Display::clearScreen() {
     _tft.fillScreen(ILI9341_BLACK);
+}
+
+void Display::setTimingVariable(uint32_t *timer1_overflows_32ms){
+    timer1_all_overflows = timer1_overflows_32ms;
 }

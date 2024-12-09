@@ -6,7 +6,7 @@ IRComm::IRComm()
     : half_bit_buffers{{0}}, active_buffer_idx(0), buffer_position{0}, buffer_ready_flags{false},
       decoded_frame{0}, bit_index(0), is_tx_active(false), is_tx_high(false), overflow_count(0),
       prev_timer_value(0), bit_duration(0), is_first_interrupt(true), is_frame_ready(false),
-      is_frame_valid(false), tx_frame{0}
+      is_frame_valid(false), tx_frame{0}, timer1_all_overflows(0)
 {
     for (uint8_t i = 0; i < 2; i++)
     {
@@ -61,6 +61,7 @@ void IRComm::onReceiveInterrupt()
 void IRComm::onTimer1Overflow()
 {
     overflow_count++;
+    timer1_all_overflows++;
 }
 
 void IRComm::onTimer0CompareMatch()
@@ -332,5 +333,5 @@ void IRComm::stopSending() {
 
 // Get a pointer to the overflow_count variable
 uint32_t* IRComm::getOverflowCountPtr() {
-    return &overflow_count;
+    return &timer1_all_overflows;
 }
