@@ -1,5 +1,12 @@
 #include "IRComm.h"
 
+// make builtin delay available in case the custom functions dont work
+#define USE_BUILTIN_DELAY_FUNCTIONS 0
+
+#if USE_BUILTIN_DELAY_FUNCTIONS
+#include <util/delay.h>
+#endif
+
 // Constructor
 IRComm::IRComm()
     : half_bit_buffers{{0}}, active_buffer_idx(0), buffer_position{0}, buffer_ready_flags{false},
@@ -16,6 +23,10 @@ IRComm::IRComm()
 
 void delay_ms_blocking(uint16_t ms)
 {
+    #if USE_BUILTIN_DELAY_FUNCTIONS
+    _delay_ms(ms);
+    #else
+
     // time (s) / time per tick (s) = ticks
     uint16_t ms_to_ticks = (ms / 1000) / 0.0000005;
     uint16_t start = TCNT1;
@@ -31,10 +42,15 @@ void delay_ms_blocking(uint16_t ms)
         while (TCNT1 < end || TCNT1 > start)
             ;
     }
+    #endif
 }
 
 void delay_us_blocking(uint16_t us)
 {
+    #if USE_BUILTIN_DELAY_FUNCTIONS
+    _delay_us(us);
+    #else
+
     // time (s) / time per tick (s) = ticks
     uint16_t us_to_ticks = (us / 1000000) / 0.0000005;
     uint16_t start = TCNT1;
@@ -50,6 +66,7 @@ void delay_us_blocking(uint16_t us)
         while (TCNT1 < end || TCNT1 > start)
             ;
     }
+    #endif
 }
 
 
