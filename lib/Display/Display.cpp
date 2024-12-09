@@ -83,7 +83,7 @@ const uint8_t hole_palette[48] = {
     45, 31, 4,
 };
 
-const uint8_t hammer[8][8] = {
+const uint8_t hammerHori[8][8] = {
     {0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0},
     {22, 23, 16, 0, 0, 0, 0, 0},
@@ -92,6 +92,16 @@ const uint8_t hammer[8][8] = {
     {1, 18, 15, 10, 9, 8, 6, 7},
     {21, 19, 25, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0},
+};
+const uint8_t hammerVert[8][8] = {
+    {0, 1, 2, 2, 25, 1, 0, 0},
+    {0, 20, 21, 22, 19, 13, 0, 0},
+    {0, 18, 16, 14, 15, 17, 0, 0},
+    {0, 0, 10, 4, 0, 0, 0, 0},
+    {0, 0, 9, 5, 0, 0, 0, 0},
+    {0, 0, 8, 3, 0, 0, 0, 0},
+    {0, 24, 6, 12, 0, 0, 0, 0},
+    {0, 0, 7, 23, 0, 0, 0, 0},
 };
 const uint8_t hammer_palette[78] = {
     0, 0, 0,
@@ -188,7 +198,7 @@ void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[]
     }
 }
 
-void Display::drawGame(uint8_t heaps, bool characterMole){
+void Display::drawGame(Difficulty selectedDifficulty){
     displayedScreen = game;
     this->characterMole = characterMole;
     //Draw sky and field
@@ -213,8 +223,8 @@ void Display::drawGame(uint8_t heaps, bool characterMole){
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 15);
         _tft.print(text);
 
-    //Apply settings for difficulty level, used also in selection process
-    if(heaps == 4){
+    //Apply settings for selectedDifficulty level, used also in selection process
+    if(selectedDifficulty == 4){
         multiplySize= 6;
         startX      = 60;
         startY      = 70;
@@ -236,7 +246,7 @@ void Display::drawGame(uint8_t heaps, bool characterMole){
         dynamicStartY      = startY;
     }
 
-    if(heaps == 9){
+    if(selectedDifficulty == 9){
         multiplySize= 5;
         startX      = 50;
         startY      = 55;
@@ -258,7 +268,7 @@ void Display::drawGame(uint8_t heaps, bool characterMole){
         dynamicStartY      = startY;
     }
 
-    if(heaps == 16){
+    if(selectedDifficulty == 16){
         multiplySize= 4;
         startX      = 15;
         startY      = 54;
@@ -285,12 +295,13 @@ void Display::drawGame(uint8_t heaps, bool characterMole){
 
 //TODO tijd afnemen
 //TODO joystick (debounce)
-//TODO geselecteerde molshoop reageren op knop
-//TODO mole of hammer reageren
+//TODO hamer als selector
+//TODO mole of hammerHori reageren
 void Display::updateGame(uint8_t score, bool ZPressed){
     //Dynamic Time and Score
     _tft.setFont(&InriaSans_Regular8pt7b);
     _tft.setTextSize(1);
+    //Remove old text
     _tft.setTextColor(SKY_BLUE);
         _tft.setCursor(2, 30);
         _tft.print(String(time));
@@ -299,10 +310,10 @@ void Display::updateGame(uint8_t score, bool ZPressed){
         calcCenterScreenText(text, 1);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
         _tft.print(text);
-
+    //print new text
     _tft.setTextColor(ILI9341_BLACK);
         _tft.setCursor(2, 30);
-        _tft.print(String(time));
+        _tft.print(String(time)); //TODO change time
         
         text = String(score);
         calcCenterScreenText(text, 1);
@@ -316,7 +327,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
                 drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY);
                 break;
             case false:
-                drawPixelArray(hammer, hammer_palette, multiplySize, dynamicStartX + (2*multiplySize), dynamicStartY - (1*multiplySize));
+                drawPixelArray(hammerHori, hammer_palette, multiplySize, dynamicStartX + (2*multiplySize), dynamicStartY - (1*multiplySize));
                 break;
         }
     }
@@ -338,7 +349,163 @@ void Display::updateGame(uint8_t score, bool ZPressed){
             dynamicStartY-=Ycrement; //Move up
             selectedHeap -= gridSize;
         }
+
     _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
+}
+
+void Display::drawChooseCharacter(){
+    displayedScreen = chooseCharacter;
+    //Draw sky and field
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 155, SKY_BLUE);
+    drawPixelField(155);
+
+    //Write text
+    _tft.setTextColor(ILI9341_BLACK);
+    _tft.setFont(&IrishGrover_Regular8pt7b);
+        text = "Choose your";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 40);
+        _tft.print(text);
+        text = "character";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 80);
+        _tft.print(text);
+
+    _tft.setFont(&InriaSans_Regular8pt7b);
+        textYCoor = 120;
+        text = "Mole";
+        calcCenterScreenText(text, 2);
+        moleTextXCoor = x / 2 - 20;
+        _tft.setCursor(moleTextXCoor, textYCoor);
+        _tft.print(text);
+        //Draw mole character
+        drawPixelArray(mole, mole_palette, 8, moleTextXCoor, 150);
+        drawPixelArray(hole, hole_palette, 8, moleTextXCoor, 160);
+        text = "Hammer";
+        calcCenterScreenText(text, 2);
+        hammerTextXCoor = x * 1.5 + 20;
+        _tft.setCursor(hammerTextXCoor, textYCoor);
+        _tft.print(text);
+        //Draw hammerHori character
+        drawPixelArray(hammerHori, hammer_palette, 8, x * 2 + 10, 150);
+}
+
+void Display::updateChooseCharacter(bool buttonPressed){
+    //Selection logic
+    if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && moleSelected == true){
+        moleSelected = false; //Move right
+    } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && moleSelected == false){
+        moleSelected = true; //Move left
+    }
+
+    _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);
+
+    //Change selection coördinates
+    uint8_t x = 0;
+    if(moleSelected){
+        text = "Mole";
+        x = moleTextXCoor;
+    }
+    else{
+        text = "Hammer";
+        x = hammerTextXCoor;
+    }
+    _tft.setFont(&InriaSans_Regular8pt7b);
+    _tft.setTextSize(2);
+    _tft.getTextBounds(text, x, textYCoor, &x1, &y1, &textWidth, &textHeight);
+    _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, ILI9341_BLACK);
+
+    //When character is selected, go to choose selectedDifficulty screen
+    if(buttonPressed){
+        characterMole = moleSelected;
+        drawDifficulty();
+    }
+}
+
+void Display::drawDifficulty(){
+    displayedScreen = difficulty;
+    //Draw sky and field
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
+    drawPixelField(37);
+
+    //Write text
+    _tft.setTextColor(ILI9341_BLACK);
+    _tft.setFont(&IrishGrover_Regular8pt7b);
+        text = "Whack a Mole";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 30);
+        _tft.print(text);
+
+    _tft.setFont(&InriaSans_Regular8pt7b);
+        _tft.setTextSize(3);
+        _tft.setCursor(25, 80);
+        _tft.print("Easy");
+
+        _tft.setCursor(25, 130);
+        _tft.print("Medium");
+
+        _tft.setCursor(25, 180);
+        _tft.print("Hard");
+
+    drawPixelArray(mole, mole_palette, 10, 210, 50);
+    drawPixelArray(hole, hole_palette, 10, 210, 130);
+}
+
+//TODO hard is bij mol 4 en bij hamer 16. Functie hiervoor aanpassen
+void Display::updateDifficulty(bool buttonPressed){
+    _tft.fillCircle(circleX, circleY, 5, ILI9341_GREEN);
+    if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && selectedDifficulty != sixteen){
+        //move down
+        circleY += 50;
+        if(selectedDifficulty == four){
+            selectedDifficulty = nine;
+        }
+        else if(selectedDifficulty == nine){
+            selectedDifficulty = sixteen;
+        }
+    } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && selectedDifficulty != four){
+        //move up
+        circleY -= 50;
+        if(selectedDifficulty == sixteen){
+            selectedDifficulty = nine;
+        }
+        else if(selectedDifficulty == nine){
+            selectedDifficulty = four;
+        }
+    }
+    _tft.fillCircle(circleX, circleY, 5, ILI9341_BLACK);
+
+    if(buttonPressed){
+        drawGame(selectedDifficulty);
+    }
+}
+
+//TODO geselecteerd knop duidelijk maken
+//TODO knoppen reageren
+void Display::drawStartMenu(){
+    displayedScreen = startMenu;
+    //Draw sky and field
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 155, SKY_BLUE);
+    drawPixelField(155);
+
+    //Write text
+    _tft.setTextColor(ILI9341_BLACK);
+    _tft.setFont(&IrishGrover_Regular8pt7b);
+        text = "Whack a Mole";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 30);
+        _tft.print(text);
+
+    _tft.setFont(&InriaSans_Regular8pt7b);
+        _tft.setTextSize(2);
+        _tft.setCursor(30, 80);
+        _tft.print("Start");
+
+        _tft.setCursor(30, 115);
+        _tft.print("Highscores");
+
+    drawPixelArray(mole, mole_palette, 10, 200, 50);
+    drawPixelArray(hole, hole_palette, 10, 200, 130);
 }
 
 //TODO knoppen reageren
@@ -385,77 +552,15 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
         _tft.setCursor(11, 220);
         _tft.print(text);
 
-    //If mole won, draw mole. Else, draw hammer
+    //If mole won, draw mole. Else, draw hammerHori
     if(mole_win){
         drawPixelArray(mole, mole_palette, 8, 150, 150);
         drawPixelArray(hole, hole_palette, 8, 150, 160);
-        drawPixelArray(hammer, hammer_palette, 8, 230, 150);
+        drawPixelArray(hammerHori, hammer_palette, 8, 230, 150);
     } else {
         drawPixelArray(hole, hole_palette, 8, 180, 160);
-        drawPixelArray(hammer, hammer_palette, 8, 200, 150);
+        drawPixelArray(hammerHori, hammer_palette, 8, 200, 150);
     }
-}
-
-//TODO geselecteerd knop duidelijk maken
-//TODO knoppen reageren
-void Display::drawStartMenu(){
-    displayedScreen = startMenu;
-    //Draw sky and field
-    _tft.fillRect(0, 0, SCREEN_WIDTH, 155, SKY_BLUE);
-    drawPixelField(155);
-
-    //Write text
-    _tft.setTextColor(ILI9341_BLACK);
-    _tft.setFont(&IrishGrover_Regular8pt7b);
-        text = "Whack a Mole";
-        calcCenterScreenText(text, 2);
-        _tft.setCursor(x, 30);
-        _tft.print(text);
-
-    _tft.setFont(&InriaSans_Regular8pt7b);
-        _tft.setTextSize(2);
-        _tft.setCursor(30, 80);
-        _tft.print("Start");
-
-        _tft.setCursor(30, 115);
-        _tft.print("Highscores");
-
-    drawPixelArray(mole, mole_palette, 10, 200, 50);
-    drawPixelArray(hole, hole_palette, 10, 200, 130);
-}
-
-//TODO geselecteerd karakter duidelijk maken
-//Todo selectie reageert
-void Display::drawChooseCharacter(){
-    displayedScreen = chooseCharacter;
-    _tft.fillRect(0, 0, SCREEN_WIDTH, 155, SKY_BLUE);
-    drawPixelField(155);
-
-    _tft.setTextColor(ILI9341_BLACK);
-
-    _tft.setFont(&IrishGrover_Regular8pt7b);
-        text = "Choose your";
-        calcCenterScreenText(text, 2);
-        _tft.setCursor(x, 40);
-        _tft.print(text);
-        text = "character";
-        calcCenterScreenText(text, 2);
-        _tft.setCursor(x, 80);
-        _tft.print(text);
-
-    _tft.setFont(&InriaSans_Regular8pt7b);
-        text = "Mole";
-        calcCenterScreenText(text, 2);
-        _tft.setCursor(x / 2 - 20, 120);
-        _tft.print(text);
-        drawPixelArray(mole, mole_palette, 8, x / 2 - 20, 150);
-        drawPixelArray(hole, hole_palette, 8, x / 2 - 20, 160);
-        text = "Hammer";
-        calcCenterScreenText(text, 2);
-        _tft.setCursor(x * 1.5 + 20, 120);
-        _tft.print(text);
-        drawPixelArray(hammer, hammer_palette, 8, x * 2 + 10, 150);
-
 }
 
 //TODO highscores opslaan en displayen (EEPROM)

@@ -14,11 +14,21 @@ public:
     void refreshBacklight();
 
     void updateGame(uint8_t score, bool buttonPressed);
+    void updateChooseCharacter(bool buttonPressed);
+    void updateDifficulty(bool buttonPressed);
 
-    void drawGame(uint8_t heaps, bool characterMole);
+    enum Difficulty{
+        four = 4,
+        nine = 9,
+        sixteen = 16
+    };
+    Difficulty selectedDifficulty = nine;
+
+    void drawGame(Difficulty selectedDifficulty);
+    void drawChooseCharacter();
+    void drawDifficulty();
     void drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mol_win);
     void drawStartMenu();
-    void drawChooseCharacter();
     void drawHighscores();
 
     void clearScreen();
@@ -28,12 +38,12 @@ public:
         gameOver,
         startMenu,
         chooseCharacter,
+        difficulty,
         highscores
     };
     Screens displayedScreen;
-    
-    bool characterMole; //Saves the selected playable character
 
+    bool characterMole; //Saves the selected playable character
 private:
     void calcCenterScreenText(String text, uint8_t textSize);
     void drawPixelField(uint8_t y);
@@ -48,11 +58,21 @@ private:
     //refresh
     int _backlight_pin;
 
-    //calcCenterScreenText() variables
+    //variables for calculating text bounds
     int16_t x1, y1;
     uint16_t textWidth, textHeight;
     uint16_t x, y;
     String text;
+
+    //updateChooseCharacter() variables
+    bool moleSelected = true;
+    uint8_t moleTextXCoor;
+    uint8_t hammerTextXCoor;
+    uint8_t textYCoor;
+
+    //updateDifficulty() variables
+    uint8_t circleX = 15;
+    uint8_t circleY = 115;
 
     //Draw screens() variables
     const uint8_t pixelSize = 10;
@@ -61,7 +81,7 @@ private:
     uint8_t time = 60;    //starting time
     uint8_t oldScore = 0; //starting score
 
-    //Variables for selector and heap generation. updateGame() and drawGame() functions
+    //Variables for selector and heap generation. updateGame(), drawGame(), updateChooseCharacter() functions
     uint16_t selectWidthHeight = 0;
     uint8_t multiplySize = 0;
 

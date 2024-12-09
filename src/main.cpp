@@ -31,12 +31,6 @@ const uint8_t DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor 
 const uint8_t DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
 const uint8_t DISPLAY_MIN_Y = 0;            //Min vertical movement of cursor (up)
 
-//TODO alleen 4, 9, 16 kunnen meegegeven worden aan drawGame() functie
-//Difficulty levels
-uint8_t hammerEasy_moleHard = 4;
-uint8_t medium = 9;
-uint8_t hammerHard_moleEasy = 16;
-
 //Save button state
 bool ZPressed;
 bool CPressed;
@@ -84,14 +78,15 @@ int main(void) {
 	display.clearScreen();
     init_nunchuck();
 
-    uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
+    // uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
 
     // display.drawGameOverMenu(120, 188, false);
     // display.drawGame(hammerEasy_moleHard);
     // display.drawGameOverMenu(120, 188, false);
-    display.drawGame(hammerHard_moleEasy, false);
+    // display.drawGame(nine);
     // display.drawStartMenu();
-    // display.drawChooseCharacter();
+    display.drawChooseCharacter();
+    // display.drawDifficulty();
     // display.drawHighscores();
 
 	while (1) {
@@ -169,6 +164,7 @@ void init_IR_transmitter_timer0(){
 
 void buttonListener() {
     Nunchuk.getState(NUNCHUK_ADDRESS);
+    ZPressed = Nunchuk.state.z_button;
     switch(display.displayedScreen) {
         case Display::game:
             ZPressed = Nunchuk.state.z_button;
@@ -183,10 +179,15 @@ void buttonListener() {
         //     // Add logic for the "startMenu" screen
         //     break;
 
-        // case Display::chooseCharacter:
-        //     // Add logic for the "chooseCharacter" screen
-        //     Serial.println("Choose Character screen logic here.");
-        //     break;
+        case Display::chooseCharacter:
+            // Add logic for the "chooseCharacter" screen
+            display.updateChooseCharacter(ZPressed);
+            break;
+
+        case Display::difficulty:
+            // Add logic for the "chooseCharacter" screen
+            display.updateDifficulty(ZPressed);
+            break;
 
         // case Display::highscores:
         //     // Add logic for the "highscores" screen
