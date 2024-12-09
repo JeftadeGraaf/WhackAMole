@@ -24,6 +24,9 @@ public:
     void onTimer1Overflow();
     void onTimer0CompareMatch();
 
+    // Get the pointer to the overflow count
+    uint32_t* getOverflowCountPtr();
+
 private:
     // Buffer processing methods
     void processReceivedBit(bool pin_state, uint16_t duration);

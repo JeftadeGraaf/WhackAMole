@@ -329,3 +329,8 @@ void IRComm::stopSending() {
     TCCR0A &= ~(1 << COM0A0); // Stop toggling on OC0A
     PORTD &= ~(1 << PD6);     // Turn off IR LED
 }
+
+// Get a pointer to the overflow_count variable
+uint32_t* IRComm::getOverflowCountPtr() {
+    return &overflow_count;
+}
