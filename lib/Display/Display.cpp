@@ -1,7 +1,7 @@
 #include "Display.h"
 #include "Nunchuk.h"
 
-const uint8_t mol[8][8] = {
+const uint8_t mole[8][8] = {
     {0, 13, 34, 10, 26, 38, 13, 0},
     {39, 4, 17, 6, 6, 19, 4, 2},
     {0, 23, 16, 5, 5, 3, 24, 2},
@@ -11,7 +11,7 @@ const uint8_t mol[8][8] = {
     {27, 8, 22, 3, 3, 10, 9, 29},
     {0, 2, 0, 33, 32, 0, 0, 0},
 };
-const uint8_t mol_palette[120] = {
+const uint8_t mole_palette[120] = {
     0, 0, 2,
     254, 252, 249,
     20, 17, 18,
@@ -54,7 +54,7 @@ const uint8_t mol_palette[120] = {
     33, 26, 26,
 };
 
-const uint8_t hol[8][8] = {
+const uint8_t hole[8][8] = {
     {0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0},
@@ -64,7 +64,7 @@ const uint8_t hol[8][8] = {
     {2, 2, 1, 1, 1, 1, 6, 8},
     {11, 2, 3, 1, 1, 3, 8, 12},
 };
-const uint8_t hol_palette[48] = {
+const uint8_t hole_palette[48] = {
     0, 0, 0,
     105, 69, 4,
     90, 61, 6,
@@ -83,7 +83,7 @@ const uint8_t hol_palette[48] = {
     45, 31, 4,
 };
 
-const uint8_t hamer[8][8] = {
+const uint8_t hammer[8][8] = {
     {0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0},
     {22, 23, 16, 0, 0, 0, 0, 0},
@@ -93,7 +93,7 @@ const uint8_t hamer[8][8] = {
     {21, 19, 25, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0},
 };
-const uint8_t hamer_palette[78] = {
+const uint8_t hammer_palette[78] = {
     0, 0, 0,
     60, 2, 0,
     248, 201, 20,
@@ -161,16 +161,16 @@ void Display::refreshBacklight() {
     ADCSRA |= (1<<ADSC);
 }
 
-// Draw a pixelarray with the palette
+// Draw a pixelarray with its corresponding palette
 void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart) {
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
             // Get the pixel index from the array
             uint8_t pixelIndex = pixels[y][x];
 
-            // If the pixel is black
+            // If the pixel is black, don't draw it
             if (pixelIndex == 0) {
-                continue; // Skip drawing black pixels
+                continue;
             }
 
             // Get the corresponding color from the palette
@@ -188,8 +188,9 @@ void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[]
     }
 }
 
-void Display::drawGame(uint8_t heaps){
+void Display::drawGame(uint8_t heaps, bool characterMole){
     displayedScreen = game;
+    this->characterMole = characterMole;
     //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
     drawPixelField(37);
@@ -212,19 +213,19 @@ void Display::drawGame(uint8_t heaps){
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 15);
         _tft.print(text);
 
+    //Apply settings for difficulty level, used also in selection process
     if(heaps == 4){
         multiplySize= 6;
         startX      = 60;
         startY      = 70;
-        dynamicStartX      = 15;
-        dynamicStartY      = 54;
         Xcrement    = 150;
         Ycrement    = 100;
         Xmax        = 210;
         Ymax        = 170;
-        for(uint8_t i = 0; i < heaps/2; i++){
-            for(uint8_t i = 0; i < heaps/2; i++){
-                drawPixelArray(hol, hol_palette, multiplySize, startX, startY);
+        gridSize    = 2;
+        for(uint8_t i = 0; i < gridSize; i++){
+            for(uint8_t i = 0; i < gridSize; i++){
+                drawPixelArray(hole, hole_palette, multiplySize, startX, startY);
                 startX += Xcrement;
             }
             startX = 60;
@@ -243,9 +244,10 @@ void Display::drawGame(uint8_t heaps){
         Ycrement    = 70;
         Xmax        = 230;
         Ymax        = 195;
-        for(uint8_t i = 0; i < heaps/3; i++){
-            for(uint8_t i = 0; i < heaps/3; i++){
-                drawPixelArray(hol, hol_palette, multiplySize, startX, startY);
+        gridSize    = 3;
+        for(uint8_t i = 0; i < gridSize; i++){
+            for(uint8_t i = 0; i < gridSize; i++){
+                drawPixelArray(hole, hole_palette, multiplySize, startX, startY);
                 startX += Xcrement;
             }
             startX = 50;
@@ -264,9 +266,10 @@ void Display::drawGame(uint8_t heaps){
         Ycrement    = 45;
         Xmax        = 279;
         Ymax        = 189;
-        for(uint8_t i = 0; i < heaps/4; i++){
-            for(uint8_t i = 0; i < heaps/4; i++){
-                drawPixelArray(hol, hol_palette, multiplySize, startX, startY);
+        gridSize    = 4;
+        for(uint8_t i = 0; i < gridSize; i++){
+            for(uint8_t i = 0; i < gridSize; i++){
+                drawPixelArray(hole, hole_palette, multiplySize, startX, startY);
                 startX += Xcrement;
             }
             startX = 15;
@@ -281,10 +284,10 @@ void Display::drawGame(uint8_t heaps){
 }
 
 //TODO tijd afnemen
-//TODO score incrementen
+//TODO joystick (debounce)
 //TODO geselecteerde molshoop reageren op knop
-//TODO mol of hamer reageren
-void Display::updateGame(uint8_t score){
+//TODO mole of hammer reageren
+void Display::updateGame(uint8_t score, bool ZPressed){
     //Dynamic Time and Score
     _tft.setFont(&InriaSans_Regular8pt7b);
     _tft.setTextSize(1);
@@ -306,20 +309,35 @@ void Display::updateGame(uint8_t score){
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
         _tft.print(text);
 
+    if(ZPressed){
+        switch(characterMole){
+            case true:
+                drawPixelArray(mole, mole_palette, multiplySize, dynamicStartX, dynamicStartY);
+                drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY);
+                break;
+            case false:
+                drawPixelArray(hammer, hammer_palette, multiplySize, dynamicStartX + (2*multiplySize), dynamicStartY - (1*multiplySize));
+                break;
+        }
+    }
+
     //Update te selected hole
     _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
         if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartX != Xmax){
             dynamicStartX+=Xcrement; //Move right
+            selectedHeap += 1;
         } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartX != startX){
             dynamicStartX-=Xcrement; //Move left
+            selectedHeap -= 1;
         }
 
         if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartY != Ymax){
             dynamicStartY+=Ycrement; //Move down
+            selectedHeap += gridSize;
         } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartY != startY){
             dynamicStartY-=Ycrement; //Move up
+            selectedHeap -= gridSize;
         }
-
     _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
 }
 
@@ -369,12 +387,12 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
 
     //If mole won, draw mole. Else, draw hammer
     if(mole_win){
-        drawPixelArray(mol, mol_palette, 8, 150, 150);
-        drawPixelArray(hol, hol_palette, 8, 150, 160);
-        drawPixelArray(hamer, hamer_palette, 8, 230, 150);
+        drawPixelArray(mole, mole_palette, 8, 150, 150);
+        drawPixelArray(hole, hole_palette, 8, 150, 160);
+        drawPixelArray(hammer, hammer_palette, 8, 230, 150);
     } else {
-        drawPixelArray(hol, hol_palette, 8, 180, 160);
-        drawPixelArray(hamer, hamer_palette, 8, 200, 150);
+        drawPixelArray(hole, hole_palette, 8, 180, 160);
+        drawPixelArray(hammer, hammer_palette, 8, 200, 150);
     }
 }
 
@@ -402,8 +420,8 @@ void Display::drawStartMenu(){
         _tft.setCursor(30, 115);
         _tft.print("Highscores");
 
-    drawPixelArray(mol, mol_palette, 10, 200, 50);
-    drawPixelArray(hol, hol_palette, 10, 200, 130);
+    drawPixelArray(mole, mole_palette, 10, 200, 50);
+    drawPixelArray(hole, hole_palette, 10, 200, 130);
 }
 
 //TODO geselecteerd karakter duidelijk maken
@@ -430,13 +448,13 @@ void Display::drawChooseCharacter(){
         calcCenterScreenText(text, 2);
         _tft.setCursor(x / 2 - 20, 120);
         _tft.print(text);
-        drawPixelArray(mol, mol_palette, 8, x / 2 - 20, 150);
-        drawPixelArray(hol, hol_palette, 8, x / 2 - 20, 160);
+        drawPixelArray(mole, mole_palette, 8, x / 2 - 20, 150);
+        drawPixelArray(hole, hole_palette, 8, x / 2 - 20, 160);
         text = "Hammer";
         calcCenterScreenText(text, 2);
         _tft.setCursor(x * 1.5 + 20, 120);
         _tft.print(text);
-        drawPixelArray(hamer, hamer_palette, 8, x * 2 + 10, 150);
+        drawPixelArray(hammer, hammer_palette, 8, x * 2 + 10, 150);
 
 }
 

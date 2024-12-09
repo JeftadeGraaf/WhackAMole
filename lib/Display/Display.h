@@ -13,9 +13,9 @@ public:
     void init();
     void refreshBacklight();
 
-    void updateGame(uint8_t score);
+    void updateGame(uint8_t score, bool buttonPressed);
 
-    void drawGame(uint8_t heaps);
+    void drawGame(uint8_t heaps, bool characterMole);
     void drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mol_win);
     void drawStartMenu();
     void drawChooseCharacter();
@@ -30,8 +30,9 @@ public:
         chooseCharacter,
         highscores
     };
-
     Screens displayedScreen;
+    
+    bool characterMole; //Saves the selected playable character
 
 private:
     void calcCenterScreenText(String text, uint8_t textSize);
@@ -64,6 +65,8 @@ private:
     uint16_t selectWidthHeight = 0;
     uint8_t multiplySize = 0;
 
+    uint8_t selectedHeap = 0;
+
     unsigned int startX = 0;
     unsigned int startY = 0;
     unsigned int dynamicStartX = 0;
@@ -72,6 +75,7 @@ private:
     uint8_t Ycrement = 0;
     uint16_t Xmax = 0;
     uint8_t Ymax = 0;
+    uint8_t gridSize = 0;
 };
 
 #endif

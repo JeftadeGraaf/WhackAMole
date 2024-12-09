@@ -37,6 +37,10 @@ uint8_t hammerEasy_moleHard = 4;
 uint8_t medium = 9;
 uint8_t hammerHard_moleEasy = 16;
 
+//Save button state
+bool ZPressed;
+bool CPressed;
+
 //Game variables
 uint16_t score = 100;
 
@@ -52,6 +56,7 @@ Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
 bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
+void buttonListener();
 
 //Interrupts
 ISR(INT0_vect){
@@ -79,8 +84,8 @@ int main(void) {
 	display.clearScreen();
     init_nunchuck();
 
-    display.drawGameOverMenu(120, 188, false);
-    // display.drawGame(hammerEasy_moleHard);
+    // display.drawGameOverMenu(120, 188, false);
+    display.drawGame(hammerHard_moleEasy, false);
     // display.drawStartMenu();
     // display.drawChooseCharacter();
     // display.drawHighscores();
@@ -89,7 +94,7 @@ int main(void) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
 
-        Nunchuk.getState(NUNCHUK_ADDRESS);
+        buttonListener();
 
         if(ir.isBufferReady()){
             uint16_t data = ir.decodeIRMessage();
@@ -97,8 +102,7 @@ int main(void) {
             Serial.println(data);
             msg = data + 1;
             _delay_ms(200);
-        }
-        else {
+        } else {
             ir.sendFrame(msg);
         }
     }
@@ -157,4 +161,36 @@ void init_IR_transmitter_timer0(){
 	TCCR0A |= (1 << WGM01);     // CTC mode (reset at OCR)
 	TCCR0A |= (1 << COM0A0);    // toggle mode
 	OCR0A = OCR0A_value;
+}
+
+void buttonListener() {
+    Nunchuk.getState(NUNCHUK_ADDRESS);
+    switch(display.displayedScreen) {
+        case Display::game:
+            ZPressed = Nunchuk.state.z_button;
+            display.updateGame(0, ZPressed);
+            break;
+
+        // case Display::gameOver:
+        //     // Add logic for the "gameOver" screen
+        //     break;
+
+        // case Display::startMenu:
+        //     // Add logic for the "startMenu" screen
+        //     break;
+
+        // case Display::chooseCharacter:
+        //     // Add logic for the "chooseCharacter" screen
+        //     Serial.println("Choose Character screen logic here.");
+        //     break;
+
+        // case Display::highscores:
+        //     // Add logic for the "highscores" screen
+        //     Serial.println("Highscores screen logic here.");
+        //     break;
+
+        default:
+            // Handle any unexpected cases
+            Serial.println("Unknown screen.");
+    }
 }
