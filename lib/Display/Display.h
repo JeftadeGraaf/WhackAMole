@@ -16,6 +16,7 @@ public:
     void updateGame(uint8_t score, bool buttonPressed);
     void updateChooseCharacter(bool buttonPressed);
     void updateDifficulty(bool buttonPressed);
+    void updateStartMenu(bool buttonPressed);
 
     enum Difficulty{
         four = 4,
@@ -73,8 +74,13 @@ private:
     uint8_t textYCoor;
 
     //updateDifficulty() variables
-    uint8_t circleX = 15;
-    uint8_t circleY = 115;
+    uint8_t difficultyCircleX = 15;
+    uint8_t difficultyCircleY = 115;
+
+    //updateStartMenu() variables
+    bool startButtonSelected = true;
+    uint8_t startCircleX = 15;
+    uint8_t startCircleY = 70;
 
     //Draw screens() variables
     const uint8_t pixelSize = 10;

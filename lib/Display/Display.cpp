@@ -137,7 +137,7 @@ const uint8_t hammerVert_palette[78] = {
     255, 0, 0,
     59, 0, 0,
 };
-const uint8_t hammer_palette[78] = {
+const uint8_t hammerHori_palette[78] = {
     0, 0, 0,
     60, 2, 0,
     248, 201, 20,
@@ -232,6 +232,7 @@ void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[]
     }
 }
 
+//Draw game
 void Display::drawGame(Difficulty selectedDifficulty){
     displayedScreen = game;
     this->characterMole = characterMole;
@@ -327,40 +328,39 @@ void Display::drawGame(Difficulty selectedDifficulty){
     selectWidthHeight = picturePixelSize * multiplySize;
 }
 
-//TODO tijd afnemen
+//Update selection and react to button press
 //TODO joystick (debounce)
+//TODO disable hammer movement on hit
+//TODO calculate score
+//TODO change drawGameOver() inputs
 void Display::updateGame(uint8_t score, bool ZPressed){
     //Dynamic Time and Score
     _tft.setFont(&InriaSans_Regular8pt7b);
-    _tft.setTextSize(1);
-    //Remove old text
-    _tft.setTextColor(SKY_BLUE);
-    _tft.setCursor(2, 30);
-    _tft.print(String(time));
-    
-    text = String(oldScore);
-    calcCenterScreenText(text, 1);
-    _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
-    _tft.print(text);
+        _tft.setTextSize(1);
+        //Remove old text
+        _tft.setTextColor(SKY_BLUE);
+        _tft.setCursor(2, 30);
+        _tft.print(String(time));
+        
+        text = String(oldScore);
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
+        _tft.print(text);
 
     // set time variable
     if ((int) (get_t1_overflows() / 30) > 60 - time) {
         time--;
     }
 
-    if (time == 0) {
-        // Game over
-        drawGameOverMenu(10, 10, true);
-    }
-
-    _tft.setTextColor(ILI9341_BLACK);
-    _tft.setCursor(2, 30);
-    _tft.print(String(time));
-    
-    text = String(score);
-    calcCenterScreenText(text, 1);
-    _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
-    _tft.print(text);
+        //Write new text
+        _tft.setTextColor(ILI9341_BLACK);
+        _tft.setCursor(2, 30);
+        _tft.print(String(time));
+        
+        text = String(score);
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
+        _tft.print(text);
 
     oldSelectedHeap = selectedHeap;
     oldDynamicStartX = dynamicStartX;
@@ -391,8 +391,10 @@ void Display::updateGame(uint8_t score, bool ZPressed){
             drawPixelArray(mole, mole_palette, multiplySize, dynamicStartX, dynamicStartY);
             drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY); 
         }
-        //Remove old selector rectange
-        _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
+        if(oldSelectedHeap != selectedHeap){
+            //Remove old selector rectange
+            _tft.drawRect(oldDynamicStartX-2, oldDynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
+        }
     }
     //If character is hammer
     else{
@@ -400,7 +402,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
         drawPixelArray(hammerVert, hammerVert_palette, multiplySize, dynamicStartX+30, dynamicStartY);
         if(ZPressed){
             //if Z button is pressed draw hammer on top of hole
-            drawPixelArray(hammerHori, hammer_palette, multiplySize, dynamicStartX + (2*multiplySize), dynamicStartY - (1*multiplySize));
+            drawPixelArray(hammerHori, hammerHori_palette, multiplySize, dynamicStartX + (2*multiplySize), dynamicStartY - (1*multiplySize));
         //TODO restrict hammer movement for hammer up and down animation
         }
         if(oldSelectedHeap != selectedHeap){
@@ -409,8 +411,14 @@ void Display::updateGame(uint8_t score, bool ZPressed){
             drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
         }
     }
+
+    if (time == 0) {
+        // Game over
+        drawGameOverMenu(10, 10, true);
+    }
 }
 
+//Draw character screen
 void Display::drawChooseCharacter(){
     displayedScreen = chooseCharacter;
     //Draw sky and field
@@ -445,9 +453,10 @@ void Display::drawChooseCharacter(){
         _tft.setCursor(hammerTextXCoor, textYCoor);
         _tft.print(text);
         //Draw hammerHori character
-        drawPixelArray(hammerHori, hammer_palette, 8, x * 2 + 10, 150);
+        drawPixelArray(hammerHori, hammerHori_palette, 8, x * 2 + 10, 150);
 }
 
+//Update selection and react to button press
 void Display::updateChooseCharacter(bool buttonPressed){
     //Selection logic
     if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && moleSelected == true){
@@ -480,6 +489,7 @@ void Display::updateChooseCharacter(bool buttonPressed){
     }
 }
 
+//Draw difficulty screen
 void Display::drawDifficulty(){
     displayedScreen = difficulty;
     //Draw sky and field
@@ -509,12 +519,13 @@ void Display::drawDifficulty(){
     drawPixelArray(hole, hole_palette, 10, 210, 130);
 }
 
-//TODO hard is bij mol 4 en bij hamer 16. Functie hiervoor aanpassen
+//Update selection and react to button press
+//TODO hard is 4 for mole and 16 for hammer. Change needed
 void Display::updateDifficulty(bool buttonPressed){
-    _tft.fillCircle(circleX, circleY, 5, ILI9341_GREEN);
+    _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_GREEN);
     if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && selectedDifficulty != sixteen){
         //move down
-        circleY += 50;
+        difficultyCircleY += 50;
         if(selectedDifficulty == four){
             selectedDifficulty = nine;
         }
@@ -523,7 +534,7 @@ void Display::updateDifficulty(bool buttonPressed){
         }
     } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && selectedDifficulty != four){
         //move up
-        circleY -= 50;
+        difficultyCircleY -= 50;
         if(selectedDifficulty == sixteen){
             selectedDifficulty = nine;
         }
@@ -531,15 +542,14 @@ void Display::updateDifficulty(bool buttonPressed){
             selectedDifficulty = four;
         }
     }
-    _tft.fillCircle(circleX, circleY, 5, ILI9341_BLACK);
+    _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_BLACK);
 
     if(buttonPressed){
         drawGame(selectedDifficulty);
     }
 }
 
-//TODO geselecteerd knop duidelijk maken
-//TODO knoppen reageren
+//Draw start menu
 void Display::drawStartMenu(){
     displayedScreen = startMenu;
     //Draw sky and field
@@ -566,6 +576,29 @@ void Display::drawStartMenu(){
     drawPixelArray(hole, hole_palette, 10, 200, 130);
 }
 
+//Update selection and react to button press
+void Display::updateStartMenu(bool buttonPressed){
+    _tft.fillCircle(startCircleX, startCircleY, 5, SKY_BLUE);
+    if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && startButtonSelected){
+        //move down
+        startCircleY += 35;
+        startButtonSelected = false;
+    } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && !startButtonSelected){
+        //move up
+        startCircleY -= 35;
+        startButtonSelected = true;
+    }
+    _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);
+
+    if(buttonPressed && startButtonSelected){
+        drawChooseCharacter();
+    }
+    else if(buttonPressed && !startButtonSelected){
+        drawHighscores();
+    }
+}
+
+//Draw game over menu, no update needed
 //TODO knoppen reageren
 void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mole_win){
     displayedScreen = gameOver;
@@ -614,13 +647,14 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
     if(mole_win){
         drawPixelArray(mole, mole_palette, 8, 150, 150);
         drawPixelArray(hole, hole_palette, 8, 150, 160);
-        drawPixelArray(hammerHori, hammer_palette, 8, 230, 150);
+        drawPixelArray(hammerHori, hammerHori_palette, 8, 230, 150);
     } else {
         drawPixelArray(hole, hole_palette, 8, 180, 160);
-        drawPixelArray(hammerHori, hammer_palette, 8, 200, 150);
+        drawPixelArray(hammerHori, hammerHori_palette, 8, 200, 150);
     }
 }
 
+//Draw highscores menu, no update needed
 //TODO highscores opslaan en displayen (EEPROM)
 void Display::drawHighscores(){
     displayedScreen = highscores;
@@ -669,6 +703,7 @@ void Display::drawHighscores(){
         }
 }
 
+//Used to calculate the center of the screen for a given text
 void Display::calcCenterScreenText(String text, uint8_t textSize){
     _tft.setTextSize(textSize);
     _tft.getTextBounds(text, 0, 0, &x1, &y1, &textWidth, &textHeight);
@@ -677,6 +712,7 @@ void Display::calcCenterScreenText(String text, uint8_t textSize){
     y = (SCREEN_HEIGHT - textHeight) / 2;
 }
 
+//Used to draw a field of certain height. The field consists of different shades of green pixels
 void Display::drawPixelField(uint8_t y){
     for(uint16_t j = 0; j < SCREEN_HEIGHT / pixelSize; j++){
         for (uint16_t i = 0; i < SCREEN_WIDTH / pixelSize; i++)
@@ -695,10 +731,12 @@ void Display::drawPixelField(uint8_t y){
     }
 }
 
+//Clear the screen to black
 void Display::clearScreen() {
     _tft.fillScreen(ILI9341_BLACK);
 }
 
+//Used for keeping the time in the game
 void Display::setTimingVariable(uint32_t *timer1_overflows_32ms){
     timer1_all_overflows = timer1_overflows_32ms;
 }

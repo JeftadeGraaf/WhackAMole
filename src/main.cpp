@@ -82,14 +82,7 @@ int main(void) {
     uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
     display.setTimingVariable(timer1_overflow_count);
 
-    // display.drawGameOverMenu(120, 188, false);
-    // display.drawGame(hammerEasy_moleHard);
-    // display.drawGameOverMenu(120, 188, false);
-    display.drawGame(Display::Difficulty::nine);
-    // display.drawStartMenu();
-    // display.drawChooseCharacter();
-    // display.drawDifficulty();
-    // display.drawHighscores();
+    display.drawStartMenu();
 
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
@@ -165,39 +158,56 @@ void init_IR_transmitter_timer0(){
 }
 
 void buttonListener() {
+    //update button state
     Nunchuk.getState(NUNCHUK_ADDRESS);
     ZPressed = Nunchuk.state.z_button;
+    CPressed = Nunchuk.state.c_button;
+
+    //Switch between different screens
     switch(display.displayedScreen) {
         case Display::game:
             ZPressed = Nunchuk.state.z_button;
             display.updateGame(0, ZPressed);
             break;
 
-        // case Display::gameOver:
-        //     // Add logic for the "gameOver" screen
-        //     break;
+        case Display::gameOver:
+            //Go to start menu
+            if(ZPressed){
+                display.drawStartMenu();
+            }
+            break;
 
-        // case Display::startMenu:
-        //     // Add logic for the "startMenu" screen
-        //     break;
+        case Display::startMenu:
+            //Update selection
+            display.updateStartMenu(ZPressed);
+            break;
 
         case Display::chooseCharacter:
-            // Add logic for the "chooseCharacter" screen
+            //Go back to start menu
+            if(CPressed){
+                display.drawStartMenu();
+            }
+            //Update selection
             display.updateChooseCharacter(ZPressed);
             break;
 
         case Display::difficulty:
-            // Add logic for the "chooseCharacter" screen
+            //Go back to choose character screen
+            if(CPressed){
+                display.drawChooseCharacter();
+            }
+            //Update selection
             display.updateDifficulty(ZPressed);
             break;
 
-        // case Display::highscores:
-        //     // Add logic for the "highscores" screen
-        //     Serial.println("Highscores screen logic here.");
-        //     break;
+        case Display::highscores:
+            //Go back to start menu
+            if(CPressed){
+                display.drawStartMenu();
+            }
+            break;
 
         default:
-            // Handle any unexpected cases
-            Serial.println("Unknown screen.");
+            Serial.println("ERROR, unknown screen");
     }
 }
