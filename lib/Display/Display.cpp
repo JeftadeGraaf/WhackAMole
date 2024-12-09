@@ -100,8 +100,36 @@ const uint8_t hammerVert[8][8] = {
     {0, 0, 10, 4, 0, 0, 0, 0},
     {0, 0, 9, 5, 0, 0, 0, 0},
     {0, 0, 8, 3, 0, 0, 0, 0},
-    {0, 24, 6, 12, 0, 0, 0, 0},
+    {0, 0, 6, 12, 0, 0, 0, 0},
     {0, 0, 7, 23, 0, 0, 0, 0},
+};
+const uint8_t hammerVert_palette[78] = {
+    0, 0, 0,
+    85, 0, 0,
+    61, 2, 0,
+    247, 177, 24,
+    255, 161, 26,
+    247, 166, 25,
+    245, 148, 29,
+    246, 149, 28,
+    245, 139, 29,
+    246, 131, 31,
+    255, 136, 29,
+    255, 51, 51,
+    248, 199, 20,
+    168, 133, 110,
+    175, 108, 43,
+    148, 113, 94,
+    135, 81, 56,
+    255, 255, 218,
+    102, 102, 51,
+    111, 68, 52,
+    92, 57, 34,
+    89, 46, 32,
+    86, 39, 27,
+    255, 233, 21,
+    255, 0, 0,
+    59, 0, 0,
 };
 const uint8_t hammer_palette[78] = {
     0, 0, 0,
@@ -295,8 +323,6 @@ void Display::drawGame(Difficulty selectedDifficulty){
 
 //TODO tijd afnemen
 //TODO joystick (debounce)
-//TODO hamer als selector
-//TODO mole of hammerHori reageren
 void Display::updateGame(uint8_t score, bool ZPressed){
     //Dynamic Time and Score
     _tft.setFont(&InriaSans_Regular8pt7b);
@@ -314,43 +340,59 @@ void Display::updateGame(uint8_t score, bool ZPressed){
     _tft.setTextColor(ILI9341_BLACK);
         _tft.setCursor(2, 30);
         _tft.print(String(time)); //TODO change time
-        
+    
         text = String(score);
         calcCenterScreenText(text, 1);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
         _tft.print(text);
 
-    if(ZPressed){
-        switch(characterMole){
-            case true:
-                drawPixelArray(mole, mole_palette, multiplySize, dynamicStartX, dynamicStartY);
-                drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY);
-                break;
-            case false:
-                drawPixelArray(hammerHori, hammer_palette, multiplySize, dynamicStartX + (2*multiplySize), dynamicStartY - (1*multiplySize));
-                break;
-        }
+    oldSelectedHeap = selectedHeap;
+    oldDynamicStartX = dynamicStartX;
+    oldDynamicStartY = dynamicStartY;
+
+    if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartX != Xmax){
+        dynamicStartX+=Xcrement; //Move right
+        selectedHeap += 1;
+    } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartX != startX){
+        dynamicStartX-=Xcrement; //Move left
+        selectedHeap -= 1;
     }
 
-    //Update te selected hole
-    _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
-        if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartX != Xmax){
-            dynamicStartX+=Xcrement; //Move right
-            selectedHeap += 1;
-        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartX != startX){
-            dynamicStartX-=Xcrement; //Move left
-            selectedHeap -= 1;
-        }
+    if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartY != Ymax){
+        dynamicStartY+=Ycrement; //Move down
+        selectedHeap += gridSize;
+    } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartY != startY){
+        dynamicStartY-=Ycrement; //Move up
+        selectedHeap -= gridSize;
+    }
 
-        if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartY != Ymax){
-            dynamicStartY+=Ycrement; //Move down
-            selectedHeap += gridSize;
-        } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartY != startY){
-            dynamicStartY-=Ycrement; //Move up
-            selectedHeap -= gridSize;
+    //If character is mole
+    if(characterMole){
+        //Draw selector rectangle
+        _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
+        if(ZPressed){
+            //if Z button is pressed, draw mole and hole on top
+            drawPixelArray(mole, mole_palette, multiplySize, dynamicStartX, dynamicStartY);
+            drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY); 
         }
-
-    _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
+        //Remove old selector rectange
+        _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
+    }
+    //If character is hammer
+    else{
+        //Draw selector hammer
+        drawPixelArray(hammerVert, hammerVert_palette, multiplySize, dynamicStartX+30, dynamicStartY);
+        if(ZPressed){
+            //if Z button is pressed draw hammer on top of hole
+            drawPixelArray(hammerHori, hammer_palette, multiplySize, dynamicStartX + (2*multiplySize), dynamicStartY - (1*multiplySize));
+        //TODO restrict hammer movement for hammer up and down animation
+        }
+        if(oldSelectedHeap != selectedHeap){
+            //If other heap is selected, remove old selector
+            _tft.fillRect(oldDynamicStartX+35, oldDynamicStartY, selectWidthHeight-15, selectWidthHeight, ILI9341_GREEN);
+            drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
+        }
+    }
 }
 
 void Display::drawChooseCharacter(){

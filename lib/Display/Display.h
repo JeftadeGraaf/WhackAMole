@@ -86,11 +86,14 @@ private:
     uint8_t multiplySize = 0;
 
     uint8_t selectedHeap = 0;
+    uint8_t oldSelectedHeap;
+    unsigned int oldDynamicStartX;
+    uint16_t oldDynamicStartY;
 
     unsigned int startX = 0;
     unsigned int startY = 0;
     unsigned int dynamicStartX = 0;
-    unsigned int dynamicStartY = 0;
+    uint16_t dynamicStartY = 0;
     uint8_t Xcrement = 0;
     uint8_t Ycrement = 0;
     uint16_t Xmax = 0;
