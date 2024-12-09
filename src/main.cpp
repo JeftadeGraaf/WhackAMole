@@ -183,21 +183,21 @@ void buttonListener() {
             break;
 
         case Display::chooseCharacter:
+            //Update selection
+            display.updateChooseCharacter(ZPressed);
             //Go back to start menu
             if(CPressed){
                 display.drawStartMenu();
             }
-            //Update selection
-            display.updateChooseCharacter(ZPressed);
             break;
 
         case Display::difficulty:
+            //Update selection
+            display.updateDifficulty(ZPressed);
             //Go back to choose character screen
             if(CPressed){
                 display.drawChooseCharacter();
             }
-            //Update selection
-            display.updateDifficulty(ZPressed);
             break;
 
         case Display::highscores:
