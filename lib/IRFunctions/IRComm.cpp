@@ -1,5 +1,4 @@
 #include "IRComm.h"
-#include <util/delay.h>
 
 // Constructor
 IRComm::IRComm()
@@ -12,6 +11,44 @@ IRComm::IRComm()
     {
         buffer_position[i] = 0;
         buffer_ready_flags[i] = false;
+    }
+}
+
+void delay_ms_blocking(uint16_t ms)
+{
+    // time (s) / time per tick (s) = ticks
+    uint16_t ms_to_ticks = (ms / 1000) / 0.0000005;
+    uint16_t start = TCNT1;
+    uint16_t end = start + ms_to_ticks;
+
+    if (end > start)
+    {
+        while (TCNT1 < end)
+            ;
+    }
+    else
+    {
+        while (TCNT1 < end || TCNT1 > start)
+            ;
+    }
+}
+
+void delay_us_blocking(uint16_t us)
+{
+    // time (s) / time per tick (s) = ticks
+    uint16_t us_to_ticks = (us / 1000000) / 0.0000005;
+    uint16_t start = TCNT1;
+    uint16_t end = start + us_to_ticks;
+
+    if (end > start)
+    {
+        while (TCNT1 < end)
+            ;
+    }
+    else
+    {
+        while (TCNT1 < end || TCNT1 > start)
+            ;
     }
 }
 
@@ -299,10 +336,10 @@ void IRComm::createFrame(uint16_t data, bool (&frame)[16])
 void IRComm::sendStartingBurst() {
     // Start sending the burst signal
     TCCR0A |= (1 << COM0A0);
-    _delay_ms(9); // Time for 9 ms burst
+    delay_ms_blocking(9); // Time for 9 ms burst
     TCCR0A &= ~(1 << COM0A0); // Stop toggling on OC0A
     PORTD &= ~(1 << PD6);     // Explicitly turn off the IR LED
-    _delay_ms(4.5); // Time for 4.5 ms pause
+    delay_ms_blocking(4.5); // Time for 4.5 ms pause
 }
 
 // Send a half bit (1 or 0) for IR communication
@@ -310,17 +347,17 @@ void IRComm::sendHalfBit(bool bit) {
     if (bit) {
         // Send 1: 10 pulse
         TCCR0A |= (1 << COM0A0);
-        _delay_us(IR_PULSE_DURATION); // Time for the pulse
+        delay_us_blocking(IR_PULSE_DURATION); // Time for the pulse
         TCCR0A &= ~(1 << COM0A0);
         PORTD &= ~(1 << PD6); // Turn off IR LED
-        _delay_us(IR_PULSE_DURATION); // Time for the pause
+        delay_us_blocking(IR_PULSE_DURATION); // Time for the pause
     } else {
         // Send 0: 01 pulse
         TCCR0A &= ~(1 << COM0A0); // No toggle on OC0A
         PORTD &= ~(1 << PD6);     // Turn off IR LED
-        _delay_us(IR_PULSE_DURATION); // Time for the pulse
+        delay_us_blocking(IR_PULSE_DURATION); // Time for the pulse
         TCCR0A |= (1 << COM0A0);
-        _delay_us(IR_PULSE_DURATION); // Time for the pause
+        delay_us_blocking(IR_PULSE_DURATION); // Time for the pause
     }
 }
 
