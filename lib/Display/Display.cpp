@@ -244,6 +244,7 @@ void Display::drawGame(Difficulty selectedDifficulty){
 
     reset_t1_overflows();
     gameTimeTracker = 0;
+    time = 60;
 
     //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
