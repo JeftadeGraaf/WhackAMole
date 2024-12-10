@@ -24,6 +24,9 @@ public:
     void onTimer1Overflow();
     void onTimer0CompareMatch();
 
+    // Get the pointer to the overflow count
+    uint32_t* getOverflowCountPtr();
+
 private:
     // Buffer processing methods
     void processReceivedBit(bool pin_state, uint16_t duration);
@@ -54,6 +57,7 @@ private:
     bool is_first_interrupt;                 // Flag for first interrupt
     bool is_frame_ready;                     // Flag indicating if a frame is ready
     bool is_frame_valid;                     // Flag indicating if a frame is valid
+    uint32_t timer1_all_overflows;           // Total number of Timer1 overflows
 
     // Transmission frame
     bool tx_frame[16];  // Array to store the current transmission frame

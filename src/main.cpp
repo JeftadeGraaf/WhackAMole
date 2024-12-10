@@ -30,10 +30,13 @@ const uint16_t DISPLAY_MAX_X = 300;         //Max horizontal movement of cursor 
 const uint8_t DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor (left)
 const uint8_t DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
 const uint8_t DISPLAY_MIN_Y = 0;            //Min vertical movement of cursor (up)
-uint16_t cursor_x = 160;                    //Starting cursor x coordinate
-uint8_t cursor_y = 130;                     //Starting cursor y coordinate
-uint16_t last_cursor_x = 0;                 //Used to temporarily store last cursor x coordinate for screen refresh
-uint8_t last_cursor_y = 0;                  //Used to temporarily store last cursor y coordinate for screen refresh
+
+//Save button state
+bool ZPressed;
+bool CPressed;
+
+//Game variables
+uint16_t score = 100;
 
 #define BACKLIGHT_PIN 5
 
@@ -47,6 +50,7 @@ Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
 bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
+void buttonListener();
 
 //Interrupts
 ISR(INT0_vect){
@@ -74,16 +78,17 @@ int main(void) {
 	display.clearScreen();
     init_nunchuck();
 
-    // display.drawGameOverMenu(120, 188, false);
-    // display.drawGame(9);
-    // display.updateGame(0); //both range within 0-255
-    // display.drawStartMenu();
-    // display.drawChooseCharacter();
-    // display.drawHighscores();
+    // pass the timer1 overflow variable from the IR protocol to the Display lib
+    uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
+    display.setTimingVariable(timer1_overflow_count);
+
+    display.drawStartMenu();
 
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
+
+        buttonListener();
 
         if(ir.isBufferReady()){
             uint16_t data = ir.decodeIRMessage();
@@ -91,8 +96,7 @@ int main(void) {
             Serial.println(data);
             msg = data + 1;
             _delay_ms(200);
-        }
-        else {
+        } else {
             ir.sendFrame(msg);
         }
     }
@@ -151,4 +155,58 @@ void init_IR_transmitter_timer0(){
 	TCCR0A |= (1 << WGM01);     // CTC mode (reset at OCR)
 	TCCR0A |= (1 << COM0A0);    // toggle mode
 	OCR0A = OCR0A_value;
+}
+
+void buttonListener() {
+    //update button state
+    Nunchuk.getState(NUNCHUK_ADDRESS);
+    ZPressed = Nunchuk.state.z_button;
+    CPressed = Nunchuk.state.c_button;
+
+    //Switch between different screens
+    switch(display.displayedScreen) {
+        case Display::game:
+            display.updateGame(0, ZPressed);
+            break;
+
+        case Display::gameOver:
+            //Go to start menu
+            if(ZPressed){
+                display.drawStartMenu();
+            }
+            break;
+
+        case Display::startMenu:
+            //Update selection
+            display.updateStartMenu(ZPressed);
+            break;
+
+        case Display::chooseCharacter:
+            //Update selection
+            display.updateChooseCharacter(ZPressed);
+            //Go back to start menu
+            if(CPressed){
+                display.drawStartMenu();
+            }
+            break;
+
+        case Display::difficulty:
+            //Update selection
+            display.updateDifficulty(ZPressed);
+            //Go back to choose character screen
+            if(CPressed){
+                display.drawChooseCharacter();
+            }
+            break;
+
+        case Display::highscores:
+            //Go back to start menu
+            if(CPressed){
+                display.drawStartMenu();
+            }
+            break;
+
+        default:
+            Serial.println("ERROR, unknown screen");
+    }
 }

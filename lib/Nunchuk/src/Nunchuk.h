@@ -43,6 +43,9 @@ class NunChuk {
 		char		id[2*IDLEN+3]; // '0xAABBCCDD\0'
 		static uint8_t	buffer[];
 
+		uint16_t centerValue = 128;
+		uint8_t deadzone = 20;
+
 	private:
 		bool	_getId(uint8_t address);
 		uint8_t _read(uint8_t address, uint8_t offset, uint8_t len);
