@@ -347,7 +347,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
         _tft.print(text);
 
-    // set time variable
+    // update time variable
     if ((int) (get_t1_overflows() / 30) > 60 - time) {
         time--;
     }
@@ -390,6 +390,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
             //if Z button is pressed, draw mole and hole on top
             drawPixelArray(mole, mole_palette, multiplySize, dynamicStartX, dynamicStartY);
             drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY); 
+            //TODO remove mole after 2 seconds
         }
         if(oldSelectedHeap != selectedHeap){
             //Remove old selector rectange
@@ -398,23 +399,33 @@ void Display::updateGame(uint8_t score, bool ZPressed){
     }
     //If character is hammer
     else{
-        //Draw selector hammer
-        drawPixelArray(hammerVert, hammerVert_palette, multiplySize, dynamicStartX+30, dynamicStartY);
-        if(ZPressed){
-            //if Z button is pressed draw hammer on top of hole
-            drawPixelArray(hammerHori, hammerHori_palette, multiplySize, dynamicStartX + (2*multiplySize), dynamicStartY - (1*multiplySize));
-        //TODO restrict hammer movement for hammer up and down animation
-        }
-        if(oldSelectedHeap != selectedHeap){
+        //If 1 second timer is not activated
+        if (get_t1_overflows() - lastHammerUse >= 30) { // 30 overflows ≈ 1 second
+            if(oldSelectedHeap != selectedHeap){
             //If other heap is selected, remove old selector
+            _tft.fillRect(oldDynamicStartX+20, oldDynamicStartY, selectWidthHeight-15, selectWidthHeight, ILI9341_GREEN);
+            drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
+            //Draw selector hammer
+            drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY);
+            drawPixelArray(hammerVert, hammerVert_palette, multiplySize, dynamicStartX+30, dynamicStartY);
+                if(ZPressed) {
+                    // Update last usage timestamp
+                    lastHammerUse = get_t1_overflows();
+                }
+            }
+        }
+        else{
+            //Remove selector hammer
             _tft.fillRect(oldDynamicStartX+35, oldDynamicStartY, selectWidthHeight-15, selectWidthHeight, ILI9341_GREEN);
             drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
+            // Perform hammer action
+            drawPixelArray(hammerHori, hammerHori_palette, multiplySize, dynamicStartX + (2 * multiplySize), dynamicStartY - (1 * multiplySize));
         }
     }
 
     if (time == 0) {
         // Game over
-        drawGameOverMenu(10, 10, true);
+        drawGameOverMenu(10, 10, true); //TODO send scores and winner
     }
 }
 
@@ -526,6 +537,7 @@ void Display::updateDifficulty(bool buttonPressed){
     if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && selectedDifficulty != sixteen){
         //move down
         difficultyCircleY += 50;
+        //When moving down, change the difficulty to the value under it
         if(selectedDifficulty == four){
             selectedDifficulty = nine;
         }
@@ -535,6 +547,7 @@ void Display::updateDifficulty(bool buttonPressed){
     } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && selectedDifficulty != four){
         //move up
         difficultyCircleY -= 50;
+        //When moving down, change the difficulty to the value above it
         if(selectedDifficulty == sixteen){
             selectedDifficulty = nine;
         }
@@ -544,6 +557,7 @@ void Display::updateDifficulty(bool buttonPressed){
     }
     _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_BLACK);
 
+    //Start the game with the selected difficulty when button is pressed
     if(buttonPressed){
         drawGame(selectedDifficulty);
     }
