@@ -202,7 +202,7 @@ void buttonListener() {
 
         case Display::highscores:
             //Go back to start menu
-            if(ZPressed){
+            if(CPressed){
                 display.drawStartMenu();
             }
             break;

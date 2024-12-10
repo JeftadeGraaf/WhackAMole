@@ -89,6 +89,7 @@ private:
     uint8_t time = 60;    //starting time
     uint8_t oldScore = 0; //starting score
     uint32_t lastHammerUse = 0;
+    bool hammerJustHit = 0;
 
     //Variables for selector and heap generation. updateGame(), drawGame(), updateChooseCharacter() functions
     uint16_t selectWidthHeight = 0;

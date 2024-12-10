@@ -366,20 +366,22 @@ void Display::updateGame(uint8_t score, bool ZPressed){
     oldDynamicStartX = dynamicStartX;
     oldDynamicStartY = dynamicStartY;
 
-    if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartX != Xmax){
-        dynamicStartX+=Xcrement; //Move right
-        selectedHeap += 1;
-    } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartX != startX){
-        dynamicStartX-=Xcrement; //Move left
-        selectedHeap -= 1;
-    }
+    if((!characterMole && !hammerJustHit) || characterMole){
+        if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartX != Xmax){
+            dynamicStartX+=Xcrement; //Move right
+            selectedHeap += 1;
+        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartX != startX){
+            dynamicStartX-=Xcrement; //Move left
+            selectedHeap -= 1;
+        }
 
-    if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartY != Ymax){
-        dynamicStartY+=Ycrement; //Move down
-        selectedHeap += gridSize;
-    } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartY != startY){
-        dynamicStartY-=Ycrement; //Move up
-        selectedHeap -= gridSize;
+        if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartY != Ymax){
+            dynamicStartY+=Ycrement; //Move down
+            selectedHeap += gridSize;
+        } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartY != startY){
+            dynamicStartY-=Ycrement; //Move up
+            selectedHeap -= gridSize;
+        }
     }
 
     //If character is mole
@@ -399,27 +401,37 @@ void Display::updateGame(uint8_t score, bool ZPressed){
     }
     //If character is hammer
     else{
-        //If 1 second timer is not activated
+        //If the hammers movement is not blocked
         if (get_t1_overflows() - lastHammerUse >= 30) { // 30 overflows ≈ 1 second
+            if(hammerJustHit){
+                //Remove horizontal hammer and hole
+                _tft.fillRect(dynamicStartX, dynamicStartY, selectWidthHeight+25, selectWidthHeight, ILI9341_GREEN);
+                //Place selector hammer and hole
+                drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY);
+                drawPixelArray(hammerVert, hammerVert_palette, multiplySize, dynamicStartX+30, dynamicStartY);
+                hammerJustHit = false;
+            }
             if(oldSelectedHeap != selectedHeap){
-            //If other heap is selected, remove old selector
-            _tft.fillRect(oldDynamicStartX+20, oldDynamicStartY, selectWidthHeight-15, selectWidthHeight, ILI9341_GREEN);
-            drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
-            //Draw selector hammer
-            drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY);
-            drawPixelArray(hammerVert, hammerVert_palette, multiplySize, dynamicStartX+30, dynamicStartY);
-                if(ZPressed) {
-                    // Update last usage timestamp
-                    lastHammerUse = get_t1_overflows();
-                }
+                //If other heap is selected, remove old selector
+                _tft.fillRect(oldDynamicStartX+20, oldDynamicStartY, selectWidthHeight+5, selectWidthHeight, ILI9341_GREEN);
+                drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
+                //Draw selector hammer
+                drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY);
+                drawPixelArray(hammerVert, hammerVert_palette, multiplySize, dynamicStartX+30, dynamicStartY);
+            }
+            if(ZPressed) {
+                // Update last usage timestamp
+                lastHammerUse = get_t1_overflows();
             }
         }
+        //If the hammer is blocked
         else{
             //Remove selector hammer
-            _tft.fillRect(oldDynamicStartX+35, oldDynamicStartY, selectWidthHeight-15, selectWidthHeight, ILI9341_GREEN);
+            _tft.fillRect(dynamicStartX+20, dynamicStartY, selectWidthHeight+5, selectWidthHeight, ILI9341_GREEN);
             drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
             // Perform hammer action
             drawPixelArray(hammerHori, hammerHori_palette, multiplySize, dynamicStartX + (2 * multiplySize), dynamicStartY - (1 * multiplySize));
+            hammerJustHit = true;
         }
     }
 
