@@ -1,10 +1,15 @@
 #include "Display.h"
 #include "Nunchuk.h"
 
+uint32_t gameTimeTracker = 0;
 uint32_t *timer1_all_overflows;
 
 uint32_t get_t1_overflows(){
     return *timer1_all_overflows;
+}
+
+void reset_t1_overflows(){
+    *timer1_all_overflows = 0;
 }
 
 const uint8_t mole[8][8] = {
@@ -236,6 +241,10 @@ void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[]
 void Display::drawGame(Difficulty selectedDifficulty){
     displayedScreen = game;
     this->characterMole = characterMole;
+
+    reset_t1_overflows();
+    gameTimeTracker = 0;
+
     //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
     drawPixelField(37);
@@ -330,7 +339,6 @@ void Display::drawGame(Difficulty selectedDifficulty){
 
 //Update selection and react to button press
 //TODO joystick (debounce)
-//TODO disable hammer movement on hit
 //TODO calculate score
 //TODO change drawGameOver() inputs
 void Display::updateGame(uint8_t score, bool ZPressed){
@@ -348,8 +356,9 @@ void Display::updateGame(uint8_t score, bool ZPressed){
         _tft.print(text);
 
     // update time variable
-    if ((int) (get_t1_overflows() / 30) > 60 - time) {
+    if (get_t1_overflows() - gameTimeTracker > 30) {
         time--;
+        gameTimeTracker = get_t1_overflows();
     }
 
         //Write new text
@@ -639,7 +648,6 @@ void Display::updateStartMenu(bool buttonPressed){
 }
 
 //Draw game over menu, no update needed
-//TODO knoppen reageren
 void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mole_win){
     displayedScreen = gameOver;
     //Draw sky and field
