@@ -389,14 +389,28 @@ void Display::updateGame(uint8_t score, bool ZPressed){
         //Draw selector rectangle
         _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
         if(ZPressed){
-            //if Z button is pressed, draw mole and hole on top
-            drawPixelArray(mole, mole_palette, multiplySize, dynamicStartX, dynamicStartY);
-            drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY); 
-            //TODO remove mole after 2 seconds
+            if(!moleArray[0]){
+                //if Z button is pressed, draw mole and hole on top
+                drawPixelArray(mole, mole_palette, multiplySize, dynamicStartX, dynamicStartY);
+                drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY); 
+                //TODO remove mole after 2 seconds
+                moleArray[0] = 0b00000001;
+                moleArray[1] = dynamicStartX;
+                moleArray[2] = dynamicStartY;
+                moleArray[3] = get_t1_overflows();
+            }
         }
         if(oldSelectedHeap != selectedHeap){
             //Remove old selector rectange
             _tft.drawRect(oldDynamicStartX-2, oldDynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
+        }
+        if(moleArray[0]){
+            //If mole is drawn, remove it after 2 seconds
+            if(get_t1_overflows() - moleArray[3] >= 60){
+                _tft.fillRect(moleArray[1], moleArray[2], selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
+                drawPixelArray(hole, hole_palette, multiplySize, moleArray[1], moleArray[2]);
+                moleArray[0] = 0;
+            }
         }
     }
     //If character is hammer

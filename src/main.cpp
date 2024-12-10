@@ -166,7 +166,6 @@ void buttonListener() {
     //Switch between different screens
     switch(display.displayedScreen) {
         case Display::game:
-            ZPressed = Nunchuk.state.z_button;
             display.updateGame(0, ZPressed);
             break;
 

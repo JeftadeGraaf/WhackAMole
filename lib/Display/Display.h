@@ -109,6 +109,9 @@ private:
     uint16_t Xmax = 0;
     uint8_t Ymax = 0;
     uint8_t gridSize = 0;
+
+    //Mole pixel array, for putting down mole after 2 seconds
+    uint32_t moleArray[4];
 };
 
 #endif
