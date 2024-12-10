@@ -451,10 +451,12 @@ void Display::updateGame(uint8_t score, bool ZPressed){
         //If the hammer is blocked
         else{
             //Remove selector hammer
-            _tft.fillRect(dynamicStartX+20, dynamicStartY, selectWidthHeight+5, selectWidthHeight, ILI9341_GREEN);
-            drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
-            // Perform hammer action
-            drawPixelArray(hammerHori, hammerHori_palette, multiplySize, dynamicStartX + (2 * multiplySize), dynamicStartY - (1 * multiplySize));
+            if(hammerJustHit == false){
+                _tft.fillRect(dynamicStartX+20, dynamicStartY, selectWidthHeight+5, selectWidthHeight, ILI9341_GREEN);
+                drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
+                // Perform hammer action
+                drawPixelArray(hammerHori, hammerHori_palette, multiplySize, dynamicStartX + (2 * multiplySize), dynamicStartY - (1 * multiplySize));
+            }
             hammerJustHit = true;
         }
     }
