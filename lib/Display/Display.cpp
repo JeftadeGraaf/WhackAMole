@@ -200,7 +200,6 @@ void Display::init() {
     _tft.setRotation(1);
 }
 
-// Change the brightness of the display based on the potmeter value
 void Display::refreshBacklight() {
     // Add code to refresh the backlight as needed
     if(!(ADCSRA & (1<<ADSC))){
@@ -210,7 +209,6 @@ void Display::refreshBacklight() {
     ADCSRA |= (1<<ADSC);
 }
 
-// Draw a pixelarray with its corresponding palette
 void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart) {
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
@@ -237,7 +235,6 @@ void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[]
     }
 }
 
-//Draw game
 void Display::drawGame(Difficulty selectedDifficulty){
     displayedScreen = game;
     this->characterMole = characterMole;
@@ -338,44 +335,18 @@ void Display::drawGame(Difficulty selectedDifficulty){
     selectWidthHeight = picturePixelSize * multiplySize;
 }
 
-//Update selection and react to button press
 //TODO joystick (debounce)
 //TODO calculate score
 //TODO change drawGameOver() inputs
 void Display::updateGame(uint8_t score, bool ZPressed){
     //Dynamic Time and Score
-    _tft.setFont(&InriaSans_Regular8pt7b);
-        _tft.setTextSize(1);
-        //Remove old text
-        _tft.setTextColor(SKY_BLUE);
-        _tft.setCursor(2, 30);
-        _tft.print(String(time));
-        
-        text = String(oldScore);
-        calcCenterScreenText(text, 1);
-        _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
-        _tft.print(text);
-
-    // update time variable
-    if (get_t1_overflows() - gameTimeTracker > 30) {
-        time--;
-        gameTimeTracker = get_t1_overflows();
-    }
-
-        //Write new text
-        _tft.setTextColor(ILI9341_BLACK);
-        _tft.setCursor(2, 30);
-        _tft.print(String(time));
-        
-        text = String(score);
-        calcCenterScreenText(text, 1);
-        _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
-        _tft.print(text);
+    updateGameTimeScore(score);
 
     oldSelectedHeap = selectedHeap;
     oldDynamicStartX = dynamicStartX;
     oldDynamicStartY = dynamicStartY;
 
+    //Read movement
     if((!characterMole && !hammerJustHit) || characterMole){
         if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartX != Xmax){
             dynamicStartX+=Xcrement; //Move right
@@ -403,7 +374,6 @@ void Display::updateGame(uint8_t score, bool ZPressed){
                 //if Z button is pressed, draw mole and hole on top
                 drawPixelArray(mole, mole_palette, multiplySize, dynamicStartX, dynamicStartY);
                 drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY); 
-                //TODO remove mole after 2 seconds
                 moleArray[0] = 0b00000001;
                 moleArray[1] = dynamicStartX;
                 moleArray[2] = dynamicStartY;
@@ -467,7 +437,36 @@ void Display::updateGame(uint8_t score, bool ZPressed){
     }
 }
 
-//Draw character screen
+void Display::updateGameTimeScore(uint8_t score){
+    _tft.setFont(&InriaSans_Regular8pt7b);
+        _tft.setTextSize(1);
+        //Remove old text
+        _tft.setTextColor(SKY_BLUE);
+        _tft.setCursor(2, 30);
+        _tft.print(String(time));
+        
+        text = String(oldScore);
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
+        _tft.print(text);
+
+    // update time variable
+    if (get_t1_overflows() - gameTimeTracker > 30) {
+        time--;
+        gameTimeTracker = get_t1_overflows();
+    }
+
+        //Write new text
+        _tft.setTextColor(ILI9341_BLACK);
+        _tft.setCursor(2, 30);
+        _tft.print(String(time));
+        
+        text = String(score);
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
+        _tft.print(text);
+}
+
 void Display::drawChooseCharacter(){
     displayedScreen = chooseCharacter;
     //Draw sky and field
@@ -505,20 +504,19 @@ void Display::drawChooseCharacter(){
         drawPixelArray(hammerHori, hammerHori_palette, 8, x * 2 + 10, 150);
 }
 
-//Update selection and react to button press
 void Display::updateChooseCharacter(bool buttonPressed){
     //Selection logic
-    if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && moleSelected == true){
-        moleSelected = false; //Move right
-    } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && moleSelected == false){
-        moleSelected = true; //Move left
+    if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && characterMole == true){
+        characterMole = false; //Move right
+    } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && characterMole == false){
+        characterMole = true; //Move left
     }
 
     _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);
 
     //Change selection coördinates
     uint8_t x = 0;
-    if(moleSelected){
+    if(characterMole){
         text = "Mole";
         x = moleTextXCoor;
     }
@@ -533,12 +531,10 @@ void Display::updateChooseCharacter(bool buttonPressed){
 
     //When character is selected, go to choose selectedDifficulty screen
     if(buttonPressed){
-        characterMole = moleSelected;
         drawDifficulty();
     }
 }
 
-//Draw difficulty screen
 void Display::drawDifficulty(){
     displayedScreen = difficulty;
     //Draw sky and field
@@ -568,7 +564,6 @@ void Display::drawDifficulty(){
     drawPixelArray(hole, hole_palette, 10, 210, 130);
 }
 
-//Update selection and react to button press
 //TODO hard is 4 for mole and 16 for hammer. Change needed
 void Display::updateDifficulty(bool buttonPressed){
     _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_GREEN);
@@ -601,7 +596,6 @@ void Display::updateDifficulty(bool buttonPressed){
     }
 }
 
-//Draw start menu
 void Display::drawStartMenu(){
     displayedScreen = startMenu;
     //Draw sky and field
@@ -628,7 +622,6 @@ void Display::drawStartMenu(){
     drawPixelArray(hole, hole_palette, 10, 200, 130);
 }
 
-//Update selection and react to button press
 void Display::updateStartMenu(bool buttonPressed){
     _tft.fillCircle(startCircleX, startCircleY, 5, SKY_BLUE);
     if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && startButtonSelected){
@@ -650,7 +643,6 @@ void Display::updateStartMenu(bool buttonPressed){
     }
 }
 
-//Draw game over menu, no update needed
 void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mole_win){
     displayedScreen = gameOver;
     //Draw sky and field
@@ -705,7 +697,6 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
     }
 }
 
-//Draw highscores menu, no update needed
 //TODO highscores opslaan en displayen (EEPROM)
 void Display::drawHighscores(){
     displayedScreen = highscores;
@@ -754,7 +745,6 @@ void Display::drawHighscores(){
         }
 }
 
-//Used to calculate the center of the screen for a given text
 void Display::calcCenterScreenText(String text, uint8_t textSize){
     _tft.setTextSize(textSize);
     _tft.getTextBounds(text, 0, 0, &x1, &y1, &textWidth, &textHeight);
@@ -763,7 +753,6 @@ void Display::calcCenterScreenText(String text, uint8_t textSize){
     y = (SCREEN_HEIGHT - textHeight) / 2;
 }
 
-//Used to draw a field of certain height. The field consists of different shades of green pixels
 void Display::drawPixelField(uint8_t y){
     for(uint16_t j = 0; j < SCREEN_HEIGHT / pixelSize; j++){
         for (uint16_t i = 0; i < SCREEN_WIDTH / pixelSize; i++)
@@ -782,12 +771,10 @@ void Display::drawPixelField(uint8_t y){
     }
 }
 
-//Clear the screen to black
 void Display::clearScreen() {
     _tft.fillScreen(ILI9341_BLACK);
 }
 
-//Used for keeping the time in the game
 void Display::setTimingVariable(uint32_t *timer1_overflows_32ms){
     timer1_all_overflows = timer1_overflows_32ms;
 }
