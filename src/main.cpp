@@ -9,13 +9,10 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
+#include <Game.h>
 
 // Instance of IR object
 IRComm ir;
-
-// OCR value for Timer0, IR transmitter
-// OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
-const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
 
 const uint16_t BAUDRATE = 9600;             //UART baud rate
 
@@ -50,7 +47,6 @@ Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 // prototypes
 bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
 bool init_nunchuck();               //Initialise connection to nunchuk
-void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
 void activeListener();              //Makes button input react, reacts to recieved data
 void reactToRecievedData(uint16_t data);
 process readRecievedProcess(uint16_t data);
@@ -74,6 +70,8 @@ int main(void) {
     ir.initialize();
     sei(); // Enable global interrupts
     // uint16_t msg = 0b00000000000;
+
+    Game game = Game(ir);
 
 	// Initialize backlight
 	display.init();     
@@ -154,15 +152,6 @@ bool nunchuck_show_state_TEST() {
 		_delay_ms(NUNCHUCK_WAIT);
 
 		return(true);
-}
-
-//Init IR settings
-void init_IR_transmitter_timer0(){
-	DDRD |= (1 << DDD6);        // IR LED output
-	TCCR0B |= (1 << CS00);      // no prescaler
-	TCCR0A |= (1 << WGM01);     // CTC mode (reset at OCR)
-	TCCR0A |= (1 << COM0A0);    // toggle mode
-	OCR0A = OCR0A_value;
 }
 
 void activeListener() {
