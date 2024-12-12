@@ -19,17 +19,9 @@ const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
 
 const uint16_t BAUDRATE = 9600;             //UART baud rate
 
+//Nunchuk variables
 const uint8_t NUNCHUK_ADDRESS = 0x52;       //Nunchuk I2c address
 const uint16_t NUNCHUCK_WAIT = 1000;        //Wait for nunchuk test function
-
-const uint8_t NUNCHUK_DEADZONE = 30;        //Deadzone against drift
-const uint8_t NUNCHUK_CENTER_VALUE = 128;   //value of x and y when joystick is idle
-const uint8_t NUNCHUK_X_SENSITIVITY = 5;    //sensitivity of cursor horizontal movements
-const uint8_t NUNCHUK_Y_SENSITIVITY = 5;    //sensitivity of cursor vertical movements
-const uint16_t DISPLAY_MAX_X = 300;         //Max horizontal movement of cursor (right)
-const uint8_t DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor (left)
-const uint8_t DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
-const uint8_t DISPLAY_MIN_Y = 0;            //Min vertical movement of cursor (up)
 
 //Save button state
 bool ZPressed;
@@ -38,8 +30,17 @@ bool CPressed;
 //Game variables
 uint16_t score = 100;
 
-#define BACKLIGHT_PIN 5
+//For recieved data
+enum process{
+    startGame = 1,
+    moleUp = 2,
+    hammerPositionHit = 3,
+    recieveScore = 4,
+    invalidProcess
+};
 
+//Display variables
+#define BACKLIGHT_PIN 5
 #define TFT_DC 9
 #define TFT_CS 10
 
@@ -50,7 +51,8 @@ Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
 bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
-void buttonListener();
+void activeListener();              //Makes button input react, reacts to recieved data
+process readRecievedProcess(uint16_t data);
 
 //Interrupts
 ISR(INT0_vect){
@@ -88,7 +90,16 @@ int main(void) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
 
-        buttonListener();
+        activeListener();
+
+        uint16_t data = 0b0000001100000000;
+        process proc = readRecievedProcess(data);
+
+        if(proc == startGame && display.displayedScreen != Display::game){
+            display.characterMole == (data >> 3); //set character based on third bit
+            
+
+        }
 
         if(ir.isBufferReady()){
             uint16_t data = ir.decodeIRMessage();
@@ -157,7 +168,7 @@ void init_IR_transmitter_timer0(){
 	OCR0A = OCR0A_value;
 }
 
-void buttonListener() {
+void activeListener() {
     //update button state
     Nunchuk.getState(NUNCHUK_ADDRESS);
     ZPressed = Nunchuk.state.z_button;
@@ -208,5 +219,24 @@ void buttonListener() {
 
         default:
             Serial.println("ERROR, unknown screen");
+    }
+}
+
+process readRecievedProcess(uint16_t data){
+    data = data >> 8;
+    if(data == 1){
+        return startGame;
+    }
+    else if(data == 2){
+        return moleUp;
+    }
+    else if(data == 3){
+        return hammerPositionHit;
+    }
+    else if(data == 4){
+        return recieveScore;
+    }
+    else{
+        return invalidProcess;
     }
 }
