@@ -52,6 +52,7 @@ bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCH
 bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
 void activeListener();              //Makes button input react, reacts to recieved data
+void reactToRecievedData(uint16_t data);
 process readRecievedProcess(uint16_t data);
 
 //Interrupts
@@ -72,7 +73,7 @@ int main(void) {
     Serial.begin(BAUDRATE);
     ir.initialize();
     sei(); // Enable global interrupts
-    uint16_t msg = 0b00000000000;
+    // uint16_t msg = 0b00000000000;
 
 	// Initialize backlight
 	display.init();     
@@ -86,30 +87,26 @@ int main(void) {
 
     display.drawStartMenu();
 
+    uint16_t data = 0b0000000100000100; //Start process, hammer, 4x4
+    reactToRecievedData(data);
+    data = 0b0000001000000111; //Moleup, heap 7
+
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
 
         activeListener();
+        reactToRecievedData(data);
 
-        uint16_t data = 0b0000001100000000;
-        process proc = readRecievedProcess(data);
-
-        if(proc == startGame && display.displayedScreen != Display::game){
-            display.characterMole == (data >> 3); //set character based on third bit
-            
-
-        }
-
-        if(ir.isBufferReady()){
-            uint16_t data = ir.decodeIRMessage();
-            Serial.print("Received data: ");
-            Serial.println(data);
-            msg = data + 1;
-            _delay_ms(200);
-        } else {
-            ir.sendFrame(msg);
-        }
+        // if(ir.isBufferReady()){
+        //     uint16_t data = ir.decodeIRMessage();
+        //     Serial.print("Received data: ");
+        //     Serial.println(data);
+        //     msg = data + 1;
+        //     _delay_ms(200);
+        // } else {
+        //     ir.sendFrame(msg);
+        // }
     }
 	//never reach
 	return 0;
@@ -222,6 +219,54 @@ void activeListener() {
     }
 }
 
+void reactToRecievedData(uint16_t data){
+    process proc = readRecievedProcess(data);
+
+    switch(proc){
+        case startGame: {
+            if(display.displayedScreen != Display::game){
+                display.characterMole = (data >> 3) & 1; //set character based on bit 3
+
+                uint8_t lastThreeBits = data & 0x7; //Set difficulty based on 3 LSBs
+                if(lastThreeBits == 1){ //Bit 0 is set -> 2x2
+                    display.selectedDifficulty = Display::four;
+                }
+                else if(lastThreeBits == 2){ //Bit 1 is set -> 3x3
+                    display.selectedDifficulty = Display::nine;
+                }
+                else if(lastThreeBits == 4){ //Bit 2 is set -> 4x4
+                    display.selectedDifficulty = Display::sixteen;
+                }
+                else{ //If invalid difficulty is recieved
+                    Serial.println("Difficulty set error");
+                    //TODO terugsturen en terug ontvangen voor correcte check
+                }
+                display.drawGame(display.selectedDifficulty);
+            }
+            break;
+        }
+
+        case moleUp:{
+            uint8_t recievedMoleHeap = data & 0xF;
+            Serial.println(recievedMoleHeap);
+            display.drawOrRemoveMole(0, recievedMoleHeap);
+            break;
+        }
+
+        case hammerPositionHit:
+            Serial.println("error");
+            break;
+        
+        case recieveScore:
+            Serial.println("error");
+            break;
+
+        default:
+            Serial.println("error");
+            break;
+    }
+}
+
 process readRecievedProcess(uint16_t data){
     data = data >> 8;
     if(data == 1){
@@ -236,7 +281,5 @@ process readRecievedProcess(uint16_t data){
     else if(data == 4){
         return recieveScore;
     }
-    else{
-        return invalidProcess;
-    }
+    return invalidProcess;
 }
