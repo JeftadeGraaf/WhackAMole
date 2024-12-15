@@ -32,8 +32,6 @@ public:
     void drawStartMenu();
     void drawHighscores();
 
-    void clearScreen();
-
     void setTimingVariable(uint32_t *timer1_overflows_32ms);
 
     enum Screens {
@@ -50,7 +48,8 @@ public:
 private:
     void calcCenterScreenText(String text, uint8_t textSize);
     void drawPixelField(uint8_t y);
-    void drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart);
+    void drawDifficultyGrid(int multiplySize, int startX, int startY, int Xcrement, int Ycrement, int gridSize);
+    void drawPixelArray(const uint8_t *pixels, const uint8_t palette[][3], uint8_t pixelSize, int xStart, int yStart, int xSize = 8, int ySize = 8);
 
     Adafruit_ILI9341 _tft;
     

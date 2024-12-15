@@ -75,7 +75,6 @@ int main(void) {
 	// Initialize backlight
 	display.init();     
 	display.refreshBacklight();
-	display.clearScreen();
     init_nunchuck();
 
     // pass the timer1 overflow variable from the IR protocol to the Display lib
