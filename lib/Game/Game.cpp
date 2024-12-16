@@ -270,19 +270,15 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
 Game::process Game::readRecievedProcess(uint16_t data){
     data = data >> 8;
     if(data == 1){
-        lastReceivedProcess = startGame;
         return startGame;
     }
     else if(data == 2){
-        lastReceivedProcess = moleUp;
         return moleUp;
     }
     else if(data == 3){
-        lastReceivedProcess = hammerPositionHit;
         return hammerPositionHit;
     }
     else if(data == 4){
-        lastReceivedProcess = recieveScore;
         return recieveScore;
     }
     return invalidProcess;

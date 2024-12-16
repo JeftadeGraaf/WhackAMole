@@ -1,10 +1,8 @@
 #include "Display.h"
 #include "Nunchuk.h"
-#include "Game.h"
 
 uint32_t gameTimeTracker = 0;
 uint32_t *timer1_all_overflows;
-Game *game_logic;
 
 uint32_t get_t1_overflows(){
     return *timer1_all_overflows;
@@ -353,7 +351,6 @@ void Display::updateGame(uint8_t score, bool ZPressed){
 
         //If Z is pressed and mole is not placed, draw mole
         if(ZPressed && !molePlaced){
-            accessGame().sendMoleUp(selectedHeap);
             drawOrRemoveMole(selectedHeap, true);
             molePlaced = 0x1;
             molePlacedTime = get_t1_overflows();
@@ -370,6 +367,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
     else{
         //If the hammers movement is not blocked
         if (get_t1_overflows() - lastHammerUse >= 30) { // 30 overflows ≈ 1 second
+            //If hammer finished hitting
             if(hammerJustHit){
                 //Remove horizontal hammer
                 drawOrRemoveHammer(selectedHeap, false, true);
@@ -384,7 +382,6 @@ void Display::updateGame(uint8_t score, bool ZPressed){
                 drawOrRemoveHammer(oldSelectedHeap, false, false);
                 //Draw selector hammer
                 drawOrRemoveHammer(selectedHeap, true, false);
-                accessGame().sendHammerMove(selectedHeap, false);
             }
             if(ZPressed) {
                 // Update last usage timestamp
@@ -394,18 +391,18 @@ void Display::updateGame(uint8_t score, bool ZPressed){
         //If the hammer is blocked
         else if(!hammerJustHit){
             //Remove selector hammer
-            drawOrRemoveHammer(selectedHeap, false, false);
-            // Perform hammer action
-            drawOrRemoveHammer(selectedHeap, true, true);
-            accessGame().sendHammerMove(selectedHeap, true);
+            // if(hammerJustHit == false){
+                drawOrRemoveHammer(selectedHeap, false, false);
+                // Perform hammer action
+                drawOrRemoveHammer(selectedHeap, true, true);
+            // }
+            hammerJustHit = true;
         }
-        hammerJustHit = true;
     }
 
-    if (time == 0 || accessGame().lastReceivedProcess == Game::process::recieveScore) {
+    if (time == 0) {
         // Game over
-        accessGame().sendScore(score);
-        drawGameOverMenu(10, 10, true); //TODO send scores and winner
+        drawGameOverMenu(10, 10, true); //TODO send scores
     }
 }
 
@@ -617,7 +614,6 @@ void Display::updateDifficulty(bool buttonPressed){
     //Start the game with the selected difficulty when button is pressed
     if(buttonPressed){
         drawGame(selectedDifficulty);
-        accessGame().sendStart(characterMole, selectedDifficulty);
     }
 }
 
@@ -802,12 +798,4 @@ void Display::clearScreen() {
 
 void Display::setTimingVariable(uint32_t *timer1_overflows_32ms){
     timer1_all_overflows = timer1_overflows_32ms;
-}
-
-void Display::setGameClass(Game *gameClass){
-    game_logic = gameClass;
-}
-
-Game accessGame(){
-    return *game_logic;
 }
