@@ -31,6 +31,8 @@ public:
 
     process readRecievedProcess(uint16_t data);
 
+    process lastReceivedProcess;
+
     uint8_t score = 0; //TODO wordt niet gebruikt
     uint8_t opponentsScore = 0; //Opponents score
 
