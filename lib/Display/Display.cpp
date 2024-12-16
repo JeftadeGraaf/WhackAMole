@@ -427,6 +427,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
 
     if (time == 0) {
         // Game over
+        accessGame().sendScore(score);
         drawGameOverMenu(10, 10, true); //TODO send scores and winner
     }
 }
@@ -605,6 +606,7 @@ void Display::updateDifficulty(bool buttonPressed){
     //Start the game with the selected difficulty when button is pressed
     if(buttonPressed){
         drawGame(selectedDifficulty);
+        accessGame().sendStart(characterMole, selectedDifficulty);
     }
 }
 
