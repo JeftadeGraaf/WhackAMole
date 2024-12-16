@@ -766,6 +766,31 @@ void Display::drawDifficultyGrid(int multiplySize, int startX, int startY, int X
         dynamicStartY      = startY;
 }
 
+void IRCommdisplayText(TFT_eSPI& tft, int screenWidth, const String& text, int yPosition, const GFXfont* font, TextAlignment alignment, int textSize = 1, int margin = 0) {
+    tft.setFont(font);          // Set the desired font
+    tft.setTextSize(textSize);  // Set the text size
+
+    // Calculate text width using the current font and size
+    calcCenterScreenText(text, textSize); // Updates textWidth variable
+
+    // Calculate x-position based on alignment
+    int xPosition = 0;
+    switch (alignment) {
+        case ALIGN_LEFT:
+            xPosition = margin;
+            break;
+        case ALIGN_CENTER:
+            xPosition = (screenWidth - textWidth) / 2;
+            break;
+        case ALIGN_RIGHT:
+            xPosition = screenWidth - textWidth - margin;
+            break;
+    }
+
+    // Set the cursor and print the text
+    tft.setCursor(xPosition, yPosition);
+    tft.print(text);
+}
 
 
 //Used for keeping the time in the game

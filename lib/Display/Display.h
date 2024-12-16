@@ -50,6 +50,7 @@ private:
     void drawPixelField(uint8_t y);
     void drawDifficultyGrid(int multiplySize, int startX, int startY, int Xcrement, int Ycrement, int gridSize);
     void drawPixelArray(const uint8_t *pixels, const uint8_t palette[][3], uint8_t pixelSize, int xStart, int yStart, int xSize = 8, int ySize = 8);
+    void IRCommdisplayText(TFT_eSPI& tft, int screenWidth, const String& text, int yPosition, const GFXfont* font, TextAlignment alignment, int textSize = 1, int margin = 0) {
 
     Adafruit_ILI9341 _tft;
     
@@ -111,6 +112,12 @@ private:
 
     //Mole pixel array, for putting down mole after 2 seconds
     uint32_t moleArray[4];
+
+    enum TextAlignment {
+        ALIGN_LEFT,
+        ALIGN_CENTER,
+        ALIGN_RIGHT
+    };
 };
 
 #endif
