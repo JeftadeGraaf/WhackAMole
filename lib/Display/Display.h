@@ -18,8 +18,10 @@ public:
     void updateDifficulty(bool buttonPressed); //Update the difficulty menu based on user input
     void updateStartMenu(bool buttonPressed); //Update the startmenu based on user input
 
-    void drawOrRemoveMole(uint8_t heapNumber, bool draw);
-    void calculateHeapPosition(uint8_t heapNumber, uint16_t& xPos, uint16_t& yPos);
+    void drawOrRemoveHole(uint8_t heapNumber, bool draw); //Draw or remove the hole
+    void drawOrRemoveHammer(uint8_t heapNumber, bool draw, bool horizontal); //Draw or remove the hammer
+    void drawOrRemoveMole(uint8_t heapNumber, bool draw); //Draw or remove the mole
+    void calculateHeapPosition(uint8_t heapNumber, uint16_t& xPos, uint16_t& yPos); //Calculate the position of the mole or hammer based on the heap number
 
     enum Difficulty{
         four = 4,
@@ -53,7 +55,7 @@ public:
 private:
     void calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
-    void drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart); // Draw a pixelarray with its corresponding palette
+    void drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t backgroundPixelSize, int xStart, int yStart); // Draw a pixelarray with its corresponding palette
     void updateGameTimeScore(uint8_t score); //Update the time and score in the game screen
 
 
@@ -87,7 +89,7 @@ private:
     uint8_t startCircleY = 70; //Y coordinate of the postion of the selector circle
 
     //Draw screens() variables
-    const uint8_t pixelSize = 10; //Size of the pixels
+    const uint8_t backgroundPixelSize = 10; //Size of the pixels
 
     //updateGame() variables
     uint8_t time = 60;    //starting time

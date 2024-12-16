@@ -207,16 +207,16 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
         }
 
         case Game::moleUp:{
-            uint8_t recievedMoleHeap = data & 0xF; //Get mole heap from 4 LSBs
+            recievedMoleHeap = data & 0xF; //Get mole heap from 4 LSBs
             //If mole is not up, draw mole
             if(!moleIsUp){
                 display.drawOrRemoveMole(recievedMoleHeap, true);
-                moleUpCurrentTime = timer1_overflow_count;
+                processCurrentTime = timer1_overflow_count;
                 moleIsUp = true;
             }
             //If mole is up, check if it has been up for 2 seconds
             else{
-                if (timer1_overflow_count - moleUpCurrentTime >= 60) {
+                if (timer1_overflow_count - processCurrentTime >= 60) {
                     //Remove mole after 2 seconds
                     display.drawOrRemoveMole(recievedMoleHeap, false);
                     moleIsUp = false;
@@ -226,11 +226,39 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
         }
 
         case Game::hammerPositionHit:
-            Serial.println("error");
+            recievedMoleHeap = data & 0xF; //Get mole heap from 4 LSBs
+            recievedHammerHitting = data & 0x10; //Get hammer hitting from 5th LSB
+
+            //If hammer is not hitting, update cursor
+            if(timer1_overflow_count - processCurrentTime >= 30){
+                if(recievedHammerHitting){
+                    display.drawOrRemoveHammer(recievedMoleHeap, false, false); //remove cursor
+                    display.drawOrRemoveHole(recievedMoleHeap, true); //draw hole
+                    display.drawOrRemoveHammer(recievedMoleHeap, true, true); //draw hitting hammer
+                    processCurrentTime = timer1_overflow_count;
+                    hammerHitting = true;
+                }
+                if(recievedMoleHeap != oldRecievedMoleHeap){
+                    display.drawOrRemoveHammer(oldRecievedMoleHeap, false, false); //remove cursor from old heap
+                    display.drawOrRemoveHammer(recievedMoleHeap, true, false); //draw cursor on new heap
+                }
+            }
+            //If hammer is hitting, update hitting hammer
+            else{
+                if(hammerHitting){
+                    display.drawOrRemoveHammer(recievedMoleHeap, false, true); //remove hitting hammer
+                    display.drawOrRemoveHole(recievedMoleHeap, true); //remove hole
+                    display.drawOrRemoveHammer(recievedMoleHeap, true, false); //draw cursor
+                }
+                hammerHitting = false;
+            }
+
+            //update previous values
+            oldRecievedMoleHeap = recievedMoleHeap;
             break;
         
         case Game::recieveScore:
-            Serial.println("error");
+            opponentsScore = data & 0xFF; //Get score from 8 LSBs
             break;
 
         default:

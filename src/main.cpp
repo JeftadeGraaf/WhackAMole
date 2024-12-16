@@ -42,7 +42,6 @@ bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCH
 bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
 
-
 //Interrupts
 ISR(INT0_vect){
     ir.onReceiveInterrupt();
@@ -74,20 +73,24 @@ int main(void) {
 
     display.drawStartMenu();
     
+    // recievedData = 0x10A; //start, mole, 3x3
+    // game.reactToRecievedData(recievedData, *timer1_overflow_count);
+
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
 
         game.buttonListener();
 
-        if(ir.isBufferReady()){
-            uint16_t data = ir.decodeIRMessage();
-            game.reactToRecievedData(data, *timer1_overflow_count);
-        } else {
-            game.sendStart(false, Display::Difficulty::nine);
-        }
 
-        // _delay_ms(10);
+        // if(ir.isBufferReady()){
+        //     uint16_t data = ir.decodeIRMessage();
+        //     game.reactToRecievedData(data, *timer1_overflow_count);
+        // } else {
+        //     game.sendStart(false, Display::Difficulty::nine);
+        // }
+
+        _delay_ms(10);
     }
 	//never reach
 	return 0;

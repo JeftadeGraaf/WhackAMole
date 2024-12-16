@@ -204,7 +204,7 @@ void Display::refreshBacklight() {
     // ADCSRA |= (1<<ADSC);
 }
 
-void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart) {
+void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t backgroundPixelSize, int xStart, int yStart) {
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
             // Get the pixel index from the array
@@ -221,11 +221,11 @@ void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[]
             uint8_t blue = palette[pixelIndex * 3 + 2];
 
             // Calculate the position where the pixel will be drawn
-            int xPos = xStart + x * pixelSize;
-            int yPos = yStart + y * pixelSize;
+            int xPos = xStart + x * backgroundPixelSize;
+            int yPos = yStart + y * backgroundPixelSize;
 
             // Draw the pixel
-            _tft.fillRect(xPos, yPos, pixelSize, pixelSize, _tft.color565(red, green, blue));
+            _tft.fillRect(xPos, yPos, backgroundPixelSize, backgroundPixelSize, _tft.color565(red, green, blue));
         }
     }
 }
@@ -270,17 +270,10 @@ void Display::drawGame(Difficulty selectedDifficulty){
         Xmax        = 210;
         Ymax        = 170;
         gridSize    = 2;
-        for(uint8_t i = 0; i < gridSize; i++){
-            for(uint8_t i = 0; i < gridSize; i++){
-                drawPixelArray(hole, hole_palette, multiplySize, startX, startY);
-                startX += Xcrement;
-            }
-            startX = 60;
-            startY += Ycrement;
+        for(uint8_t i = 1; i <= (gridSize * gridSize); i++){
+            drawOrRemoveHole(i, true);
         }
-        startY = 70;
-        dynamicStartX      = startX;
-        dynamicStartY      = startY;
+        
     }
 
     if(selectedDifficulty == 9){
@@ -292,17 +285,10 @@ void Display::drawGame(Difficulty selectedDifficulty){
         Xmax        = 230;
         Ymax        = 195;
         gridSize    = 3;
-        for(uint8_t i = 0; i < gridSize; i++){
-            for(uint8_t i = 0; i < gridSize; i++){
-                drawPixelArray(hole, hole_palette, multiplySize, startX, startY);
-                startX += Xcrement;
-            }
-            startX = 50;
-            startY += Ycrement;
+        for(uint8_t i = 1; i <= (gridSize * gridSize); i++){
+            drawOrRemoveHole(i, true);
         }
-        startY = 55;
-        dynamicStartX      = startX;
-        dynamicStartY      = startY;
+
     }
 
     if(selectedDifficulty == 16){
@@ -314,19 +300,13 @@ void Display::drawGame(Difficulty selectedDifficulty){
         Xmax        = 279;
         Ymax        = 189;
         gridSize    = 4;
-        for(uint8_t i = 0; i < gridSize; i++){
-            for(uint8_t i = 0; i < gridSize; i++){
-                drawPixelArray(hole, hole_palette, multiplySize, startX, startY);
-                startX += Xcrement;
-            }
-            startX = 15;
-            startY += Ycrement;
+        for(uint8_t i = 1; i <= (gridSize * gridSize); i++){
+            drawOrRemoveHole(i, true);
         }
-        startY = 54;
-        dynamicStartX      = startX;
-        dynamicStartY      = startY;
     }
 
+    dynamicStartX      = startX;
+    dynamicStartY      = startY;
     selectWidthHeight = picturePixelSize * multiplySize;
 }
 
@@ -382,25 +362,26 @@ void Display::updateGame(uint8_t score, bool ZPressed){
             molePlaced = 0x0;
         }
     }
+    
     //If character is hammer
     else{
         //If the hammers movement is not blocked
         if (get_t1_overflows() - lastHammerUse >= 30) { // 30 overflows ≈ 1 second
+            //If hammer finished hitting
             if(hammerJustHit){
-                //Remove horizontal hammer and hole
-                _tft.fillRect(dynamicStartX, dynamicStartY, selectWidthHeight+25, selectWidthHeight, ILI9341_GREEN);
+                //Remove horizontal hammer
+                drawOrRemoveHammer(selectedHeap, false, true);
                 //Place selector hammer and hole
-                drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY);
-                drawPixelArray(hammerVert, hammerVert_palette, multiplySize, dynamicStartX+30, dynamicStartY);
+                drawOrRemoveHammer(selectedHeap, true, false);
+                drawOrRemoveHole(selectedHeap, true);
                 hammerJustHit = false;
             }
+            //If other heap is selected
             if(oldSelectedHeap != selectedHeap){
-                //If other heap is selected, remove old selector
-                _tft.fillRect(oldDynamicStartX+20, oldDynamicStartY, selectWidthHeight+5, selectWidthHeight, ILI9341_GREEN);
-                drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
+                //remove old selector
+                drawOrRemoveHammer(oldSelectedHeap, false, false);
                 //Draw selector hammer
-                drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY);
-                drawPixelArray(hammerVert, hammerVert_palette, multiplySize, dynamicStartX+30, dynamicStartY);
+                drawOrRemoveHammer(selectedHeap, true, false);
             }
             if(ZPressed) {
                 // Update last usage timestamp
@@ -408,21 +389,20 @@ void Display::updateGame(uint8_t score, bool ZPressed){
             }
         }
         //If the hammer is blocked
-        else{
+        else if(!hammerJustHit){
             //Remove selector hammer
-            if(hammerJustHit == false){
-                _tft.fillRect(dynamicStartX+20, dynamicStartY, selectWidthHeight+5, selectWidthHeight, ILI9341_GREEN);
-                drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
+            // if(hammerJustHit == false){
+                drawOrRemoveHammer(selectedHeap, false, false);
                 // Perform hammer action
-                drawPixelArray(hammerHori, hammerHori_palette, multiplySize, dynamicStartX + (2 * multiplySize), dynamicStartY - (1 * multiplySize));
-            }
+                drawOrRemoveHammer(selectedHeap, true, true);
+            // }
             hammerJustHit = true;
         }
     }
 
     if (time == 0) {
         // Game over
-        drawGameOverMenu(10, 10, true); //TODO send scores and winner
+        drawGameOverMenu(10, 10, true); //TODO send scores
     }
 }
 
@@ -441,6 +421,40 @@ void Display::drawOrRemoveMole(uint8_t heapNumber, bool draw) {
     } else {
         _tft.fillRect(xPos, yPos, selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
         drawPixelArray(hole, hole_palette, multiplySize, xPos, yPos);
+    }
+}
+
+void Display::drawOrRemoveHammer(uint8_t heapNumber, bool draw, bool horizontal) {
+    uint16_t xPos, yPos;
+    calculateHeapPosition(heapNumber, xPos, yPos);
+
+    if (draw) {
+        if(!horizontal){
+            drawPixelArray(hammerVert, hammerVert_palette, multiplySize, xPos + (picturePixelSize * multiplySize), yPos);
+        }
+        else{
+            drawPixelArray(hammerHori, hammerHori_palette, multiplySize, dynamicStartX + (2 * multiplySize), dynamicStartY - multiplySize);
+        }
+    } else {
+        if(!horizontal){
+            _tft.fillRect(xPos  + (picturePixelSize * multiplySize), yPos, (picturePixelSize * multiplySize), (picturePixelSize * multiplySize), ILI9341_GREEN);
+            drawPixelArray(hole, hole_palette, multiplySize, xPos, yPos);
+        }
+        else{
+            drawPixelArray(hole, hole_palette, multiplySize, xPos, yPos);
+            _tft.fillRect(xPos + (2 * multiplySize), yPos - multiplySize, (picturePixelSize * multiplySize), (picturePixelSize * multiplySize), ILI9341_GREEN);
+        }
+    }
+}
+
+void Display::drawOrRemoveHole(uint8_t heapNumber, bool draw) {
+    uint16_t xPos, yPos;
+    calculateHeapPosition(heapNumber, xPos, yPos);
+
+    if (draw) {
+        drawPixelArray(hole, hole_palette, multiplySize, xPos, yPos);
+    } else {
+        _tft.fillRect(xPos, yPos, selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
     }
 }
 
@@ -761,8 +775,8 @@ void Display::calcCenterScreenText(String text, uint8_t textSize){
 }
 
 void Display::drawPixelField(uint8_t y){
-    for(uint16_t j = 0; j < SCREEN_HEIGHT / pixelSize; j++){
-        for (uint16_t i = 0; i < SCREEN_WIDTH / pixelSize; i++)
+    for(uint16_t j = 0; j < SCREEN_HEIGHT / backgroundPixelSize; j++){
+        for (uint16_t i = 0; i < SCREEN_WIDTH / backgroundPixelSize; i++)
         {
             // Generate random RGB values biased towards green
             uint8_t red = 32 + rand() % 32;     // Red: 32 to 63 (brighter)
@@ -773,7 +787,7 @@ void Display::drawPixelField(uint8_t y){
             uint16_t color = ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
 
             // Draw the rectangle with the random green shade
-            _tft.fillRect(i * pixelSize, y + j * pixelSize, pixelSize, pixelSize, color);
+            _tft.fillRect(i * backgroundPixelSize, y + j * backgroundPixelSize, backgroundPixelSize, backgroundPixelSize, color);
         }
     }
 }
