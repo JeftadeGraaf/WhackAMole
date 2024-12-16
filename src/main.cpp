@@ -13,7 +13,6 @@
 
 // Instance of IR object
 IRComm ir;
-Game game;
 
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
@@ -90,6 +89,8 @@ int main(void) {
 	display.refreshBacklight();
 	display.clearScreen();
     init_nunchuck();
+
+    Game game = Game(ir);
 
     // pass the timer1 overflow variable from the IR protocol to the Display lib
     uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
