@@ -18,14 +18,17 @@ uint8_t Game::heapCoordinatesToHeapNumber(uint8_t x, uint8_t y, uint8_t gridWidt
     return (y * gridWidth) + x;
 }
 
-// command id: 0x1
+/*
+command id: 0x1
+
+data bits:
+mSB-3: -
+4: opponentIsMole
+5: gridSize if 16 else 0
+6: gridSize if 9 else 0
+LSB: gridSize if 4 else 0
+*/
 void Game::sendStart(bool opponentIsMole, uint8_t gridSize) {
-    // data bits:
-    // mSB-3: -
-    // 4: opponentIsMole
-    // 5: gridSize if 16 else 0
-    // 6: gridSize if 9 else 0
-    // LSB: gridSize if 4 else 0
 
     uint16_t command = 0;
 
@@ -47,11 +50,14 @@ void Game::sendStart(bool opponentIsMole, uint8_t gridSize) {
     ir.sendFrame(command);
 }
 
-// command id: 0x2
-void Game::moleUp(uint8_t grid_position) {
-    // data bits:
-    // mSB-3: -
-    // 4-7: grid_position
+/* 
+command id: 0x2
+
+data bits:
+mSB-3: -
+4-7: grid_position 
+*/
+void Game::sendMoleUp(uint8_t grid_position) {
 
     uint16_t command = 0;
 
@@ -62,13 +68,15 @@ void Game::moleUp(uint8_t grid_position) {
     ir.sendFrame(command);
 }
 
-// command id: 0x3
-void Game::hammerMove(uint8_t grid_position, bool strike) {
-    // data bits:
-    // mSB-2: -
-    // 3: strike
-    // 4-7: grid_position
+/*
+command id: 0x3
 
+data bits:
+mSB-2: -
+3: strike
+4-7: grid_position
+*/
+void Game::sendHammerMove(uint8_t grid_position, bool strike) {
     uint16_t command = 0;
 
     command |= 0x0300; // command id as 16-bit value
@@ -83,12 +91,14 @@ void Game::hammerMove(uint8_t grid_position, bool strike) {
     ir.sendFrame(command);
 }
 
-// command id: 0x4
-void Game::sendScore(uint8_t score) {
-    // data bits:
-    // mSB-3: -
-    // 4-7: score
+/* 
+command id: 0x4
 
+data bits:
+mSB-3: -
+4-7: score 
+*/
+void Game::sendScore(uint8_t score) {
     uint16_t command = 0;
 
     command |= 0x0400; // command id as 16-bit value
@@ -98,11 +108,13 @@ void Game::sendScore(uint8_t score) {
     ir.sendFrame(command);
 }
 
-// command id: 0x5
-void Game::sendInvalidCommandSignal() {
-    // data bits:
-    // none
+/*
+command id: 0x5
 
+data bits:
+none
+*/
+void Game::sendInvalidCommandSignal() {
     uint16_t command = 0;
 
     command |= 0x0500; // command id as 16-bit value
