@@ -11,9 +11,6 @@
 #include <Display.h>
 #include <Game.h>
 
-// Instance of IR object
-IRComm ir;
-
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
 const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
@@ -23,52 +20,28 @@ const uint16_t BAUDRATE = 9600;             //UART baud rate
 const uint8_t NUNCHUK_ADDRESS = 0x52;       //Nunchuk I2c address
 const uint16_t NUNCHUCK_WAIT = 1000;        //Wait for nunchuk test function
 
-const uint8_t NUNCHUK_DEADZONE = 30;        //Deadzone against drift
-const uint8_t NUNCHUK_CENTER_VALUE = 128;   //value of x and y when joystick is idle
-const uint8_t NUNCHUK_X_SENSITIVITY = 5;    //sensitivity of cursor horizontal movements
-const uint8_t NUNCHUK_Y_SENSITIVITY = 5;    //sensitivity of cursor vertical movements
-const uint16_t DISPLAY_MAX_X = 300;         //Max horizontal movement of cursor (right)
-const uint8_t DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor (left)
-const uint8_t DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
-const uint8_t DISPLAY_MIN_Y = 0;            //Min vertical movement of cursor (up)
-
-//Save button state
-bool ZPressed;
-bool CPressed;
-
 //Game variables
 uint16_t score = 100;
-
-//!TEMP recieved data
-uint16_t recievedData;
-
-//For recieved data
-enum process{
-    startGame = 1,
-    moleUp = 2,
-    hammerPositionHit = 3,
-    recieveScore = 4,
-    invalidProcess
-};
-
-bool moleIsUp; //If mole is up
-uint32_t moleUpCurrentTime; //Time mole is up
 
 //Display pins
 #define BACKLIGHT_PIN 5
 #define TFT_DC 9
 #define TFT_CS 10
 
-// Create display objects
+// Instance of IR object
+IRComm ir;
+// Create display object
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
+// Create game object
+Game game(ir, display);
+
+uint16_t recievedData; //!TEMP recieved data
 
 //local functions
 bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
 bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
-void buttonListener();
-void reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count);
-process readRecievedProcess(uint16_t data);
+
 
 //Interrupts
 ISR(INT0_vect){
@@ -95,24 +68,22 @@ int main(void) {
 	display.clearScreen();
     init_nunchuck();
 
-    Game game = Game(ir);
-
     // pass the timer1 overflow variable from the IR protocol to the Display lib
     uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
     display.setTimingVariable(timer1_overflow_count);
 
     display.drawStartMenu();
 
-    // recievedData = 0x104; //Start process, hammer, 4x4
-    // reactToRecievedData(recievedData, *timer1_overflow_count);
-    // recievedData = 0x200; //moleUp process, mole, heap 0
+    recievedData = 0x104; //Start process, hammer, 4x4
+    game.reactToRecievedData(recievedData, *timer1_overflow_count);
+    recievedData = 0x200; //moleUp process, mole, heap 0
     
 
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
 
-        buttonListener();
+        game.buttonListener();
 
         if(ir.isBufferReady()){
             uint16_t data = ir.decodeIRMessage();
@@ -182,129 +153,3 @@ void init_IR_transmitter_timer0(){
 	OCR0A = OCR0A_value;
 }
 
-void buttonListener() {
-    //update button state
-    Nunchuk.getState(NUNCHUK_ADDRESS);
-    ZPressed = Nunchuk.state.z_button;
-    CPressed = Nunchuk.state.c_button;
-
-    //Switch between different screens
-    switch(display.displayedScreen) {
-        case Display::game:
-            display.updateGame(0, ZPressed);
-            break;
-
-        case Display::gameOver:
-            //Go to start menu
-            if(ZPressed){
-                display.drawStartMenu();
-            }
-            break;
-
-        case Display::startMenu:
-            //Update selection
-            display.updateStartMenu(ZPressed);
-            break;
-
-        case Display::chooseCharacter:
-            //Update selection
-            display.updateChooseCharacter(ZPressed);
-            //Go back to start menu
-            if(CPressed){
-                display.drawStartMenu();
-            }
-            break;
-
-        case Display::difficulty:
-            //Update selection
-            display.updateDifficulty(ZPressed);
-            //Go back to choose character screen
-            if(CPressed){
-                display.drawChooseCharacter();
-            }
-            break;
-
-        case Display::highscores:
-            //Go back to start menu
-            if(CPressed){
-                display.drawStartMenu();
-            }
-            break;
-
-        default:
-            Serial.println("ERROR, unknown screen");
-    }
-}
-
-void reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
-    process proc = readRecievedProcess(data);
-
-    switch(proc){
-        case startGame: {
-            display.characterMole = (data >> 3) & 1; //set character based on bit 3
-
-            uint8_t lastThreeBits = data & 0x7; //Set difficulty based on 3 LSBs
-            if(lastThreeBits == 1){ //Bit 0 is set -> 2x2
-                display.selectedDifficulty = Display::four;
-            }
-            else if(lastThreeBits == 2){ //Bit 1 is set -> 3x3
-                display.selectedDifficulty = Display::nine;
-            }
-            else if(lastThreeBits == 4){ //Bit 2 is set -> 4x4
-                display.selectedDifficulty = Display::sixteen;
-            }
-            else{ //If invalid difficulty is recieved
-                Serial.println("Difficulty set error");
-                //TODO terugsturen en terug ontvangen voor correcte check
-            }
-            display.drawGame(display.selectedDifficulty);
-            break;
-        }
-
-        case moleUp:{
-            uint8_t recievedMoleHeap = data & 0xF;
-            if(!moleIsUp){
-                display.drawOrRemoveMole(recievedMoleHeap, true);
-                moleUpCurrentTime = timer1_overflow_count;
-                moleIsUp = true;
-            }
-            else{
-                if (timer1_overflow_count - moleUpCurrentTime >= 60) {
-                    display.drawOrRemoveMole(recievedMoleHeap, false);
-                    moleIsUp = false;
-                    recievedData++;
-                }
-            }
-            break;
-        }
-
-        case hammerPositionHit:
-            Serial.println("error");
-            break;
-        
-        case recieveScore:
-            Serial.println("error");
-            break;
-
-        default:
-            Serial.println("error");
-            break;
-    }
-}
-
-process readRecievedProcess(uint16_t data){
-    data = data >> 8;
-    if(data == 1){
-        return startGame;
-    }
-    else if(data == 2){
-        return moleUp;
-    }
-    else if(data == 3){
-        return hammerPositionHit;
-    }
-    else if(data == 4){
-        return recieveScore;
-    }
-    return invalidProcess;
-}
