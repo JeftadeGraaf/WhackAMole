@@ -9,16 +9,27 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
-#include <Game.h>
 
 // Instance of IR object
 IRComm ir;
 
+// OCR value for Timer0, IR transmitter
+// OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
+const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
+
 const uint16_t BAUDRATE = 9600;             //UART baud rate
 
-//Nunchuk variables
 const uint8_t NUNCHUK_ADDRESS = 0x52;       //Nunchuk I2c address
 const uint16_t NUNCHUCK_WAIT = 1000;        //Wait for nunchuk test function
+
+const uint8_t NUNCHUK_DEADZONE = 30;        //Deadzone against drift
+const uint8_t NUNCHUK_CENTER_VALUE = 128;   //value of x and y when joystick is idle
+const uint8_t NUNCHUK_X_SENSITIVITY = 5;    //sensitivity of cursor horizontal movements
+const uint8_t NUNCHUK_Y_SENSITIVITY = 5;    //sensitivity of cursor vertical movements
+const uint16_t DISPLAY_MAX_X = 300;         //Max horizontal movement of cursor (right)
+const uint8_t DISPLAY_MIN_X = 0;            //Min horizontal movement of cursor (left)
+const uint8_t DISPLAY_MAX_Y = 220;          //Max vertical movement of cursor (down)
+const uint8_t DISPLAY_MIN_Y = 0;            //Min vertical movement of cursor (up)
 
 //Save button state
 bool ZPressed;
@@ -36,7 +47,7 @@ enum process{
     invalidProcess
 };
 
-//Display variables
+//Display pins
 #define BACKLIGHT_PIN 5
 #define TFT_DC 9
 #define TFT_CS 10
@@ -44,10 +55,11 @@ enum process{
 // Create display objects
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 
-// prototypes
+//local functions
 bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
 bool init_nunchuck();               //Initialise connection to nunchuk
-void activeListener();              //Makes button input react, reacts to recieved data
+void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
+void buttonListener();
 void reactToRecievedData(uint16_t data);
 process readRecievedProcess(uint16_t data);
 
@@ -69,9 +81,7 @@ int main(void) {
     Serial.begin(BAUDRATE);
     ir.initialize();
     sei(); // Enable global interrupts
-    // uint16_t msg = 0b00000000000;
-
-    Game game = Game(ir);
+    uint16_t msg = 0b00000000000;
 
 	// Initialize backlight
 	display.init();     
@@ -85,26 +95,24 @@ int main(void) {
 
     display.drawStartMenu();
 
-    uint16_t data = 0b0000000100000100; //Start process, hammer, 4x4
+    uint16_t data = 0b0000000100001100; //Start process, mole, 4x4
     reactToRecievedData(data);
-    data = 0b0000001000000111; //Moleup, heap 7
 
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
 
-        activeListener();
-        reactToRecievedData(data);
+        buttonListener();
 
-        // if(ir.isBufferReady()){
-        //     uint16_t data = ir.decodeIRMessage();
-        //     Serial.print("Received data: ");
-        //     Serial.println(data);
-        //     msg = data + 1;
-        //     _delay_ms(200);
-        // } else {
-        //     ir.sendFrame(msg);
-        // }
+        if(ir.isBufferReady()){
+            uint16_t data = ir.decodeIRMessage();
+            Serial.print("Received data: ");
+            Serial.println(data);
+            msg = data + 1;
+            _delay_ms(200);
+        } else {
+            ir.sendFrame(msg);
+        }
     }
 	//never reach
 	return 0;
@@ -154,7 +162,16 @@ bool nunchuck_show_state_TEST() {
 		return(true);
 }
 
-void activeListener() {
+//Init IR settings
+void init_IR_transmitter_timer0(){
+	DDRD |= (1 << DDD6);        // IR LED output
+	TCCR0B |= (1 << CS00);      // no prescaler
+	TCCR0A |= (1 << WGM01);     // CTC mode (reset at OCR)
+	TCCR0A |= (1 << COM0A0);    // toggle mode
+	OCR0A = OCR0A_value;
+}
+
+void buttonListener() {
     //update button state
     Nunchuk.getState(NUNCHUK_ADDRESS);
     ZPressed = Nunchuk.state.z_button;
@@ -213,32 +230,29 @@ void reactToRecievedData(uint16_t data){
 
     switch(proc){
         case startGame: {
-            if(display.displayedScreen != Display::game){
-                display.characterMole = (data >> 3) & 1; //set character based on bit 3
+            display.characterMole = (data >> 3) & 1; //set character based on bit 3
 
-                uint8_t lastThreeBits = data & 0x7; //Set difficulty based on 3 LSBs
-                if(lastThreeBits == 1){ //Bit 0 is set -> 2x2
-                    display.selectedDifficulty = Display::four;
-                }
-                else if(lastThreeBits == 2){ //Bit 1 is set -> 3x3
-                    display.selectedDifficulty = Display::nine;
-                }
-                else if(lastThreeBits == 4){ //Bit 2 is set -> 4x4
-                    display.selectedDifficulty = Display::sixteen;
-                }
-                else{ //If invalid difficulty is recieved
-                    Serial.println("Difficulty set error");
-                    //TODO terugsturen en terug ontvangen voor correcte check
-                }
-                display.drawGame(display.selectedDifficulty);
+            uint8_t lastThreeBits = data & 0x7; //Set difficulty based on 3 LSBs
+            if(lastThreeBits == 1){ //Bit 0 is set -> 2x2
+                display.selectedDifficulty = Display::four;
             }
+            else if(lastThreeBits == 2){ //Bit 1 is set -> 3x3
+                display.selectedDifficulty = Display::nine;
+            }
+            else if(lastThreeBits == 4){ //Bit 2 is set -> 4x4
+                display.selectedDifficulty = Display::sixteen;
+            }
+            else{ //If invalid difficulty is recieved
+                Serial.println("Difficulty set error");
+                //TODO terugsturen en terug ontvangen voor correcte check
+            }
+            display.drawGame(display.selectedDifficulty);
             break;
         }
 
         case moleUp:{
             uint8_t recievedMoleHeap = data & 0xF;
             Serial.println(recievedMoleHeap);
-            display.drawOrRemoveMole(0, recievedMoleHeap);
             break;
         }
 

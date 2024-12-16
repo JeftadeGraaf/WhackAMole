@@ -17,12 +17,11 @@ public:
     void updateChooseCharacter(bool buttonPressed); //Update the choose character menu based on user input
     void updateDifficulty(bool buttonPressed); //Update the difficulty menu based on user input
     void updateStartMenu(bool buttonPressed); //Update the startmenu based on user input
-    void drawOrRemoveMole(bool ZPressed, uint8_t heap); //Draw or remove the mole based on if statement
 
     enum Difficulty{
         four = 4,
         nine = 9,
-        sixteen = 16,
+        sixteen = 16
     };
     Difficulty selectedDifficulty = nine; //The current selected difficulty
 
@@ -47,7 +46,7 @@ public:
     };
     Screens displayedScreen; //The current displayed screen
 
-    bool characterMole; //Saves the selected playable character
+    bool characterMole = true; //Saves the selected playable character
 private:
     void calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
@@ -91,7 +90,7 @@ private:
     uint8_t oldScore = 0; //starting score
     uint32_t lastHammerUse = 0; //Time a hit with the hammer was performed
     bool hammerJustHit = false; //Saves if the hammer is in the process of hitting
-    uint32_t moleArray[4]; //Settings for the mole, 0 = mole up, 1 = X Coör, 2 = Y Coör, 3 = Time
+    uint32_t moleArray[4]; //Mole pixel array, for putting down mole after 2 seconds
 
     //Variables for selector and heap generation. updateGame(), drawGame(), updateChooseCharacter() functions
     uint16_t selectWidthHeight = 0; //The size of the selector in game
