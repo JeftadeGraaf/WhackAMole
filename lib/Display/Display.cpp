@@ -1,8 +1,10 @@
 #include "Display.h"
 #include "Nunchuk.h"
+#include "Game.h"
 
 uint32_t gameTimeTracker = 0;
 uint32_t *timer1_all_overflows;
+Game *game_logic;
 
 uint32_t get_t1_overflows(){
     return *timer1_all_overflows;
@@ -371,6 +373,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
 
         //If Z is pressed and mole is not placed, draw mole
         if(ZPressed && !molePlaced){
+            accessGame().sendMoleUp(selectedHeap);
             drawOrRemoveMole(selectedHeap, true);
             molePlaced = 0x1;
             molePlacedTime = get_t1_overflows();
@@ -401,6 +404,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
                 //Draw selector hammer
                 drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY);
                 drawPixelArray(hammerVert, hammerVert_palette, multiplySize, dynamicStartX+30, dynamicStartY);
+                accessGame().sendHammerMove(selectedHeap, false);
             }
             if(ZPressed) {
                 // Update last usage timestamp
@@ -415,6 +419,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
                 drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
                 // Perform hammer action
                 drawPixelArray(hammerHori, hammerHori_palette, multiplySize, dynamicStartX + (2 * multiplySize), dynamicStartY - (1 * multiplySize));
+                accessGame().sendHammerMove(selectedHeap, true);
             }
             hammerJustHit = true;
         }
@@ -784,4 +789,12 @@ void Display::clearScreen() {
 
 void Display::setTimingVariable(uint32_t *timer1_overflows_32ms){
     timer1_all_overflows = timer1_overflows_32ms;
+}
+
+void Display::setGameClass(Game *gameClass){
+    game_logic = gameClass;
+}
+
+Game accessGame(){
+    return *game_logic;
 }

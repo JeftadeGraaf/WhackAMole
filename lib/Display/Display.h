@@ -38,6 +38,7 @@ public:
     void clearScreen(); //Turn screen black
 
     void setTimingVariable(uint32_t *timer1_overflows_32ms); //Used for keeping the time in the game
+    void setGameClass(Game* game); //Used to set the game class
 
     enum Screens {
         game,
