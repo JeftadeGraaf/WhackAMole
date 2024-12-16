@@ -104,15 +104,16 @@ int main(void) {
 
         buttonListener();
 
-        if(ir.isBufferReady()){
-            uint16_t data = ir.decodeIRMessage();
-            Serial.print("Received data: ");
-            Serial.println(data);
-            msg = data + 1;
-            _delay_ms(200);
-        } else {
-            ir.sendFrame(msg);
-        }
+        // if(ir.isBufferReady()){
+        //     uint16_t data = ir.decodeIRMessage();
+        //     Serial.print("Received data: ");
+        //     Serial.println(data);
+        //     msg = data + 1;
+        //     _delay_ms(200);
+        // } else {
+        //     ir.sendFrame(msg);
+        // }
+        _delay_ms(10);
     }
 	//never reach
 	return 0;
