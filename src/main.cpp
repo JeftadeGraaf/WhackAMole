@@ -73,12 +73,7 @@ int main(void) {
     display.setTimingVariable(timer1_overflow_count);
 
     display.drawStartMenu();
-
-    recievedData = 0x104; //Start process, hammer, 4x4
-    game.reactToRecievedData(recievedData, *timer1_overflow_count);
-    recievedData = 0x200; //moleUp process, mole, heap 0
     
-
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
@@ -87,11 +82,9 @@ int main(void) {
 
         if(ir.isBufferReady()){
             uint16_t data = ir.decodeIRMessage();
-            Serial.print("Received data: ");
-            Serial.println(data, BIN);
-            // _delay_ms(200);
+            game.reactToRecievedData(data, *timer1_overflow_count);
         } else {
-            game.sendStart(true, Display::Difficulty::four);
+            game.sendStart(false, Display::Difficulty::nine);
         }
 
         // _delay_ms(10);
