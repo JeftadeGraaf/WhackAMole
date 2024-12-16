@@ -9,6 +9,7 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
+#include <Game.h>
 
 // Instance of IR object
 IRComm ir;
@@ -94,6 +95,8 @@ int main(void) {
 	display.clearScreen();
     init_nunchuck();
 
+    Game game = Game(ir);
+
     // pass the timer1 overflow variable from the IR protocol to the Display lib
     uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
     display.setTimingVariable(timer1_overflow_count);
@@ -111,15 +114,15 @@ int main(void) {
 
         buttonListener();
 
-        // if(ir.isBufferReady()){
-        //     uint16_t data = ir.decodeIRMessage();
-        //     Serial.print("Received data: ");
-        //     Serial.println(data);
-        //     msg = data + 1;
-        //     _delay_ms(200);
-        // } else {
-        //     ir.sendFrame(msg);
-        // }
+        if(ir.isBufferReady()){
+            uint16_t data = ir.decodeIRMessage();
+            Serial.print("Received data: ");
+            Serial.println(data);
+            _delay_ms(200);
+        } else {
+            game.moleUp(7);
+        }
+
         _delay_ms(10);
     }
 	//never reach

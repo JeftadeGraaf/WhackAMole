@@ -187,12 +187,6 @@ void Display::init() {
     // Enable ADC
     ADCSRA |= (1<<ADEN);
 
-    // Fast PWM mode, non-inverting
-    TCCR0A |= (1<<WGM00) | (1<<WGM01);
-    TCCR0A |= (1<<COM0B1);
-    //Prescaler 64
-    TCCR0B |= (1<<CS00) | (1<<CS01);
-
     // Set the backlight pin as output
     DDRD |= (1<<_backlight_pin);
 
@@ -202,11 +196,12 @@ void Display::init() {
 
 void Display::refreshBacklight() {
     // Add code to refresh the backlight as needed
-    if(!(ADCSRA & (1<<ADSC))){
-        OCR0B = ADCH;
-    }
+    PORTD |= (1<<_backlight_pin);
+    // if(!(ADCSRA & (1<<ADSC))){
+    //     // OCR0B = ADCH;
+    // }
 
-    ADCSRA |= (1<<ADSC);
+    // ADCSRA |= (1<<ADSC);
 }
 
 void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart) {
