@@ -109,13 +109,13 @@ int main(void) {
         if(ir.isBufferReady()){
             uint16_t data = ir.decodeIRMessage();
             Serial.print("Received data: ");
-            Serial.println(data);
-            _delay_ms(200);
+            Serial.println(data, BIN);
+            // _delay_ms(200);
         } else {
-            game.moleUp(7);
+            game.sendStart(true, Display::Difficulty::four);
         }
 
-        _delay_ms(10);
+        // _delay_ms(10);
     }
 	//never reach
 	return 0;
