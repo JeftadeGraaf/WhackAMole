@@ -10,10 +10,7 @@
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
 #include <Game.h>
-
-// OCR value for Timer0, IR transmitter
-// OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
-const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
+#include <Audio.h>
 
 const uint16_t BAUDRATE = 9600;             //UART baud rate
 
@@ -34,6 +31,8 @@ IRComm ir;
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 // Create game object
 Game game(ir, display);
+// Create audio object
+Audio audio;
 
 uint16_t recievedData; //!TEMP recieved data
 
@@ -49,6 +48,7 @@ ISR(INT0_vect){
 }
 
 ISR(TIMER1_OVF_vect){
+    audio.handleTimer1ISR();
     ir.onTimer1Overflow();
 }
 
@@ -67,6 +67,10 @@ int main(void) {
 	display.refreshBacklight();
 	display.clearScreen();
     init_nunchuck();
+
+    audio.init();
+    // playSound example
+    // audio.playSound(Audio::Sound::HammerHit);
 
     // pass the timer1 overflow variable from the IR protocol to the Display lib
     uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
@@ -135,14 +139,5 @@ bool nunchuck_show_state_TEST() {
 		_delay_ms(NUNCHUCK_WAIT);
 
 		return(true);
-}
-
-//Init IR settings
-void init_IR_transmitter_timer0(){
-	DDRD |= (1 << DDD6);        // IR LED output
-	TCCR0B |= (1 << CS00);      // no prescaler
-	TCCR0A |= (1 << WGM01);     // CTC mode (reset at OCR)
-	TCCR0A |= (1 << COM0A0);    // toggle mode
-	OCR0A = OCR0A_value;
 }
 
