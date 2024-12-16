@@ -105,6 +105,7 @@ int main(void) {
         // } else {
         //     ir.sendFrame(msg);
         // }
+        _delay_ms(10);
     }
 	//never reach
 	return 0;
