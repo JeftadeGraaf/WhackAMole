@@ -3,7 +3,7 @@
 #include <Timer1Overflow.h>
 
 // Constructor
-IRComm::IRComm(Timer1Overflow timer1)
+IRComm::IRComm(Timer1Overflow &timer1)
     : half_bit_buffers{{0}}, active_buffer_idx(0), buffer_position{0}, buffer_ready_flags{false},
       decoded_frame{0}, bit_index(0), is_tx_active(false), is_tx_high(false),
       prev_timer_value(0), bit_duration(0), is_first_interrupt(true), is_frame_ready(false),
@@ -15,7 +15,7 @@ IRComm::IRComm(Timer1Overflow timer1)
         buffer_ready_flags[i] = false;
     }
 
-    timer1 = timer1;
+    this->timer1 = &timer1;
 }
 
 
@@ -42,15 +42,15 @@ void IRComm::onReceiveInterrupt()
     if (is_first_interrupt)
     {
         prev_timer_value = current_timer_value;
-        timer1.overflowCount = 0;
+        timer1->resetIR();
         is_first_interrupt = false;
     }
     else
     {
-        bit_duration = ((timer1.overflowCount << 16) + current_timer_value - prev_timer_value) / 2;
+        bit_duration = ((timer1->IROverflowCount << 16) + current_timer_value - prev_timer_value) / 2;
 
         prev_timer_value = current_timer_value;
-        timer1.IROverflowCount = 0;
+        timer1->resetIR();
 
         processReceivedBit(current_pin_state, bit_duration);
     }

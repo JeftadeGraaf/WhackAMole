@@ -76,29 +76,14 @@ int main(void) {
     sei(); // Enable global interrupts
     uint16_t msg = 0b00000000000;
 
-	// Initialize backlight
-	display.init();     
-	display.refreshBacklight();
-    init_nunchuck();
-
-    display.drawStartMenu();
 
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
-        display.refreshBacklight();
-
-        buttonListener();
-
-        Serial.println(timer1.overflowCount);
         if(ir.isBufferReady()){
-            uint16_t data = ir.decodeIRMessage();
-            Serial.print("Received data: ");
-            Serial.println(data);
-            msg = data + 1;
-            _delay_ms(200);
-        } else {
-            ir.sendFrame(msg);
+            msg = ir.decodeIRMessage();
+            Serial.println(msg);
         }
+        _delay_ms(10);
     }
 	//never reach
 	return 0;

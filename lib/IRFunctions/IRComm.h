@@ -8,7 +8,7 @@ class IRComm
 {
 public:
     // Constructor
-    IRComm(Timer1Overflow timer1);
+    IRComm(Timer1Overflow &timer1);
 
     // Initialization function
     void initialize();
@@ -61,7 +61,7 @@ private:
     static const uint16_t IR_PULSE_DURATION = 850; // Duration of each IR pulse in microseconds
 
     // Timer object for managing overflows
-    Timer1Overflow timer1;
+    Timer1Overflow* timer1;
 };
 
 #endif
