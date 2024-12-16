@@ -38,6 +38,9 @@ bool CPressed;
 //Game variables
 uint16_t score = 100;
 
+//!TEMP recieved data
+uint16_t recievedData;
+
 //For recieved data
 enum process{
     startGame = 1,
@@ -46,6 +49,9 @@ enum process{
     recieveScore = 4,
     invalidProcess
 };
+
+bool moleIsUp; //If mole is up
+uint32_t moleUpCurrentTime; //Time mole is up
 
 //Display pins
 #define BACKLIGHT_PIN 5
@@ -60,7 +66,7 @@ bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCH
 bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
 void buttonListener();
-void reactToRecievedData(uint16_t data);
+void reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count);
 process readRecievedProcess(uint16_t data);
 
 //Interrupts
@@ -77,11 +83,10 @@ ISR(TIMER0_COMPA_vect){
 }
 
 int main(void) {
-
     Serial.begin(BAUDRATE);
     ir.initialize();
     sei(); // Enable global interrupts
-    uint16_t msg = 0b00000000000;
+    // uint16_t msg = 0b00000000000;
 
 	// Initialize backlight
 	display.init();     
@@ -95,8 +100,10 @@ int main(void) {
 
     display.drawStartMenu();
 
-    uint16_t data = 0b0000000100001100; //Start process, mole, 4x4
-    reactToRecievedData(data);
+    // recievedData = 0x104; //Start process, hammer, 4x4
+    // reactToRecievedData(recievedData, *timer1_overflow_count);
+    // recievedData = 0x200; //moleUp process, mole, heap 0
+    
 
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
@@ -226,7 +233,7 @@ void buttonListener() {
     }
 }
 
-void reactToRecievedData(uint16_t data){
+void reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
     process proc = readRecievedProcess(data);
 
     switch(proc){
@@ -253,7 +260,18 @@ void reactToRecievedData(uint16_t data){
 
         case moleUp:{
             uint8_t recievedMoleHeap = data & 0xF;
-            Serial.println(recievedMoleHeap);
+            if(!moleIsUp){
+                display.drawOrRemoveMole(recievedMoleHeap, true);
+                moleUpCurrentTime = timer1_overflow_count;
+                moleIsUp = true;
+            }
+            else{
+                if (timer1_overflow_count - moleUpCurrentTime >= 60) {
+                    display.drawOrRemoveMole(recievedMoleHeap, false);
+                    moleIsUp = false;
+                    recievedData++;
+                }
+            }
             break;
         }
 

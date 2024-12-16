@@ -18,6 +18,9 @@ public:
     void updateDifficulty(bool buttonPressed); //Update the difficulty menu based on user input
     void updateStartMenu(bool buttonPressed); //Update the startmenu based on user input
 
+    void drawOrRemoveMole(uint8_t heapNumber, bool draw);
+    void calculateHeapPosition(uint8_t heapNumber, uint16_t& xPos, uint16_t& yPos);
+
     enum Difficulty{
         four = 4,
         nine = 9,
@@ -52,6 +55,7 @@ private:
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
     void drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart); // Draw a pixelarray with its corresponding palette
     void updateGameTimeScore(uint8_t score); //Update the time and score in the game screen
+
 
     Adafruit_ILI9341 _tft; //An instance of the display
     
@@ -90,7 +94,9 @@ private:
     uint8_t oldScore = 0; //starting score
     uint32_t lastHammerUse = 0; //Time a hit with the hammer was performed
     bool hammerJustHit = false; //Saves if the hammer is in the process of hitting
-    uint32_t moleArray[4]; //Mole pixel array, for putting down mole after 2 seconds
+    bool molePlaced; //If mole is placed
+    uint32_t molePlacedTime; //Time mole is placed
+    uint8_t molePlacedHeap; //Heap mole is placed in
 
     //Variables for selector and heap generation. updateGame(), drawGame(), updateChooseCharacter() functions
     uint16_t selectWidthHeight = 0; //The size of the selector in game

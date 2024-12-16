@@ -369,28 +369,22 @@ void Display::updateGame(uint8_t score, bool ZPressed){
     if(characterMole){
         //Draw selector rectangle
         _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
-        if(ZPressed){
-            if(!moleArray[0]){
-                //if Z button is pressed, draw mole and hole on top
-                drawPixelArray(mole, mole_palette, multiplySize, dynamicStartX, dynamicStartY);
-                drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY); 
-                moleArray[0] = 0b00000001;
-                moleArray[1] = dynamicStartX;
-                moleArray[2] = dynamicStartY;
-                moleArray[3] = get_t1_overflows();
-            }
-        }
+        //If other heap is selected, remove old selector
         if(oldSelectedHeap != selectedHeap){
-            //Remove old selector rectange
             _tft.drawRect(oldDynamicStartX-2, oldDynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
         }
-        if(moleArray[0]){
-            //If mole is drawn, remove it after 2 seconds
-            if(get_t1_overflows() - moleArray[3] >= 60){
-                _tft.fillRect(moleArray[1], moleArray[2], selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
-                drawPixelArray(hole, hole_palette, multiplySize, moleArray[1], moleArray[2]);
-                moleArray[0] = 0;
-            }
+
+        //If Z is pressed and mole is not placed, draw mole
+        if(ZPressed && !molePlaced){
+            drawOrRemoveMole(selectedHeap, true);
+            molePlaced = 0x1;
+            molePlacedTime = get_t1_overflows();
+            molePlacedHeap = selectedHeap;
+        }
+        //If mole is placed and time is up, remove mole
+        if(molePlaced && (get_t1_overflows() - molePlacedTime >= 60)){
+            drawOrRemoveMole(molePlacedHeap, false);
+            molePlaced = 0x0;
         }
     }
     //If character is hammer
@@ -434,6 +428,24 @@ void Display::updateGame(uint8_t score, bool ZPressed){
     if (time == 0) {
         // Game over
         drawGameOverMenu(10, 10, true); //TODO send scores and winner
+    }
+}
+
+void Display::calculateHeapPosition(uint8_t heapNumber, uint16_t& xPos, uint16_t& yPos) {
+    xPos = startX + (heapNumber % gridSize) * Xcrement;
+    yPos = startY + (heapNumber / gridSize) * Ycrement;
+}
+
+void Display::drawOrRemoveMole(uint8_t heapNumber, bool draw) {
+    uint16_t xPos, yPos;
+    calculateHeapPosition(heapNumber, xPos, yPos);
+    
+    if (draw) {
+        drawPixelArray(mole, mole_palette, multiplySize, xPos, yPos);
+        drawPixelArray(hole, hole_palette, multiplySize, xPos, yPos);
+    } else {
+        _tft.fillRect(xPos, yPos, selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
+        drawPixelArray(hole, hole_palette, multiplySize, xPos, yPos);
     }
 }
 
