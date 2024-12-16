@@ -9,9 +9,12 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
+#include <Timer1Overflow.h>
+
+Timer1Overflow timer1;  // Instance of Timer1Overflow object
 
 // Instance of IR object
-IRComm ir;
+IRComm ir(timer1);
 
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
@@ -44,7 +47,7 @@ uint16_t score = 100;
 #define TFT_CS 10
 
 // Create display objects
-Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
+Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC, timer1);
 
 // prototypes
 bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
@@ -58,7 +61,7 @@ ISR(INT0_vect){
 }
 
 ISR(TIMER1_OVF_vect){
-    ir.onTimer1Overflow();
+    timer1.onTimer1Overflow();
 }
 
 ISR(TIMER0_COMPA_vect){
@@ -68,6 +71,7 @@ ISR(TIMER0_COMPA_vect){
 int main(void) {
 
     Serial.begin(BAUDRATE);
+    timer1.init();  // Initialize Timer1Overflow object
     ir.initialize();
     sei(); // Enable global interrupts
     uint16_t msg = 0b00000000000;
@@ -77,10 +81,6 @@ int main(void) {
 	display.refreshBacklight();
     init_nunchuck();
 
-    // pass the timer1 overflow variable from the IR protocol to the Display lib
-    uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
-    display.setTimingVariable(timer1_overflow_count);
-
     display.drawStartMenu();
 
 	while (1) {
@@ -89,6 +89,7 @@ int main(void) {
 
         buttonListener();
 
+        Serial.println(timer1.overflowCount);
         if(ir.isBufferReady()){
             uint16_t data = ir.decodeIRMessage();
             Serial.print("Received data: ");

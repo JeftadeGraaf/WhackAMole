@@ -1,16 +1,8 @@
 #include "Display.h"
 #include "Nunchuk.h"
+#include <Timer1Overflow.h>
 
 uint32_t gameTimeTracker = 0;
-uint32_t *timer1_all_overflows;
-
-uint32_t get_t1_overflows(){
-    return *timer1_all_overflows;
-}
-
-void reset_t1_overflows(){
-    *timer1_all_overflows = 0;
-}
 
 const uint8_t mole[8][8] = {
     {0, 13, 34, 10, 26, 38, 13, 0},
@@ -140,10 +132,11 @@ const uint8_t hammerPalette[26][3] = {
 
 
 // Initialize the display
-Display::Display(int backlight_pin, int tft_cs, int tft_dc)
+Display::Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1)
     : _tft(tft_cs, tft_dc) {
     // Constructor
     _backlight_pin = backlight_pin;
+    this->_timer1 = &timer1;
 }
 
 void Display::init() {
@@ -210,7 +203,8 @@ void Display::drawGame(Difficulty selectedDifficulty){
     displayedScreen = game;
     this->characterMole = characterMole;
 
-    reset_t1_overflows();
+    _timer1->resetOverflow();
+    Serial.println(_timer1->overflowCount);
     gameTimeTracker = 0;
     time = 60;
 
@@ -237,73 +231,30 @@ void Display::drawGame(Difficulty selectedDifficulty){
         _tft.print(text);
 
     //Apply settings for selectedDifficulty level, used also in selection process
-    if(selectedDifficulty == 4){
-        multiplySize= 6;
-        startX      = 60;
-        startY      = 70;
-        Xcrement    = 150;
-        Ycrement    = 100;
-        Xmax        = 210;
-        Ymax        = 170;
-        gridSize    = 2;
-        for(uint8_t i = 0; i < gridSize; i++){
-            for(uint8_t i = 0; i < gridSize; i++){
-                drawPixelArray(*hole, hole_palette, multiplySize, startX, startY + multiplySize*4, 8, 4);
-                startX += Xcrement;
-            }
-            startX = 60;
-            startY += Ycrement;
-        }
-        startY = 70;
-        dynamicStartX      = startX;
-        dynamicStartY      = startY;
+    if(selectedDifficulty == four){
+        level = difficultyLevels[0];
+    } else if(selectedDifficulty == nine){
+        level = difficultyLevels[1];
+    } else if(selectedDifficulty == sixteen){
+        level = difficultyLevels[2];
     }
 
-    if(selectedDifficulty == 9){
-        multiplySize= 5;
-        startX      = 50;
-        startY      = 55;
-        Xcrement    = 90;
-        Ycrement    = 70;
-        Xmax        = 230;
-        Ymax        = 195;
-        gridSize    = 3;
-        for(uint8_t i = 0; i < gridSize; i++){
-            for(uint8_t i = 0; i < gridSize; i++){
-                drawPixelArray(*hole, hole_palette, multiplySize, startX, startY + multiplySize*4, 8, 4);
-                startX += Xcrement;
+    int oldStartY = level.startY;
+    int oldStartX = level.startX;
+    for(uint8_t i = 0; i < level.gridSize; i++){
+            for(uint8_t i = 0; i < level.gridSize; i++){
+                drawPixelArray(*hole, hole_palette, level.multiplySize, level.startX, level.startY + level.multiplySize*4, 8, 4);
+                level.startX += level.Xincrement;
             }
-            startX = 50;
-            startY += Ycrement;
+            level.startX = oldStartX;
+            level.startY += level.Yincrement;
         }
-        startY = 55;
-        dynamicStartX      = startX;
-        dynamicStartY      = startY;
-    }
+    level.startY = oldStartY;
+    level.dynamicStartX      = level.startX;
+    level.dynamicStartY      = level.startY;
 
-    if(selectedDifficulty == 16){
-        multiplySize= 4;
-        startX      = 15;
-        startY      = 54;
-        Xcrement    = 88;
-        Ycrement    = 45;
-        Xmax        = 279;
-        Ymax        = 189;
-        gridSize    = 4;
-        for(uint8_t i = 0; i < gridSize; i++){
-            for(uint8_t i = 0; i < gridSize; i++){
-                drawPixelArray(*hole, hole_palette, multiplySize, startX, startY + multiplySize*4, 8, 4);
-                startX += Xcrement;
-            }
-            startX = 15;
-            startY += Ycrement;
-        }
-        startY = 54;
-        dynamicStartX      = startX;
-        dynamicStartY      = startY;
-    }
 
-    selectWidthHeight = picturePixelSize * multiplySize;
+    selectWidthHeight = picturePixelSize * level.multiplySize;
 }
 
 //Update selection and react to button press
@@ -325,9 +276,9 @@ void Display::updateGame(uint8_t score, bool ZPressed){
         _tft.print(text);
 
     // update time variable
-    if (get_t1_overflows() - gameTimeTracker > 30) {
+    if (_timer1->overflowCount - gameTimeTracker > 30) {
         time--;
-        gameTimeTracker = get_t1_overflows();
+        gameTimeTracker = _timer1->overflowCount;
     }
 
         //Write new text
@@ -341,40 +292,40 @@ void Display::updateGame(uint8_t score, bool ZPressed){
         _tft.print(text);
 
     oldSelectedHeap = selectedHeap;
-    oldDynamicStartX = dynamicStartX;
-    oldDynamicStartY = dynamicStartY;
+    oldDynamicStartX = level.dynamicStartX;
+    oldDynamicStartY = level.dynamicStartY;
 
     if((!characterMole && !hammerJustHit) || characterMole){
-        if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartX != Xmax){
-            dynamicStartX+=Xcrement; //Move right
+        if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && level.dynamicStartX != level.Xmax){
+            level.dynamicStartX+=level.Xincrement; //Move right
             selectedHeap += 1;
-        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartX != startX){
-            dynamicStartX-=Xcrement; //Move left
+        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && level.dynamicStartX != level.startX){
+            level.dynamicStartX-=level.Xincrement; //Move left
             selectedHeap -= 1;
         }
 
-        if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartY != Ymax){
-            dynamicStartY+=Ycrement; //Move down
-            selectedHeap += gridSize;
-        } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartY != startY){
-            dynamicStartY-=Ycrement; //Move up
-            selectedHeap -= gridSize;
+        if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && level.dynamicStartY != level.Ymax){
+            level.dynamicStartY+=level.Yincrement; //Move down
+            selectedHeap += level.gridSize;
+        } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && level.dynamicStartY != level.startY){
+            level.dynamicStartY-=level.Yincrement; //Move up
+            selectedHeap -= level.gridSize;
         }
     }
 
     //If character is mole
     if(characterMole){
         //Draw selector rectangle
-        _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
+        _tft.drawRect(level.dynamicStartX-2, level.dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
         if(ZPressed){
             if(!moleArray[0]){
                 //if Z button is pressed, draw mole and hole on top
-                drawPixelArray(*mole, mole_palette, multiplySize, dynamicStartX, dynamicStartY);
-                drawPixelArray(*hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY + multiplySize*4, 8, 4); 
+                drawPixelArray(*mole, mole_palette, level.multiplySize, level.dynamicStartX, level.dynamicStartY);
+                drawPixelArray(*hole, hole_palette, level.multiplySize, level.dynamicStartX, level.dynamicStartY + level.multiplySize*4, 8, 4); 
                 moleArray[0] = 0b00000001;
-                moleArray[1] = dynamicStartX;
-                moleArray[2] = dynamicStartY;
-                moleArray[3] = get_t1_overflows();
+                moleArray[1] = level.dynamicStartX;
+                moleArray[2] = level.dynamicStartY;
+                moleArray[3] = _timer1->overflowCount;
             }
         }
         if(oldSelectedHeap != selectedHeap){
@@ -383,9 +334,9 @@ void Display::updateGame(uint8_t score, bool ZPressed){
         }
         if(moleArray[0]){
             //If mole is drawn, remove it after 2 seconds
-            if(get_t1_overflows() - moleArray[3] >= 60){
+            if(_timer1->overflowCount - moleArray[3] >= 60){
                 _tft.fillRect(moleArray[1], moleArray[2], selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
-                drawPixelArray(*hole, hole_palette, multiplySize, moleArray[1], moleArray[2] + multiplySize*4, 8, 4);
+                drawPixelArray(*hole, hole_palette, level.multiplySize, moleArray[1], moleArray[2] + level.multiplySize*4, 8, 4);
                 moleArray[0] = 0;
             }
         }
@@ -393,36 +344,36 @@ void Display::updateGame(uint8_t score, bool ZPressed){
     //If character is hammer
     else{
         //If the hammers movement is not blocked
-        if (get_t1_overflows() - lastHammerUse >= 30) { // 30 overflows ≈ 1 second
+        if (_timer1->overflowCount - lastHammerUse >= 30) { // 30 overflows ≈ 1 second
             if(hammerJustHit){
                 //Remove horizontal hammer and hole
-                _tft.fillRect(dynamicStartX, dynamicStartY, selectWidthHeight+25, selectWidthHeight, ILI9341_GREEN);
+                _tft.fillRect(level.dynamicStartX, level.dynamicStartY, selectWidthHeight+25, selectWidthHeight, ILI9341_GREEN);
                 //Place selector hammer and hole
-                drawPixelArray(*hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY + multiplySize*4, 8, 4);
-                drawPixelArray(&hammerVert[0][0], hammerPalette, multiplySize, dynamicStartX+30, dynamicStartY, 5, 8);
+                drawPixelArray(*hole, hole_palette, level.multiplySize, level.dynamicStartX, level.dynamicStartY + level.multiplySize*4, 8, 4);
+                drawPixelArray(&hammerVert[0][0], hammerPalette, level.multiplySize, level.dynamicStartX+30, level.dynamicStartY, 5, 8);
                 hammerJustHit = false;
             }
             if(oldSelectedHeap != selectedHeap){
                 //If other heap is selected, remove old selector
                 _tft.fillRect(oldDynamicStartX+20, oldDynamicStartY, selectWidthHeight+5, selectWidthHeight, ILI9341_GREEN);
-                drawPixelArray(*hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY + multiplySize*4, 8, 4);
+                drawPixelArray(*hole, hole_palette, level.multiplySize, oldDynamicStartX, oldDynamicStartY + level.multiplySize*4, 8, 4);
                 //Draw selector hammer
-                drawPixelArray(*hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY + multiplySize*4, 8, 4);
-                drawPixelArray(&hammerVert[0][0], hammerPalette, multiplySize, dynamicStartX+30, dynamicStartY, 5, 8);
+                drawPixelArray(*hole, hole_palette, level.multiplySize, level.dynamicStartX, level.dynamicStartY + level.multiplySize*4, 8, 4);
+                drawPixelArray(&hammerVert[0][0], hammerPalette, level.multiplySize, level.dynamicStartX+30, level.dynamicStartY, 5, 8);
             }
             if(ZPressed) {
                 // Update last usage timestamp
-                lastHammerUse = get_t1_overflows();
+                lastHammerUse = _timer1->overflowCount;
             }
         }
         //If the hammer is blocked
         else{
             //Remove selector hammer
             if(hammerJustHit == false){
-                _tft.fillRect(dynamicStartX+20, dynamicStartY, selectWidthHeight+5, selectWidthHeight, ILI9341_GREEN);
-                drawPixelArray(*hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY + multiplySize*4, 8, 4);
+                _tft.fillRect(level.dynamicStartX+20, level.dynamicStartY, selectWidthHeight+5, selectWidthHeight, ILI9341_GREEN);
+                drawPixelArray(*hole, hole_palette, level.multiplySize, oldDynamicStartX, oldDynamicStartY + level.multiplySize*4, 8, 4);
                 // Perform hammer action
-                drawPixelArray(*hammerHori, hammerPalette, multiplySize, dynamicStartX + (2 * multiplySize), dynamicStartY - (1 * multiplySize), 8, 5);
+                drawPixelArray(*hammerHori, hammerPalette, level.multiplySize, level.dynamicStartX + (2 * level.multiplySize), level.dynamicStartY - (1 * level.multiplySize), 8, 5);
             }
             hammerJustHit = true;
         }
@@ -653,14 +604,6 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
         _tft.setCursor(x, 136);
         _tft.print(text);
 
-        text = "Z: Return to menu";
-        _tft.setCursor(11, 200);
-        _tft.print(text);
-
-        text = "C: Save name";
-        _tft.setCursor(11, 220);
-        _tft.print(text);
-
     //If mole won, draw mole. Else, draw hammerHori
     if(mole_win){
         drawPixelArray(*mole, mole_palette, 8, 150, 150);
@@ -747,53 +690,4 @@ void Display::drawPixelField(uint8_t y){
             _tft.fillRect(i * pixelSize, y + j * pixelSize, pixelSize, pixelSize, color);
         }
     }
-}
-
-// Function to draw grid based on difficulty
-void Display::drawDifficultyGrid(int multiplySize, int startX, int startY, int Xincrement, int Yincrement, int gridSize) {
-    int fixedStartX = startX;
-    int fixedStartY = startY;
-    for(uint8_t i = 0; i < gridSize; i++){
-            for(uint8_t i = 0; i < gridSize; i++){
-                drawPixelArray(*hole, hole_palette, multiplySize, startX, startY + multiplySize*4, 8, 4);
-                startX += Xcrement;
-            }
-            startX = fixedStartX;
-            startY += Ycrement;
-        }
-        startY = fixedStartY;
-        dynamicStartX      = startX;
-        dynamicStartY      = startY;
-}
-
-void IRCommdisplayText(TFT_eSPI& tft, int screenWidth, const String& text, int yPosition, const GFXfont* font, TextAlignment alignment, int textSize = 1, int margin = 0) {
-    tft.setFont(font);          // Set the desired font
-    tft.setTextSize(textSize);  // Set the text size
-
-    // Calculate text width using the current font and size
-    calcCenterScreenText(text, textSize); // Updates textWidth variable
-
-    // Calculate x-position based on alignment
-    int xPosition = 0;
-    switch (alignment) {
-        case ALIGN_LEFT:
-            xPosition = margin;
-            break;
-        case ALIGN_CENTER:
-            xPosition = (screenWidth - textWidth) / 2;
-            break;
-        case ALIGN_RIGHT:
-            xPosition = screenWidth - textWidth - margin;
-            break;
-    }
-
-    // Set the cursor and print the text
-    tft.setCursor(xPosition, yPosition);
-    tft.print(text);
-}
-
-
-//Used for keeping the time in the game
-void Display::setTimingVariable(uint32_t *timer1_overflows_32ms){
-    timer1_all_overflows = timer1_overflows_32ms;
 }

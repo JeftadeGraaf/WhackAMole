@@ -4,12 +4,13 @@
 #include <Adafruit_ILI9341.h>
 #include "Fonts/InriaSans_Regular8pt7b.h"
 #include "Fonts/IrishGrover_Regular8pt7b.h"
+#include <Timer1Overflow.h>
 
 #include <SPI.h>
 
 class Display {
 public:
-    Display(int backlight_pin, int tft_cs, int tft_dc);
+    Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1);
     void init();
     void refreshBacklight();
 
@@ -32,15 +33,13 @@ public:
     void drawStartMenu();
     void drawHighscores();
 
-    void setTimingVariable(uint32_t *timer1_overflows_32ms);
-
     enum Screens {
         game,
         gameOver,
         startMenu,
         chooseCharacter,
         difficulty,
-        highscores
+        highscores,
     };
     Screens displayedScreen;
 
@@ -48,9 +47,7 @@ public:
 private:
     void calcCenterScreenText(String text, uint8_t textSize);
     void drawPixelField(uint8_t y);
-    void drawDifficultyGrid(int multiplySize, int startX, int startY, int Xcrement, int Ycrement, int gridSize);
     void drawPixelArray(const uint8_t *pixels, const uint8_t palette[][3], uint8_t pixelSize, int xStart, int yStart, int xSize = 8, int ySize = 8);
-    void IRCommdisplayText(TFT_eSPI& tft, int screenWidth, const String& text, int yPosition, const GFXfont* font, TextAlignment alignment, int textSize = 1, int margin = 0) {
 
     Adafruit_ILI9341 _tft;
     
@@ -100,24 +97,30 @@ private:
     unsigned int oldDynamicStartX;
     uint16_t oldDynamicStartY;
 
-    unsigned int startX = 0;
-    unsigned int startY = 0;
-    unsigned int dynamicStartX = 0;
-    uint16_t dynamicStartY = 0;
-    uint8_t Xcrement = 0;
-    uint8_t Ycrement = 0;
-    uint16_t Xmax = 0;
-    uint8_t Ymax = 0;
-    uint8_t gridSize = 0;
-
     //Mole pixel array, for putting down mole after 2 seconds
     uint32_t moleArray[4];
 
-    enum TextAlignment {
-        ALIGN_LEFT,
-        ALIGN_CENTER,
-        ALIGN_RIGHT
+    struct DifficultyLevel {
+        uint8_t multiplySize;
+        uint16_t startX;
+        uint16_t startY;
+        uint16_t Xincrement;
+        uint16_t Yincrement;
+        uint8_t gridSize;
+        uint16_t Xmax;
+        uint16_t Ymax;
+        uint16_t dynamicStartX;
+        uint8_t dynamicStartY;
     };
+
+    DifficultyLevel difficultyLevels[3] = {
+        {6, 60, 70, 150, 100, 2, 210, 170},   // Difficulty 4
+        {5, 50, 55, 90, 70, 3, 230, 195},     // Difficulty 9
+        {4, 15, 54, 88, 45, 4, 279, 189},     // Difficulty 16
+    };
+    DifficultyLevel level;
+
+    Timer1Overflow* _timer1;
 };
 
 #endif

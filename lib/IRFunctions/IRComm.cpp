@@ -1,18 +1,21 @@
 #include "IRComm.h"
 #include <util/delay.h>
+#include <Timer1Overflow.h>
 
 // Constructor
-IRComm::IRComm()
+IRComm::IRComm(Timer1Overflow timer1)
     : half_bit_buffers{{0}}, active_buffer_idx(0), buffer_position{0}, buffer_ready_flags{false},
-      decoded_frame{0}, bit_index(0), is_tx_active(false), is_tx_high(false), overflow_count(0),
+      decoded_frame{0}, bit_index(0), is_tx_active(false), is_tx_high(false),
       prev_timer_value(0), bit_duration(0), is_first_interrupt(true), is_frame_ready(false),
-      is_frame_valid(false), tx_frame{0}, timer1_all_overflows(0)
+      is_frame_valid(false), tx_frame{0}
 {
     for (uint8_t i = 0; i < 2; i++)
     {
         buffer_position[i] = 0;
         buffer_ready_flags[i] = false;
     }
+
+    timer1 = timer1;
 }
 
 
@@ -24,11 +27,6 @@ void IRComm::initialize()
     TCCR0A = (1 << WGM01);                      // Configure Timer0 in CTC mode
     TCCR0B = (1 << CS00);                       // Set no prescaler (fastest clock)
     OCR0A = 210;                                // Set OCR0A for ~889 µs pulse width
-
-    TCCR1A = 0;
-    TCCR1B |= (1 << CS11);                      // Prescaler of 8 for Timer1
-    TCNT1 = 0;
-    TIMSK1 |= (1 << TOIE1);                     // Enable Timer1 overflow interrupt
 
     EICRA |= (1 << ISC00);                      // Trigger on any logical change for INT0
     EIMSK |= (1 << INT0);                       // Enable INT0 interrupt
@@ -44,24 +42,18 @@ void IRComm::onReceiveInterrupt()
     if (is_first_interrupt)
     {
         prev_timer_value = current_timer_value;
-        overflow_count = 0;
+        timer1.overflowCount = 0;
         is_first_interrupt = false;
     }
     else
     {
-        bit_duration = ((overflow_count << 16) + current_timer_value - prev_timer_value) / 2;
+        bit_duration = ((timer1.overflowCount << 16) + current_timer_value - prev_timer_value) / 2;
 
         prev_timer_value = current_timer_value;
-        overflow_count = 0;
+        timer1.IROverflowCount = 0;
 
         processReceivedBit(current_pin_state, bit_duration);
     }
-}
-
-void IRComm::onTimer1Overflow()
-{
-    overflow_count++;
-    timer1_all_overflows++;
 }
 
 void IRComm::onTimer0CompareMatch()
@@ -329,9 +321,4 @@ void IRComm::sendHalfBit(bool bit) {
 void IRComm::stopSending() {
     TCCR0A &= ~(1 << COM0A0); // Stop toggling on OC0A
     PORTD &= ~(1 << PD6);     // Turn off IR LED
-}
-
-// Get a pointer to the overflow_count variable
-uint32_t* IRComm::getOverflowCountPtr() {
-    return &timer1_all_overflows;
 }
