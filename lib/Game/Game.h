@@ -7,16 +7,12 @@
 class Game {
 public:
     Game(IRComm &ir);
-    ~Game();
 
+    uint8_t heapCoordinatesToHeapNumber(uint8_t x, uint8_t y, uint8_t gridWidth);
     void sendStart(bool opponentIsMole, uint8_t difficulty);
-
     void hammerMove(uint8_t grid_position, bool strike);
-
     void moleUp(uint8_t grid_position);
-
     void sendScore(uint8_t score);
-
     void sendInvalidCommandSignal();
 
 private:

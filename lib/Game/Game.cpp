@@ -9,13 +9,14 @@ Game::Game(IRComm &ir) {
     this->ir = ir;
 }
 
-// Destructor
-Game::~Game() {}
-
 // commands are built up like this:
 // 0-3: -
 // 4-7: command id
 // 8-15: data
+
+uint8_t Game::heapCoordinatesToHeapNumber(uint8_t x, uint8_t y, uint8_t gridWidth) {
+    return (y * gridWidth) + x;
+}
 
 // command id: 0x1
 void Game::sendStart(bool opponentIsMole, uint8_t gridSize) {

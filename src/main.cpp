@@ -9,9 +9,11 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
+#include <Game.h>
 
 // Instance of IR object
 IRComm ir;
+Game game;
 
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
@@ -96,7 +98,6 @@ int main(void) {
     display.drawStartMenu();
 
     uint16_t data = 0b0000000100001100; //Start process, mole, 4x4
-    reactToRecievedData(data);
 
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
@@ -104,15 +105,15 @@ int main(void) {
 
         buttonListener();
 
-        // if(ir.isBufferReady()){
-        //     uint16_t data = ir.decodeIRMessage();
-        //     Serial.print("Received data: ");
-        //     Serial.println(data);
-        //     msg = data + 1;
-        //     _delay_ms(200);
-        // } else {
-        //     ir.sendFrame(msg);
-        // }
+        if(ir.isBufferReady()){
+            uint16_t data = ir.decodeIRMessage();
+            Serial.print("Received data: ");
+            Serial.println(data);
+            _delay_ms(200);
+        } else {
+            game.moleUp(7);
+        }
+
         _delay_ms(10);
     }
 	//never reach
