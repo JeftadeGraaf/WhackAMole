@@ -196,11 +196,12 @@ void Display::init() {
 
 void Display::refreshBacklight() {
     // Add code to refresh the backlight as needed
-    if(!(ADCSRA & (1<<ADSC))){
-        OCR0B = ADCH;
-    }
+    PORTD |= (1<<_backlight_pin);
+    // if(!(ADCSRA & (1<<ADSC))){
+    //     // OCR0B = ADCH;
+    // }
 
-    ADCSRA |= (1<<ADSC);
+    // ADCSRA |= (1<<ADSC);
 }
 
 void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart) {
