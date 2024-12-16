@@ -41,10 +41,10 @@ private:
 
     // Member variables for managing IR data
     volatile bool half_bit_buffers[2][32];   // Buffer for received bits
+    uint8_t active_buffer_idx;               // Index of the active buffer    
     uint8_t buffer_position[2];              // Current position in the buffer
     bool buffer_ready_flags[2];              // Flags to indicate buffer readiness
-    uint8_t active_buffer_idx;               // Index of the active buffer
-    bool decoded_frame[16];                  // Decoded IR frame
+    uint16_t decoded_frame;                  // Decoded IR frame
     uint8_t bit_index;                       // Index for sending bits
     bool is_tx_active;                       // Whether transmission is active
     bool is_tx_high;                         // IR LED state for sending

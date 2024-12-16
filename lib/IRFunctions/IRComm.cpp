@@ -157,11 +157,12 @@ void IRComm::processBuffer(uint8_t buffer_idx)
 
         if (bit1 && !bit2)
         {
-            decoded_frame[bit_idx] = 1;
+            decoded_frame <<= 1;
+            decoded_frame |= 1;
         }
         else if (!bit1 && bit2)
         {
-            decoded_frame[bit_idx] = 0;
+            decoded_frame <<= 1;
         }
         else
         {
@@ -186,7 +187,9 @@ void IRComm::validateFrame()
     is_frame_ready = false;
 
     // Validate start bits
-    if (!(decoded_frame[0] && decoded_frame[1]))
+    uint16_t start_bits = (decoded_frame >> 14); // Extract the top two bits
+
+    if (start_bits != 0b11) // Check if both bits are not set
     {
         Serial.println("Start bit error");
         return;
@@ -194,16 +197,23 @@ void IRComm::validateFrame()
 
     // Validate parity bit
     bool parity_check = false;
+
+    // Calculate parity for bits 2 to 13
     for (int i = 2; i < 14; i++)
     {
-        parity_check ^= decoded_frame[i];
+        if (decoded_frame & (1 << (15 - i))) // Check if bit at position (15 - i) is 1
+        {
+            parity_check = !parity_check; // Toggle parity_check
+        }
     }
 
-    if (parity_check != decoded_frame[14])
+    // Compare calculated parity with the actual parity bit (LSB)
+    if (parity_check != (decoded_frame & 0x1)) // Check if parity matches the LSB
     {
         Serial.println("Parity error");
         return;
     }
+
 
     is_frame_valid = true;
 }
@@ -218,15 +228,12 @@ uint16_t IRComm::decodeIRMessage()
     decodeBuffer();    // Decode the buffer into the frame
     validateFrame();   // Validate the frame
 
-    // Extract the message (12-bit data field) from the frame
-    uint16_t message = 0;
-    for (int i = 2; i < 14; i++)
-    {
-        message <<= 1;
-        message |= decoded_frame[i];
-    }
+    // Extract the 12-bit message (bits 2 to 13) directly
+    uint16_t message = (decoded_frame >> 1) & 0xFFF; // Mask the 12 least significant bits after shifting
 
-    is_frame_valid = false; // Reset the frame validity flag for the next message
+    // Reset the frame validity flag for the next message
+    is_frame_valid = false;
+
     return message; // Return the extracted message
 }
 
