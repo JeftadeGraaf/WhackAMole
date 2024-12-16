@@ -150,7 +150,7 @@ void IRComm::processBuffer(uint8_t buffer_idx)
 
     volatile bool* buffer = half_bit_buffers[buffer_idx];  // Reference the current buffer
 
-    for (uint8_t i = 0; i < 32; i += 2)
+    for (uint8_t i = 0; i < 30; i += 2)
     {
         bool bit1 = buffer[i];
         bool bit2 = buffer[i + 1];
