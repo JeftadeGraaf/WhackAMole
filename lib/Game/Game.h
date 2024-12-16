@@ -31,6 +31,8 @@ public:
 
     process readRecievedProcess(uint16_t data);
 
+    process lastReceivedProcess;
+
 private:
     // Add private member variables and methods here
     IRComm& ir;

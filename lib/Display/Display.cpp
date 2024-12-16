@@ -425,7 +425,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
         }
     }
 
-    if (time == 0) {
+    if (time == 0 || accessGame().lastReceivedProcess == Game::process::recieveScore) {
         // Game over
         accessGame().sendScore(score);
         drawGameOverMenu(10, 10, true); //TODO send scores and winner
