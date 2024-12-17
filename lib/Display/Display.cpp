@@ -583,19 +583,18 @@ void Display::drawDifficulty(){
     _tft.setFont(&InriaSans_Regular8pt7b);
         _tft.setTextSize(3);
         _tft.setCursor(25, 80);
-        _tft.print("Easy");
+        _tft.print("4 holes");
 
         _tft.setCursor(25, 130);
-        _tft.print("Medium");
+        _tft.print("9 holes");
 
         _tft.setCursor(25, 180);
-        _tft.print("Hard");
+        _tft.print("16 holes");
 
     drawPixelArray(mole, mole_palette, 10, 210, 50);
     drawPixelArray(hole, hole_palette, 10, 210, 130);
 }
 
-//TODO hard is 4 for mole and 16 for hammer. Change needed
 void Display::updateDifficulty(bool buttonPressed){
     _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_GREEN);
     if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && selectedDifficulty != sixteen){
