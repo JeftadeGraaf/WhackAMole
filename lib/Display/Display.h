@@ -47,7 +47,7 @@ public:
 private:
     void calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
-    void drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart); // Draw a pixelarray with its corresponding palette
+    void drawPixelArray(const uint8_t *pixels, const uint8_t palette[][3], uint8_t pixelSize, int xStart, int yStart, int xSize, int ySize);
     void updateGameTimeScore(uint8_t score); //Update the time and score in the game screen
 
     Adafruit_ILI9341 _tft; //An instance of the display
@@ -97,9 +97,6 @@ private:
     uint8_t oldSelectedHeap;
     unsigned int oldDynamicStartX;
     uint16_t oldDynamicStartY;
-
-    //Mole pixel array, for putting down mole after 2 seconds
-    uint32_t moleArray[4];
 
     struct DifficultyLevel {
         uint8_t multiplySize;

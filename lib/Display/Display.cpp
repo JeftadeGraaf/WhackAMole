@@ -292,7 +292,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
         if(ZPressed){
             if(!moleArray[0]){
                 //if Z button is pressed, draw mole and hole on top
-                drawPixelArray(*mole, mole_palette, level.multiplySize, level.dynamicStartX, level.dynamicStartY);
+                drawPixelArray(*mole, mole_palette, level.multiplySize, level.dynamicStartX, level.dynamicStartY, 8, 8);
                 drawPixelArray(*hole, hole_palette, level.multiplySize, level.dynamicStartX, level.dynamicStartY + level.multiplySize*4, 8, 4); 
                 moleArray[0] = 0b00000001;
                 moleArray[1] = level.dynamicStartX;
@@ -308,7 +308,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
             //If mole is drawn, remove it after 2 seconds
             if(_timer1->overflowCount - moleArray[3] >= 60){
                 _tft.fillRect(moleArray[1], moleArray[2], selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
-                drawPixelArray(*hole, hole_palette, level.multiplySize, moleArray[1], moleArray[2] + level.multiplySize*4, 8, 4);
+                drawPixelArray(*hole, &hole_palette[0], level.multiplySize, moleArray[1], moleArray[2] + level.multiplySize*4, 8, 4);
                 moleArray[0] = 0;
             }
         }
@@ -371,9 +371,9 @@ void Display::updateGameTimeScore(uint8_t score){
         _tft.print(text);
 
     // update time variable
-    if (get_t1_overflows() - gameTimeTracker > 30) {
+    if (_timer1->overflowCount - gameTimeTracker > 30) {
         time--;
-        gameTimeTracker = get_t1_overflows();
+        gameTimeTracker = _timer1->overflowCount;
     }
 
         //Write new text
@@ -413,7 +413,7 @@ void Display::drawChooseCharacter(){
         _tft.setCursor(moleTextXCoor, textYCoor);
         _tft.print(text);
         //Draw mole character
-        drawPixelArray(*mole, mole_palette, 8, moleTextXCoor, 150);
+        drawPixelArray(*mole, mole_palette, 8, moleTextXCoor, 150, 8, 8);
         drawPixelArray(*hole, hole_palette, 8, moleTextXCoor, 196, 8, 4);
         text = "Hammer";
         calcCenterScreenText(text, 2);
@@ -480,7 +480,7 @@ void Display::drawDifficulty(){
         _tft.setCursor(25, 180);
         _tft.print("Hard");
 
-    drawPixelArray(*mole, mole_palette, 10, 210, 50);
+    drawPixelArray(*mole, mole_palette, 10, 210, 50, 8, 8);
     drawPixelArray(*hole, hole_palette, 10, 210, 170, 8, 4);
 }
 
@@ -538,7 +538,7 @@ void Display::drawStartMenu(){
         _tft.setCursor(30, 115);
         _tft.print("Highscores");
 
-    drawPixelArray(*mole, mole_palette, 10, 200, 50);
+    drawPixelArray(*mole, mole_palette, 10, 200, 50, 8, 8);
     drawPixelArray(*hole, hole_palette, 10, 200, 170, 8, 4);
 }
 
@@ -600,7 +600,7 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
 
     //If mole won, draw mole. Else, draw hammerHori
     if(mole_win){
-        drawPixelArray(*mole, mole_palette, 8, 150, 150);
+        drawPixelArray(*mole, mole_palette, 8, 150, 150, 8, 8);
         drawPixelArray(*hole, hole_palette, 8, 150, 196, 8, 4);
         drawPixelArray(*hammerHori, hammerPalette, 8, 230, 150, 8, 5);
     } else {

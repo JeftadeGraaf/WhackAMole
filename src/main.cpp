@@ -73,9 +73,22 @@ int main(void) {
     sei(); // Enable global interrupts
     uint16_t msg = 0b00000000000;
 
+    // Initialize the display
+    display.init();
+    display.drawStartMenu();
+
+    // Initialize the nunchuk
+    Nunchuk.init_nunchuck(NUNCHUK_ADDRESS);
+
 
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
+        display.refreshBacklight();
+
+        //Check for button presses
+        buttonListener();
+
+        //Check for IR messages
         if(ir.isBufferReady()){
             msg = ir.decodeIRMessage();
             Serial.println(msg);
