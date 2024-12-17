@@ -5,12 +5,13 @@
 #include "Fonts/InriaSans_Regular8pt7b.h"
 #include "Fonts/IrishGrover_Regular8pt7b.h"
 #include <Timer1Overflow.h>
+#include <SevenSegment.h>
 
 #include <SPI.h>
 
 class Display {
 public:
-    Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1);
+    Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1, SevenSegment &sevenSegment);
     void init();
     void refreshBacklight();
 
@@ -119,6 +120,7 @@ private:
     DifficultyLevel level;
 
     Timer1Overflow* _timer1;
+    SevenSegment* _sevenSegment;
 };
 
 #endif

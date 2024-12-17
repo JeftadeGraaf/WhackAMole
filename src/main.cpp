@@ -10,8 +10,10 @@
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
 #include <Timer1Overflow.h>
+#include <SevenSegment.h>
 
 Timer1Overflow timer1;  // Instance of Timer1Overflow object
+SevenSegment sevenSegment(0x21);  // Instance of SevenSegment object
 
 // Instance of IR object
 IRComm ir(timer1);
@@ -47,7 +49,7 @@ uint16_t score = 100;
 #define TFT_CS 10
 
 // Create display objects
-Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC, timer1);
+Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC, timer1, sevenSegment);
 
 // prototypes
 void buttonListener();
@@ -68,6 +70,7 @@ ISR(TIMER0_COMPA_vect){
 int main(void) {
 
     Serial.begin(BAUDRATE);
+    sevenSegment.begin();
     timer1.init();  // Initialize Timer1Overflow object
     ir.initialize();
     sei(); // Enable global interrupts
