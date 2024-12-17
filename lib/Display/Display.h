@@ -48,6 +48,7 @@ public:
 private:
     void calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
+    void drawPixelField(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t pixelSize);
     void drawPixelArray(const uint8_t *pixels, const uint8_t palette[][3], uint8_t pixelSize, int xStart, int yStart, int xSize, int ySize);
     void updateGameTimeScore(uint8_t score); //Update the time and score in the game screen
 
