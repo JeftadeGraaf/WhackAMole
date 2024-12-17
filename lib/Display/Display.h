@@ -4,14 +4,15 @@
 #include <Adafruit_ILI9341.h>
 #include "Fonts/InriaSans_Regular8pt7b.h"
 #include "Fonts/IrishGrover_Regular8pt7b.h"
+#include <Timer1Overflow.h>
 
 #include <SPI.h>
 
 class Display {
 public:
-    Display(int backlight_pin, int tft_cs, int tft_dc);
-    void init(); //Initialize the display
-    void refreshBacklight(); //Change the brightness of the display based on the potmeter value
+    Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1);
+    void init();
+    void refreshBacklight();
 
     void updateGame(uint8_t score, bool buttonPressed); //Update the game, hammer position, mole position, score and time
     void updateChooseCharacter(bool buttonPressed); //Update the choose character menu based on user input
@@ -32,17 +33,13 @@ public:
     void drawStartMenu(); //Draw the start menu
     void drawHighscores(); //Draw the highscores screen
 
-    void clearScreen(); //Turn screen black
-
-    void setTimingVariable(uint32_t *timer1_overflows_32ms); //Used for keeping the time in the game
-
     enum Screens {
         game,
         gameOver,
         startMenu,
         chooseCharacter,
         difficulty,
-        highscores
+        highscores,
     };
     Screens displayedScreen; //The current displayed screen
 
@@ -93,23 +90,38 @@ private:
     uint32_t moleArray[4]; //Mole pixel array, for putting down mole after 2 seconds
 
     //Variables for selector and heap generation. updateGame(), drawGame(), updateChooseCharacter() functions
-    uint16_t selectWidthHeight = 0; //The size of the selector in game
-    uint8_t multiplySize = 0; //size of icons is based on difficulty, this saves the size
+    uint16_t selectWidthHeight = 0;
+    uint8_t multiplySize = 0;
 
-    uint8_t selectedHeap = 0; //Which molehole is selected
-    uint8_t oldSelectedHeap; //Previouse selected molehole
-    unsigned int oldDynamicStartX; //previous selector X position
-    uint16_t oldDynamicStartY; //previous selector Y position
+    uint8_t selectedHeap = 0;
+    uint8_t oldSelectedHeap;
+    unsigned int oldDynamicStartX;
+    uint16_t oldDynamicStartY;
 
-    unsigned int startX = 0; //Start X coordinate of selector
-    unsigned int startY = 0; //Start Y coordinate of selector
-    unsigned int dynamicStartX = 0; //Changes X based on input of nunchuk joystick and difficulty selected
-    uint16_t dynamicStartY = 0; //Changes Y based on input of nunchuk joystick and difficulty selected
-    uint8_t Xcrement = 0; //Amount to increase dynamicStartX
-    uint8_t Ycrement = 0; //Amount to increase dynamicStartY
-    uint16_t Xmax = 0; //Maximum amount dynamicStartX may reach
-    uint8_t Ymax = 0; //Maximum amount dynamicStartY may reach
-    uint8_t gridSize = 0; //2 for 4 heaps, 3 for 9 heaps, 4 for 16 heaps
+    //Mole pixel array, for putting down mole after 2 seconds
+    uint32_t moleArray[4];
+
+    struct DifficultyLevel {
+        uint8_t multiplySize;
+        uint16_t startX;
+        uint16_t startY;
+        uint16_t Xincrement;
+        uint16_t Yincrement;
+        uint8_t gridSize;
+        uint16_t Xmax;
+        uint16_t Ymax;
+        uint16_t dynamicStartX;
+        uint8_t dynamicStartY;
+    };
+
+    DifficultyLevel difficultyLevels[3] = {
+        {6, 60, 70, 150, 100, 2, 210, 170},   // Difficulty 4
+        {5, 50, 55, 90, 70, 3, 230, 195},     // Difficulty 9
+        {4, 15, 54, 88, 45, 4, 279, 189},     // Difficulty 16
+    };
+    DifficultyLevel level;
+
+    Timer1Overflow* _timer1;
 };
 
 #endif

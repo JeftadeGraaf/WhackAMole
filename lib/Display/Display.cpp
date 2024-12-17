@@ -1,16 +1,8 @@
 #include "Display.h"
 #include "Nunchuk.h"
+#include <Timer1Overflow.h>
 
 uint32_t gameTimeTracker = 0;
-uint32_t *timer1_all_overflows;
-
-uint32_t get_t1_overflows(){
-    return *timer1_all_overflows;
-}
-
-void reset_t1_overflows(){
-    *timer1_all_overflows = 0;
-}
 
 const uint8_t mole[8][8] = {
     {0, 13, 34, 10, 26, 38, 13, 0},
@@ -22,160 +14,129 @@ const uint8_t mole[8][8] = {
     {27, 8, 22, 3, 3, 10, 9, 29},
     {0, 2, 0, 33, 32, 0, 0, 0},
 };
-const uint8_t mole_palette[120] = {
-    0, 0, 2,
-    254, 252, 249,
-    20, 17, 18,
-    166, 132, 61,
-    108, 86, 44,
-    175, 162, 139,
-    167, 156, 135,
-    204, 177, 122,
-    154, 119, 48,
-    139, 109, 47,
-    128, 93, 24,
-    229, 219, 198,
-    199, 164, 90,
-    50, 43, 34,
-    238, 234, 227,
-    210, 186, 136,
-    177, 144, 74,
-    140, 118, 75,
-    144, 114, 53,
-    135, 111, 67,
-    131, 101, 40,
-    138, 102, 28,
-    133, 99, 29,
-    138, 101, 28,
-    128, 95, 30,
-    203, 175, 117,
-    123, 90, 21,
-    82, 64, 34,
-    91, 67, 21,
-    91, 72, 31,
-    64, 59, 57,
-    86, 62, 17,
-    88, 63, 14,
-    88, 62, 14,
-    78, 53, 4,
-    48, 46, 53,
-    39, 39, 39,
-    36, 36, 36,
-    57, 38, 0,
-    33, 26, 26,
+const uint8_t mole_palette[40][3] = {
+    { 0, 0, 2 },
+    { 254, 252, 249 },
+    { 20, 17, 18 },
+    { 166, 132, 61 },
+    { 108, 86, 44 },
+    { 175, 162, 139 },
+    { 167, 156, 135 },
+    { 204, 177, 122 },
+    { 154, 119, 48 },
+    { 139, 109, 47 },
+    { 128, 93, 24 },
+    { 229, 219, 198 },
+    { 199, 164, 90 },
+    { 50, 43, 34 },
+    { 238, 234, 227 },
+    { 210, 186, 136 },
+    { 177, 144, 74 },
+    { 140, 118, 75 },
+    { 144, 114, 53 },
+    { 135, 111, 67 },
+    { 131, 101, 40 },
+    { 138, 102, 28 },
+    { 133, 99, 29 },
+    { 138, 101, 28 },
+    { 128, 95, 30 },
+    { 203, 175, 117 },
+    { 123, 90, 21 },
+    { 82, 64, 34 },
+    { 91, 67, 21 },
+    { 91, 72, 31 },
+    { 64, 59, 57 },
+    { 86, 62, 17 },
+    { 88, 63, 14 },
+    { 88, 62, 14 },
+    { 78, 53, 4 },
+    { 48, 46, 53 },
+    { 39, 39, 39 },
+    { 36, 36, 36 },
+    { 57, 38, 0 },
+    { 33, 26, 26 }
 };
 
-const uint8_t hole[8][8] = {
-    {0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0},
+
+const uint8_t hole[4][8] = {
     {0, 0, 0, 4, 4, 14, 13, 9},
     {7, 7, 10, 5, 1, 5, 6, 15},
     {2, 2, 1, 1, 1, 1, 6, 8},
     {11, 2, 3, 1, 1, 3, 8, 12},
 };
-const uint8_t hole_palette[48] = {
-    0, 0, 0,
-    105, 69, 4,
-    90, 61, 6,
-    94, 62, 4,
-    111, 73, 9,
-    108, 71, 4,
-    65, 44, 5,
-    93, 63, 9,
-    54, 37, 5,
-    51, 51, 0,
-    102, 71, 10,
-    69, 48, 5,
-    55, 39, 5,
-    53, 37, 5,
-    58, 39, 0,
-    45, 31, 4,
+const uint8_t hole_palette[16][3] = {
+    { 0, 0, 0 },
+    { 105, 69, 4 },
+    { 90, 61, 6 },
+    { 94, 62, 4 },
+    { 111, 73, 9 },
+    { 108, 71, 4 },
+    { 65, 44, 5 },
+    { 93, 63, 9 },
+    { 54, 37, 5 },
+    { 51, 51, 0 },
+    { 102, 71, 10 },
+    { 69, 48, 5 },
+    { 55, 39, 5 },
+    { 53, 37, 5 },
+    { 58, 39, 0 },
+    { 45, 31, 4 }
 };
 
-const uint8_t hammerHori[8][8] = {
-    {0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0},
-    {22, 23, 16, 0, 0, 0, 0, 0},
-    {24, 17, 14, 0, 0, 0, 0, 0},
-    {1, 20, 13, 4, 5, 3, 2, 12},
-    {1, 18, 15, 10, 9, 8, 6, 7},
-    {21, 19, 25, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0},
+
+const uint8_t hammerHori[5][8] = {
+    {21, 19, 25, 0,  0, 0, 0, 0 },
+    {1,  18, 15, 10, 9, 8, 6, 7 },
+    {1,  20, 13, 4,  5, 3, 2, 12},
+    {24, 17, 14, 0,  0, 0, 0, 0 },
+    {22, 23, 16, 0,  0, 0, 0, 0 },
 };
-const uint8_t hammerVert[8][8] = {
-    {0, 1, 2, 2, 25, 1, 0, 0},
-    {0, 20, 21, 22, 19, 13, 0, 0},
-    {0, 18, 16, 14, 15, 17, 0, 0},
-    {0, 0, 10, 4, 0, 0, 0, 0},
-    {0, 0, 9, 5, 0, 0, 0, 0},
-    {0, 0, 8, 3, 0, 0, 0, 0},
-    {0, 0, 6, 12, 0, 0, 0, 0},
-    {0, 0, 7, 23, 0, 0, 0, 0},
+const uint8_t hammerVert[8][5] = {
+    {22, 24, 1,  1,  21},
+    {23, 17, 20, 18, 19},
+    {16, 14, 13, 15, 25},
+    {0,  0,  4,  10, 0},
+    {0,  0,  5,  9,  0},
+    {0,  0,  3,  8,  0},
+    {0,  0,  2,  6,  0},
+    {0,  0,  12, 7,  0},
 };
-const uint8_t hammerVert_palette[78] = {
-    0, 0, 0,
-    85, 0, 0,
-    61, 2, 0,
-    247, 177, 24,
-    255, 161, 26,
-    247, 166, 25,
-    245, 148, 29,
-    246, 149, 28,
-    245, 139, 29,
-    246, 131, 31,
-    255, 136, 29,
-    255, 51, 51,
-    248, 199, 20,
-    168, 133, 110,
-    175, 108, 43,
-    148, 113, 94,
-    135, 81, 56,
-    255, 255, 218,
-    102, 102, 51,
-    111, 68, 52,
-    92, 57, 34,
-    89, 46, 32,
-    86, 39, 27,
-    255, 233, 21,
-    255, 0, 0,
-    59, 0, 0,
+const uint8_t hammerPalette[26][3] = {
+    { 0, 0, 0 },
+    { 60, 2, 0 },
+    { 248, 201, 20 },
+    { 251, 180, 24 },
+    { 253, 161, 25 },
+    { 250, 166, 25 },
+    { 250, 150, 29 },
+    { 244, 148, 28 },
+    { 247, 141, 29 },
+    { 246, 133, 31 },
+    { 249, 127, 30 },
+    { 255, 51, 51 },
+    { 235, 215, 19 },
+    { 174, 106, 43 },
+    { 146, 114, 94 },
+    { 135, 81, 56 },
+    { 255, 255, 218 },
+    { 114, 69, 53 },
+    { 93, 48, 33 },
+    { 92, 57, 34 },
+    { 86, 39, 27 },
+    { 85, 0, 0 },
+    { 63, 31, 0 },
+    { 171, 136, 118 },
+    { 59, 2, 0 },
+    { 0, 85, 85 }
 };
-const uint8_t hammerHori_palette[78] = {
-    0, 0, 0,
-    60, 2, 0,
-    248, 201, 20,
-    251, 180, 24,
-    253, 161, 25,
-    250, 166, 25,
-    250, 150, 29,
-    244, 148, 28,
-    247, 141, 29,
-    246, 133, 31,
-    249, 127, 30,
-    255, 51, 51,
-    235, 215, 19,
-    174, 106, 43,
-    146, 114, 94,
-    135, 81, 56,
-    255, 255, 218,
-    114, 69, 53,
-    93, 48, 33,
-    92, 57, 34,
-    86, 39, 27,
-    85, 0, 0,
-    63, 31, 0,
-    171, 136, 118,
-    59, 2, 0,
-    0, 85, 85,
-};
+
 
 // Initialize the display
-Display::Display(int backlight_pin, int tft_cs, int tft_dc)
+Display::Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1)
     : _tft(tft_cs, tft_dc) {
     // Constructor
     _backlight_pin = backlight_pin;
+    this->_timer1 = &timer1;
 }
 
 void Display::init() {
@@ -209,11 +170,12 @@ void Display::refreshBacklight() {
     ADCSRA |= (1<<ADSC);
 }
 
-void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t pixelSize, int xStart, int yStart) {
-    for (int y = 0; y < 8; y++) {
-        for (int x = 0; x < 8; x++) {
-            // Get the pixel index from the array
-            uint8_t pixelIndex = pixels[y][x];
+// Draw a pixelarray with its corresponding palette
+void Display::drawPixelArray(const uint8_t *pixels, const uint8_t palette[][3], uint8_t pixelSize, int xStart, int yStart, int xSize, int ySize) {
+    for (int y = 0; y < ySize; y++) {
+        for (int x = 0; x < xSize; x++) {
+            // Get the pixel value (the pixel array is a linearized 2D array)
+            uint8_t pixelIndex = *(pixels + y * xSize + x);
 
             // If the pixel is black, don't draw it
             if (pixelIndex == 0) {
@@ -221,9 +183,9 @@ void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[]
             }
 
             // Get the corresponding color from the palette
-            uint8_t red = palette[pixelIndex * 3];
-            uint8_t green = palette[pixelIndex * 3 + 1];
-            uint8_t blue = palette[pixelIndex * 3 + 2];
+            uint8_t red = palette[pixelIndex][0];
+            uint8_t green = palette[pixelIndex][1];
+            uint8_t blue = palette[pixelIndex][2];
 
             // Calculate the position where the pixel will be drawn
             int xPos = xStart + x * pixelSize;
@@ -239,7 +201,8 @@ void Display::drawGame(Difficulty selectedDifficulty){
     displayedScreen = game;
     this->characterMole = characterMole;
 
-    reset_t1_overflows();
+    _timer1->resetOverflow();
+    Serial.println(_timer1->overflowCount);
     gameTimeTracker = 0;
     time = 60;
 
@@ -266,73 +229,30 @@ void Display::drawGame(Difficulty selectedDifficulty){
         _tft.print(text);
 
     //Apply settings for selectedDifficulty level, used also in selection process
-    if(selectedDifficulty == 4){
-        multiplySize= 6;
-        startX      = 60;
-        startY      = 70;
-        Xcrement    = 150;
-        Ycrement    = 100;
-        Xmax        = 210;
-        Ymax        = 170;
-        gridSize    = 2;
-        for(uint8_t i = 0; i < gridSize; i++){
-            for(uint8_t i = 0; i < gridSize; i++){
-                drawPixelArray(hole, hole_palette, multiplySize, startX, startY);
-                startX += Xcrement;
-            }
-            startX = 60;
-            startY += Ycrement;
-        }
-        startY = 70;
-        dynamicStartX      = startX;
-        dynamicStartY      = startY;
+    if(selectedDifficulty == four){
+        level = difficultyLevels[0];
+    } else if(selectedDifficulty == nine){
+        level = difficultyLevels[1];
+    } else if(selectedDifficulty == sixteen){
+        level = difficultyLevels[2];
     }
 
-    if(selectedDifficulty == 9){
-        multiplySize= 5;
-        startX      = 50;
-        startY      = 55;
-        Xcrement    = 90;
-        Ycrement    = 70;
-        Xmax        = 230;
-        Ymax        = 195;
-        gridSize    = 3;
-        for(uint8_t i = 0; i < gridSize; i++){
-            for(uint8_t i = 0; i < gridSize; i++){
-                drawPixelArray(hole, hole_palette, multiplySize, startX, startY);
-                startX += Xcrement;
+    int oldStartY = level.startY;
+    int oldStartX = level.startX;
+    for(uint8_t i = 0; i < level.gridSize; i++){
+            for(uint8_t i = 0; i < level.gridSize; i++){
+                drawPixelArray(*hole, hole_palette, level.multiplySize, level.startX, level.startY + level.multiplySize*4, 8, 4);
+                level.startX += level.Xincrement;
             }
-            startX = 50;
-            startY += Ycrement;
+            level.startX = oldStartX;
+            level.startY += level.Yincrement;
         }
-        startY = 55;
-        dynamicStartX      = startX;
-        dynamicStartY      = startY;
-    }
+    level.startY = oldStartY;
+    level.dynamicStartX      = level.startX;
+    level.dynamicStartY      = level.startY;
 
-    if(selectedDifficulty == 16){
-        multiplySize= 4;
-        startX      = 15;
-        startY      = 54;
-        Xcrement    = 88;
-        Ycrement    = 45;
-        Xmax        = 279;
-        Ymax        = 189;
-        gridSize    = 4;
-        for(uint8_t i = 0; i < gridSize; i++){
-            for(uint8_t i = 0; i < gridSize; i++){
-                drawPixelArray(hole, hole_palette, multiplySize, startX, startY);
-                startX += Xcrement;
-            }
-            startX = 15;
-            startY += Ycrement;
-        }
-        startY = 54;
-        dynamicStartX      = startX;
-        dynamicStartY      = startY;
-    }
 
-    selectWidthHeight = picturePixelSize * multiplySize;
+    selectWidthHeight = picturePixelSize * level.multiplySize;
 }
 
 //TODO joystick (debounce)
@@ -343,41 +263,41 @@ void Display::updateGame(uint8_t score, bool ZPressed){
     updateGameTimeScore(score);
 
     oldSelectedHeap = selectedHeap;
-    oldDynamicStartX = dynamicStartX;
-    oldDynamicStartY = dynamicStartY;
+    oldDynamicStartX = level.dynamicStartX;
+    oldDynamicStartY = level.dynamicStartY;
 
     //Read movement
     if((!characterMole && !hammerJustHit) || characterMole){
-        if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartX != Xmax){
-            dynamicStartX+=Xcrement; //Move right
+        if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && level.dynamicStartX != level.Xmax){
+            level.dynamicStartX+=level.Xincrement; //Move right
             selectedHeap += 1;
-        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartX != startX){
-            dynamicStartX-=Xcrement; //Move left
+        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && level.dynamicStartX != level.startX){
+            level.dynamicStartX-=level.Xincrement; //Move left
             selectedHeap -= 1;
         }
 
-        if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartY != Ymax){
-            dynamicStartY+=Ycrement; //Move down
-            selectedHeap += gridSize;
-        } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartY != startY){
-            dynamicStartY-=Ycrement; //Move up
-            selectedHeap -= gridSize;
+        if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && level.dynamicStartY != level.Ymax){
+            level.dynamicStartY+=level.Yincrement; //Move down
+            selectedHeap += level.gridSize;
+        } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && level.dynamicStartY != level.startY){
+            level.dynamicStartY-=level.Yincrement; //Move up
+            selectedHeap -= level.gridSize;
         }
     }
 
     //If character is mole
     if(characterMole){
         //Draw selector rectangle
-        _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
+        _tft.drawRect(level.dynamicStartX-2, level.dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
         if(ZPressed){
             if(!moleArray[0]){
                 //if Z button is pressed, draw mole and hole on top
-                drawPixelArray(mole, mole_palette, multiplySize, dynamicStartX, dynamicStartY);
-                drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY); 
+                drawPixelArray(*mole, mole_palette, level.multiplySize, level.dynamicStartX, level.dynamicStartY);
+                drawPixelArray(*hole, hole_palette, level.multiplySize, level.dynamicStartX, level.dynamicStartY + level.multiplySize*4, 8, 4); 
                 moleArray[0] = 0b00000001;
-                moleArray[1] = dynamicStartX;
-                moleArray[2] = dynamicStartY;
-                moleArray[3] = get_t1_overflows();
+                moleArray[1] = level.dynamicStartX;
+                moleArray[2] = level.dynamicStartY;
+                moleArray[3] = _timer1->overflowCount;
             }
         }
         if(oldSelectedHeap != selectedHeap){
@@ -386,9 +306,9 @@ void Display::updateGame(uint8_t score, bool ZPressed){
         }
         if(moleArray[0]){
             //If mole is drawn, remove it after 2 seconds
-            if(get_t1_overflows() - moleArray[3] >= 60){
+            if(_timer1->overflowCount - moleArray[3] >= 60){
                 _tft.fillRect(moleArray[1], moleArray[2], selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
-                drawPixelArray(hole, hole_palette, multiplySize, moleArray[1], moleArray[2]);
+                drawPixelArray(*hole, hole_palette, level.multiplySize, moleArray[1], moleArray[2] + level.multiplySize*4, 8, 4);
                 moleArray[0] = 0;
             }
         }
@@ -396,36 +316,36 @@ void Display::updateGame(uint8_t score, bool ZPressed){
     //If character is hammer
     else{
         //If the hammers movement is not blocked
-        if (get_t1_overflows() - lastHammerUse >= 30) { // 30 overflows ≈ 1 second
+        if (_timer1->overflowCount - lastHammerUse >= 30) { // 30 overflows ≈ 1 second
             if(hammerJustHit){
                 //Remove horizontal hammer and hole
-                _tft.fillRect(dynamicStartX, dynamicStartY, selectWidthHeight+25, selectWidthHeight, ILI9341_GREEN);
+                _tft.fillRect(level.dynamicStartX, level.dynamicStartY, selectWidthHeight+25, selectWidthHeight, ILI9341_GREEN);
                 //Place selector hammer and hole
-                drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY);
-                drawPixelArray(hammerVert, hammerVert_palette, multiplySize, dynamicStartX+30, dynamicStartY);
+                drawPixelArray(*hole, hole_palette, level.multiplySize, level.dynamicStartX, level.dynamicStartY + level.multiplySize*4, 8, 4);
+                drawPixelArray(&hammerVert[0][0], hammerPalette, level.multiplySize, level.dynamicStartX+30, level.dynamicStartY, 5, 8);
                 hammerJustHit = false;
             }
             if(oldSelectedHeap != selectedHeap){
                 //If other heap is selected, remove old selector
                 _tft.fillRect(oldDynamicStartX+20, oldDynamicStartY, selectWidthHeight+5, selectWidthHeight, ILI9341_GREEN);
-                drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
+                drawPixelArray(*hole, hole_palette, level.multiplySize, oldDynamicStartX, oldDynamicStartY + level.multiplySize*4, 8, 4);
                 //Draw selector hammer
-                drawPixelArray(hole, hole_palette, multiplySize, dynamicStartX, dynamicStartY);
-                drawPixelArray(hammerVert, hammerVert_palette, multiplySize, dynamicStartX+30, dynamicStartY);
+                drawPixelArray(*hole, hole_palette, level.multiplySize, level.dynamicStartX, level.dynamicStartY + level.multiplySize*4, 8, 4);
+                drawPixelArray(&hammerVert[0][0], hammerPalette, level.multiplySize, level.dynamicStartX+30, level.dynamicStartY, 5, 8);
             }
             if(ZPressed) {
                 // Update last usage timestamp
-                lastHammerUse = get_t1_overflows();
+                lastHammerUse = _timer1->overflowCount;
             }
         }
         //If the hammer is blocked
         else{
             //Remove selector hammer
             if(hammerJustHit == false){
-                _tft.fillRect(dynamicStartX+20, dynamicStartY, selectWidthHeight+5, selectWidthHeight, ILI9341_GREEN);
-                drawPixelArray(hole, hole_palette, multiplySize, oldDynamicStartX, oldDynamicStartY);
+                _tft.fillRect(level.dynamicStartX+20, level.dynamicStartY, selectWidthHeight+5, selectWidthHeight, ILI9341_GREEN);
+                drawPixelArray(*hole, hole_palette, level.multiplySize, oldDynamicStartX, oldDynamicStartY + level.multiplySize*4, 8, 4);
                 // Perform hammer action
-                drawPixelArray(hammerHori, hammerHori_palette, multiplySize, dynamicStartX + (2 * multiplySize), dynamicStartY - (1 * multiplySize));
+                drawPixelArray(*hammerHori, hammerPalette, level.multiplySize, level.dynamicStartX + (2 * level.multiplySize), level.dynamicStartY - (1 * level.multiplySize), 8, 5);
             }
             hammerJustHit = true;
         }
@@ -493,15 +413,15 @@ void Display::drawChooseCharacter(){
         _tft.setCursor(moleTextXCoor, textYCoor);
         _tft.print(text);
         //Draw mole character
-        drawPixelArray(mole, mole_palette, 8, moleTextXCoor, 150);
-        drawPixelArray(hole, hole_palette, 8, moleTextXCoor, 160);
+        drawPixelArray(*mole, mole_palette, 8, moleTextXCoor, 150);
+        drawPixelArray(*hole, hole_palette, 8, moleTextXCoor, 196, 8, 4);
         text = "Hammer";
         calcCenterScreenText(text, 2);
         hammerTextXCoor = x * 1.5 + 20;
         _tft.setCursor(hammerTextXCoor, textYCoor);
         _tft.print(text);
         //Draw hammerHori character
-        drawPixelArray(hammerHori, hammerHori_palette, 8, x * 2 + 10, 150);
+        drawPixelArray(*hammerHori, hammerPalette, 8, x * 2 + 10, 150, 8, 5);
 }
 
 void Display::updateChooseCharacter(bool buttonPressed){
@@ -560,8 +480,8 @@ void Display::drawDifficulty(){
         _tft.setCursor(25, 180);
         _tft.print("Hard");
 
-    drawPixelArray(mole, mole_palette, 10, 210, 50);
-    drawPixelArray(hole, hole_palette, 10, 210, 130);
+    drawPixelArray(*mole, mole_palette, 10, 210, 50);
+    drawPixelArray(*hole, hole_palette, 10, 210, 170, 8, 4);
 }
 
 //TODO hard is 4 for mole and 16 for hammer. Change needed
@@ -618,8 +538,8 @@ void Display::drawStartMenu(){
         _tft.setCursor(30, 115);
         _tft.print("Highscores");
 
-    drawPixelArray(mole, mole_palette, 10, 200, 50);
-    drawPixelArray(hole, hole_palette, 10, 200, 130);
+    drawPixelArray(*mole, mole_palette, 10, 200, 50);
+    drawPixelArray(*hole, hole_palette, 10, 200, 170, 8, 4);
 }
 
 void Display::updateStartMenu(bool buttonPressed){
@@ -678,22 +598,14 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
         _tft.setCursor(x, 136);
         _tft.print(text);
 
-        text = "Z: Return to menu";
-        _tft.setCursor(11, 200);
-        _tft.print(text);
-
-        text = "C: Save name";
-        _tft.setCursor(11, 220);
-        _tft.print(text);
-
     //If mole won, draw mole. Else, draw hammerHori
     if(mole_win){
-        drawPixelArray(mole, mole_palette, 8, 150, 150);
-        drawPixelArray(hole, hole_palette, 8, 150, 160);
-        drawPixelArray(hammerHori, hammerHori_palette, 8, 230, 150);
+        drawPixelArray(*mole, mole_palette, 8, 150, 150);
+        drawPixelArray(*hole, hole_palette, 8, 150, 196, 8, 4);
+        drawPixelArray(*hammerHori, hammerPalette, 8, 230, 150, 8, 5);
     } else {
-        drawPixelArray(hole, hole_palette, 8, 180, 160);
-        drawPixelArray(hammerHori, hammerHori_palette, 8, 200, 150);
+        drawPixelArray(*hole, hole_palette, 8, 180, 196, 8, 4);
+        drawPixelArray(*hammerHori, hammerPalette, 8, 200, 150, 8, 5);
     }
 }
 
@@ -769,12 +681,4 @@ void Display::drawPixelField(uint8_t y){
             _tft.fillRect(i * pixelSize, y + j * pixelSize, pixelSize, pixelSize, color);
         }
     }
-}
-
-void Display::clearScreen() {
-    _tft.fillScreen(ILI9341_BLACK);
-}
-
-void Display::setTimingVariable(uint32_t *timer1_overflows_32ms){
-    timer1_all_overflows = timer1_overflows_32ms;
 }
