@@ -208,7 +208,7 @@ void Display::drawGame(Difficulty selectedDifficulty){
     time = 60;
 
     //Draw sky and field
-    _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 40, SKY_BLUE);
     drawPixelField(40);
 
     //Write time text
@@ -514,12 +514,21 @@ void Display::drawDifficulty(){
 
     drawPixelArray(*mole, mole_palette, 10, 210, 50, 8, 8);
     drawPixelArray(*hole, hole_palette, 10, 210, 170, 8, 4);
+
+    _tft.fillCircle(difficultyCircleX, difficultyCircleY, 4, ILI9341_BLACK);
 }
 
 //TODO hard is 4 for mole and 16 for hammer. Change needed
 void Display::updateDifficulty(bool buttonPressed){
-    _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_GREEN);
     if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && selectedDifficulty != sixteen){
+        int xRounded = ((difficultyCircleX) / 10) * 10; // Round down to the nearest 10
+        int yRounded = ((difficultyCircleY) / 10) * 10; // Round down to the nearest 10
+
+        int xRounded2 = ((difficultyCircleX + 9) / 10) * 10; // Round up to the nearest 10
+        int yRounded2 = ((difficultyCircleY + 9) / 10) * 10; // Round up to the nearest 10
+
+        // Draw the background pixels
+        drawPixelField(xRounded, yRounded, xRounded2 - xRounded, yRounded2 - yRounded, 10);
         //move down
         difficultyCircleY += 50;
         //When moving down, change the difficulty to the value under it
@@ -529,7 +538,16 @@ void Display::updateDifficulty(bool buttonPressed){
         else if(selectedDifficulty == nine){
             selectedDifficulty = sixteen;
         }
+        _tft.fillCircle(difficultyCircleX, difficultyCircleY, 4, ILI9341_BLACK);    
     } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && selectedDifficulty != four){
+        int xRounded = ((difficultyCircleX) / 10) * 10; // Round down to the nearest 10
+        int yRounded = ((difficultyCircleY) / 10) * 10; // Round down to the nearest 10
+
+        int xRounded2 = ((difficultyCircleX + 9) / 10) * 10; // Round up to the nearest 10
+        int yRounded2 = ((difficultyCircleY + 9) / 10) * 10; // Round up to the nearest 10
+
+        // Draw the background pixels
+        drawPixelField(xRounded, yRounded, xRounded2 - xRounded, yRounded2 - yRounded, 10);
         //move up
         difficultyCircleY -= 50;
         //When moving down, change the difficulty to the value above it
@@ -539,8 +557,8 @@ void Display::updateDifficulty(bool buttonPressed){
         else if(selectedDifficulty == nine){
             selectedDifficulty = four;
         }
+        _tft.fillCircle(difficultyCircleX, difficultyCircleY, 4, ILI9341_BLACK);    
     }
-    _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_BLACK);
 
     //Start the game with the selected difficulty when button is pressed
     if(buttonPressed){
