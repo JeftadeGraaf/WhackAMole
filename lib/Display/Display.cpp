@@ -1,4 +1,5 @@
 #include "Display.h"
+#include "Game.h"
 #include "Nunchuk.h"
 
 uint32_t gameTimeTracker = 0;
@@ -312,7 +313,6 @@ void Display::drawGame(Difficulty selectedDifficulty){
 
 //TODO joystick (debounce)
 //TODO calculate score
-//TODO change drawGameOver() inputs
 void Display::updateGame(uint8_t score, bool ZPressed){
     //Dynamic Time and Score
     updateGameTimeScore(score);
@@ -351,6 +351,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
 
         //If Z is pressed and mole is not placed, draw mole
         if(ZPressed && !molePlaced){
+            gamePtr->sendMoleUp(selectedHeap); //Send placed mole to other console
             drawOrRemoveMole(selectedHeap, true);
             molePlaced = 0x1;
             molePlacedTime = get_t1_overflows();
@@ -398,11 +399,20 @@ void Display::updateGame(uint8_t score, bool ZPressed){
             // }
             hammerJustHit = true;
         }
+        gamePtr->sendHammerMove(selectedHeap, hammerJustHit); //Send hammer position to other console
     }
 
     if (time == 0) {
         // Game over
-        drawGameOverMenu(10, 10, true); //TODO send scores
+        gamePtr->sendScore(score); //Send score to other console
+        bool moleWon = false;
+        if((characterMole && score > gamePtr->opponentsScore) || (!characterMole && !(score < gamePtr->opponentsScore))){
+            moleWon = true;
+        }
+        else{
+            moleWon = false;
+        }
+        drawGameOverMenu(score, gamePtr->opponentsScore, moleWon);
     }
 }
 
@@ -613,6 +623,7 @@ void Display::updateDifficulty(bool buttonPressed){
 
     //Start the game with the selected difficulty when button is pressed
     if(buttonPressed){
+        gamePtr->sendStart(characterMole, selectedDifficulty); //Send start game process to other console
         drawGame(selectedDifficulty);
     }
 }

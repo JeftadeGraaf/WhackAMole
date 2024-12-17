@@ -2,8 +2,6 @@
 #define GAME_H
 
 #include <avr/io.h>
-#include <IRComm.h>
-
 #include "Display.h"
 #include "Nunchuk.h"
 #include "IRComm.h"

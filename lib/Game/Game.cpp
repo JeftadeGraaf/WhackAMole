@@ -5,12 +5,11 @@
 
 
 // Constructor
-Game::Game(IRComm &ir, Display &display)
-    : ir(ir),           // Initialize references in constructor initializer list
+Game::Game(IRComm &ir, Display &display) :
+    ir(ir),
     display(display)
     {
-    // this->ir = ir;
-    // this->display = display;
+    display.setGamePtr(this);
 }
 
 // commands are built up like this:
@@ -268,7 +267,7 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
 }
 
 Game::process Game::readRecievedProcess(uint16_t data){
-    data = data >> 8;
+    data = data & 0xF00;
     if(data == 1){
         return startGame;
     }

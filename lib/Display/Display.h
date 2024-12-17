@@ -1,16 +1,19 @@
 #ifndef DISPLAY_H
 #define DISPLAY_H
 
-#include <Adafruit_ILI9341.h>
+#include "Adafruit_ILI9341.h"
 #include "Fonts/InriaSans_Regular8pt7b.h"
 #include "Fonts/IrishGrover_Regular8pt7b.h"
 
 #include <SPI.h>
 
+class Game;
+
 class Display {
 public:
     Display(int backlight_pin, int tft_cs, int tft_dc);
     void init(); //Initialize the display
+    void setGamePtr(Game* game) { gamePtr = game; } // Setter for game class instance
     void refreshBacklight(); //Change the brightness of the display based on the potmeter value
 
     void updateGame(uint8_t score, bool buttonPressed); //Update the game, hammer position, mole position, score and time
@@ -60,6 +63,7 @@ private:
 
 
     Adafruit_ILI9341 _tft; //An instance of the display
+    Game* gamePtr; //Pointer to the game class
     
     const uint32_t SCREEN_WIDTH = 320; //Displays screen width
     const uint16_t SCREEN_HEIGHT = 240; //Displays screen height
