@@ -1,18 +1,21 @@
 #include "IRComm.h"
 #include <util/delay.h>
+#include <Timer1Overflow.h>
 
 // Constructor
-IRComm::IRComm()
+IRComm::IRComm(Timer1Overflow &timer1)
     : half_bit_buffers{{0}}, active_buffer_idx(0), buffer_position{0}, buffer_ready_flags{false},
-      decoded_frame{0}, bit_index(0), is_tx_active(false), is_tx_high(false), overflow_count(0),
+      decoded_frame{0}, bit_index(0), is_tx_active(false), is_tx_high(false),
       prev_timer_value(0), bit_duration(0), is_first_interrupt(true), is_frame_ready(false),
-      is_frame_valid(false), tx_frame{0}, timer1_all_overflows(0)
+      is_frame_valid(false), tx_frame{0}
 {
     for (uint8_t i = 0; i < 2; i++)
     {
         buffer_position[i] = 0;
         buffer_ready_flags[i] = false;
     }
+
+    this->timer1 = &timer1;
 }
 
 
@@ -24,11 +27,6 @@ void IRComm::initialize()
     TCCR0A = (1 << WGM01);                      // Configure Timer0 in CTC mode
     TCCR0B = (1 << CS00);                       // Set no prescaler (fastest clock)
     OCR0A = 210;                                // Set OCR0A for ~889 µs pulse width
-
-    TCCR1A = 0;
-    TCCR1B |= (1 << CS11);                      // Prescaler of 8 for Timer1
-    TCNT1 = 0;
-    TIMSK1 |= (1 << TOIE1);                     // Enable Timer1 overflow interrupt
 
     EICRA |= (1 << ISC00);                      // Trigger on any logical change for INT0
     EIMSK |= (1 << INT0);                       // Enable INT0 interrupt
@@ -44,24 +42,18 @@ void IRComm::onReceiveInterrupt()
     if (is_first_interrupt)
     {
         prev_timer_value = current_timer_value;
-        overflow_count = 0;
+        timer1->resetIR();
         is_first_interrupt = false;
     }
     else
     {
-        bit_duration = ((overflow_count << 16) + current_timer_value - prev_timer_value) / 2;
+        bit_duration = ((timer1->IROverflowCount << 16) + current_timer_value - prev_timer_value) / 2;
 
         prev_timer_value = current_timer_value;
-        overflow_count = 0;
+        timer1->resetIR();
 
         processReceivedBit(current_pin_state, bit_duration);
     }
-}
-
-void IRComm::onTimer1Overflow()
-{
-    overflow_count++;
-    timer1_all_overflows++;
 }
 
 void IRComm::onTimer0CompareMatch()
@@ -158,18 +150,19 @@ void IRComm::processBuffer(uint8_t buffer_idx)
 
     volatile bool* buffer = half_bit_buffers[buffer_idx];  // Reference the current buffer
 
-    for (uint8_t i = 0; i < 32; i += 2)
+    for (uint8_t i = 0; i < 30; i += 2)
     {
         bool bit1 = buffer[i];
         bool bit2 = buffer[i + 1];
 
         if (bit1 && !bit2)
         {
-            decoded_frame[bit_idx] = 1;
+            decoded_frame <<= 1;
+            decoded_frame |= 1;
         }
         else if (!bit1 && bit2)
         {
-            decoded_frame[bit_idx] = 0;
+            decoded_frame <<= 1;
         }
         else
         {
@@ -194,7 +187,9 @@ void IRComm::validateFrame()
     is_frame_ready = false;
 
     // Validate start bits
-    if (!(decoded_frame[0] && decoded_frame[1]))
+    uint16_t start_bits = (decoded_frame >> 14); // Extract the top two bits
+
+    if (start_bits != 0b11) // Check if both bits are not set
     {
         Serial.println("Start bit error");
         return;
@@ -202,16 +197,23 @@ void IRComm::validateFrame()
 
     // Validate parity bit
     bool parity_check = false;
+
+    // Calculate parity for bits 2 to 13
     for (int i = 2; i < 14; i++)
     {
-        parity_check ^= decoded_frame[i];
+        if (decoded_frame & (1 << (15 - i))) // Check if bit at position (15 - i) is 1
+        {
+            parity_check = !parity_check; // Toggle parity_check
+        }
     }
 
-    if (parity_check != decoded_frame[14])
+    // Compare calculated parity with the actual parity bit (LSB)
+    if (parity_check != (decoded_frame & 0x1)) // Check if parity matches the LSB
     {
         Serial.println("Parity error");
         return;
     }
+
 
     is_frame_valid = true;
 }
@@ -226,15 +228,12 @@ uint16_t IRComm::decodeIRMessage()
     decodeBuffer();    // Decode the buffer into the frame
     validateFrame();   // Validate the frame
 
-    // Extract the message (12-bit data field) from the frame
-    uint16_t message = 0;
-    for (int i = 2; i < 14; i++)
-    {
-        message <<= 1;
-        message |= decoded_frame[i];
-    }
+    // Extract the 12-bit message (bits 2 to 13) directly
+    uint16_t message = (decoded_frame >> 1) & 0xFFF; // Mask the 12 least significant bits after shifting
 
-    is_frame_valid = false; // Reset the frame validity flag for the next message
+    // Reset the frame validity flag for the next message
+    is_frame_valid = false;
+
     return message; // Return the extracted message
 }
 
@@ -329,9 +328,4 @@ void IRComm::sendHalfBit(bool bit) {
 void IRComm::stopSending() {
     TCCR0A &= ~(1 << COM0A0); // Stop toggling on OC0A
     PORTD &= ~(1 << PD6);     // Turn off IR LED
-}
-
-// Get a pointer to the overflow_count variable
-uint32_t* IRComm::getOverflowCountPtr() {
-    return &timer1_all_overflows;
 }
