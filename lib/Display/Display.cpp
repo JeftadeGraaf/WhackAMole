@@ -209,7 +209,7 @@ void Display::drawGame(Difficulty selectedDifficulty){
 
     //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
-    drawPixelField(37);
+    drawPixelField(40);
 
     //Write time text
     _tft.setTextSize(1);
@@ -307,14 +307,36 @@ void Display::updateGame(uint8_t score, bool ZPressed){
                 moleArray[3] = _timer1->overflowCount;
             }
         }
-        if(oldSelectedHeap != selectedHeap){
-            //Remove old selector rectange
-            _tft.drawRect(oldDynamicStartX-2, oldDynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
+        if(oldSelectedHeap != selectedHeap){         
+            int xRounded = ((oldDynamicStartX-2) / 10) * 10; // Round down to the nearest 10
+            int yRounded = ((oldDynamicStartY-2) / 10) * 10; // Round down to the nearest 10
+
+            int xRounded2 = ((oldDynamicStartX-2 + selectWidthHeight + 4 + 9) / 10) * 10; // Round up to the nearest 10
+            int yRounded2 = ((oldDynamicStartY-2 + selectWidthHeight + 4 + 9) / 10) * 10; // Round up to the nearest 10
+
+            // Draw the background pixels
+            drawPixelField(xRounded, yRounded, xRounded2 - xRounded, yRounded2 - yRounded, 10);
+
+            if(moleArray[0]){
+                if(moleArray[1] == oldDynamicStartX && moleArray[2] == oldDynamicStartY){
+                    drawPixelArray(*mole, mole_palette, level.multiplySize, oldDynamicStartX, oldDynamicStartY, 8, 8);
+                }
+            } 
+            drawPixelArray(*hole, hole_palette, level.multiplySize, oldDynamicStartX, oldDynamicStartY + level.multiplySize*4, 8, 4);
+            
         }
         if(moleArray[0]){
             //If mole is drawn, remove it after 2 seconds
             if(_timer1->overflowCount - moleArray[3] >= 60){
-                _tft.fillRect(moleArray[1], moleArray[2], selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
+                int xRounded = ((moleArray[1]) / 10) * 10; // Round down to the nearest 10
+                int yRounded = ((moleArray[2]) / 10) * 10; // Round down to the nearest 10
+
+                int xRounded2 = ((moleArray[1] + selectWidthHeight + 9) / 10) * 10; // Round up to the nearest 10
+                int yRounded2 = ((moleArray[2] + selectWidthHeight + 9) / 10) * 10; // Round up to the nearest 10
+
+                // Draw the background pixels
+                drawPixelField(xRounded, yRounded, xRounded2 - xRounded, yRounded2 - yRounded, 10);
+
                 drawPixelArray(*hole, &hole_palette[0], level.multiplySize, moleArray[1], moleArray[2] + level.multiplySize*4, 8, 4);
                 moleArray[0] = 0;
             }
@@ -440,10 +462,10 @@ void Display::updateChooseCharacter(bool buttonPressed) {
     // Handle joystick input and update character selection
     if (Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone) {
         characterMole = false; // Move to Hammer
-        _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);    
+        _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);
     } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone) {
         characterMole = true; // Move to Mole
-        _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);    
+        _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);
     }
 
     // Determine selected character text and x-coordinate
@@ -696,6 +718,28 @@ void Display::drawPixelField(uint8_t y){
 
             // Draw the rectangle with the random green shade
             _tft.fillRect(i * pixelSize, y + j * pixelSize, pixelSize, pixelSize, color);
+        }
+    }
+}
+
+void Display::drawPixelField(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t pixelSize) {
+    // Iterate over the grid based on the specified width and height
+    for (uint16_t j = 0; j < height / pixelSize; j++) {
+        for (uint16_t i = 0; i < width / pixelSize; i++) {
+            // Generate random RGB values biased towards green
+            uint8_t red = 32 + rand() % 32;     // Red: 32 to 63 (brighter)
+            uint8_t green = 200 + rand() % 56;  // Green: 200 to 255 (dominant)
+            uint8_t blue = 16 + rand() % 32;    // Blue: 16 to 47 (reduced range)
+
+            // Convert to RGB565
+            uint16_t color = ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
+
+            // Calculate square's top-left corner position
+            uint16_t xPos = x + i * pixelSize;
+            uint16_t yPos = y + j * pixelSize;
+
+            // Draw the square
+            _tft.fillRect(xPos, yPos, pixelSize, pixelSize, color);
         }
     }
 }
