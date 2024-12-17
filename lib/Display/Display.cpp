@@ -436,36 +436,34 @@ void Display::drawChooseCharacter(){
         drawPixelArray(*hammerHori, hammerPalette, 8, x * 2 + 10, 150, 8, 5);
 }
 
-void Display::updateChooseCharacter(bool buttonPressed){
-    //Selection logic
-    if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && characterMole == true){
-        characterMole = false; //Move right
-    } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && characterMole == false){
-        characterMole = true; //Move left
+void Display::updateChooseCharacter(bool buttonPressed) {
+    // Handle joystick input and update character selection
+    if (Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone) {
+        characterMole = false; // Move to Hammer
+        _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);    
+    } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone) {
+        characterMole = true; // Move to Mole
+        _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);    
     }
 
-    _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);
+    // Determine selected character text and x-coordinate
+    const char* text = characterMole ? "Mole" : "Hammer";
+    uint8_t x = characterMole ? moleTextXCoor : hammerTextXCoor;
 
-    //Change selection coördinates
-    uint8_t x = 0;
-    if(characterMole){
-        text = "Mole";
-        x = moleTextXCoor;
-    }
-    else{
-        text = "Hammer";
-        x = hammerTextXCoor;
-    }
+    // Set font and calculate text bounds
     _tft.setFont(&InriaSans_Regular8pt7b);
     _tft.setTextSize(2);
     _tft.getTextBounds(text, x, textYCoor, &x1, &y1, &textWidth, &textHeight);
+
+    // Draw the selection rectangle around the selected character
     _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, ILI9341_BLACK);
 
-    //When character is selected, go to choose selectedDifficulty screen
-    if(buttonPressed){
+    // Proceed to difficulty selection if button is pressed
+    if (buttonPressed) {
         drawDifficulty();
     }
 }
+
 
 void Display::drawDifficulty(){
     displayedScreen = difficulty;
