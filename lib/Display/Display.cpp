@@ -132,11 +132,12 @@ const uint8_t hammerPalette[26][3] = {
 
 
 // Initialize the display
-Display::Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1)
+Display::Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1, SevenSegment &sevenSegment)
     : _tft(tft_cs, tft_dc) {
     // Constructor
     _backlight_pin = backlight_pin;
     this->_timer1 = &timer1;
+    this->_sevenSegment = &sevenSegment;
 }
 
 void Display::init() {
@@ -209,6 +210,12 @@ void Display::drawGame(Difficulty selectedDifficulty){
     //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
     drawPixelField(37);
+
+    //Write time text
+    _tft.setTextSize(1);
+    _tft.setTextColor(ILI9341_BLACK);
+    _tft.setCursor(2, 30);
+    _tft.print(String(time));
 
     //Write text
     _tft.setTextColor(ILI9341_BLACK);
@@ -358,13 +365,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
 }
 
 void Display::updateGameTimeScore(uint8_t score){
-    _tft.setFont(&InriaSans_Regular8pt7b);
-        _tft.setTextSize(1);
-        //Remove old text
-        _tft.setTextColor(SKY_BLUE);
-        _tft.setCursor(2, 30);
-        _tft.print(String(time));
-        
+    _tft.setFont(&InriaSans_Regular8pt7b);      
         text = String(oldScore);
         calcCenterScreenText(text, 1);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
@@ -372,19 +373,30 @@ void Display::updateGameTimeScore(uint8_t score){
 
     // update time variable
     if (_timer1->overflowCount - gameTimeTracker > 30) {
-        time--;
         gameTimeTracker = _timer1->overflowCount;
-    }
+
+        _tft.setTextSize(1);
+        //Remove old text
+        _tft.setTextColor(SKY_BLUE);
+        _tft.setCursor(2, 30);
+        _tft.print(String(time));
+
+        time--;
 
         //Write new text
         _tft.setTextColor(ILI9341_BLACK);
         _tft.setCursor(2, 30);
         _tft.print(String(time));
-        
+                
+        if(time < 10){
+            _sevenSegment->displayDigit(time);
+        }
+
         text = String(score);
         calcCenterScreenText(text, 1);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
         _tft.print(text);
+    }
 }
 
 void Display::drawChooseCharacter(){
@@ -424,36 +436,34 @@ void Display::drawChooseCharacter(){
         drawPixelArray(*hammerHori, hammerPalette, 8, x * 2 + 10, 150, 8, 5);
 }
 
-void Display::updateChooseCharacter(bool buttonPressed){
-    //Selection logic
-    if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && characterMole == true){
-        characterMole = false; //Move right
-    } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && characterMole == false){
-        characterMole = true; //Move left
+void Display::updateChooseCharacter(bool buttonPressed) {
+    // Handle joystick input and update character selection
+    if (Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone) {
+        characterMole = false; // Move to Hammer
+        _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);    
+    } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone) {
+        characterMole = true; // Move to Mole
+        _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);    
     }
 
-    _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);
+    // Determine selected character text and x-coordinate
+    const char* text = characterMole ? "Mole" : "Hammer";
+    uint8_t x = characterMole ? moleTextXCoor : hammerTextXCoor;
 
-    //Change selection coördinates
-    uint8_t x = 0;
-    if(characterMole){
-        text = "Mole";
-        x = moleTextXCoor;
-    }
-    else{
-        text = "Hammer";
-        x = hammerTextXCoor;
-    }
+    // Set font and calculate text bounds
     _tft.setFont(&InriaSans_Regular8pt7b);
     _tft.setTextSize(2);
     _tft.getTextBounds(text, x, textYCoor, &x1, &y1, &textWidth, &textHeight);
+
+    // Draw the selection rectangle around the selected character
     _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, ILI9341_BLACK);
 
-    //When character is selected, go to choose selectedDifficulty screen
-    if(buttonPressed){
+    // Proceed to difficulty selection if button is pressed
+    if (buttonPressed) {
         drawDifficulty();
     }
 }
+
 
 void Display::drawDifficulty(){
     displayedScreen = difficulty;
@@ -540,20 +550,27 @@ void Display::drawStartMenu(){
 
     drawPixelArray(*mole, mole_palette, 10, 200, 50, 8, 8);
     drawPixelArray(*hole, hole_palette, 10, 200, 170, 8, 4);
+
+    _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);
+
 }
 
 void Display::updateStartMenu(bool buttonPressed){
-    _tft.fillCircle(startCircleX, startCircleY, 5, SKY_BLUE);
     if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && startButtonSelected){
+        _tft.fillCircle(startCircleX, startCircleY, 5, SKY_BLUE);
         //move down
         startCircleY += 35;
         startButtonSelected = false;
+        
+        _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);    
     } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && !startButtonSelected){
+        _tft.fillCircle(startCircleX, startCircleY, 5, SKY_BLUE);
         //move up
         startCircleY -= 35;
         startButtonSelected = true;
+
+        _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);
     }
-    _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);
 
     if(buttonPressed && startButtonSelected){
         drawChooseCharacter();
