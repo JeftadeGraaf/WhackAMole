@@ -9,9 +9,11 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
+#include "SevenSegment.h"
 
 // Instance of IR object
 IRComm ir;
+SevenSegment sevenSegment(0x21);
 
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
@@ -69,6 +71,7 @@ int main(void) {
 
     Serial.begin(BAUDRATE);
     ir.initialize();
+    sevenSegment.begin();
     sei(); // Enable global interrupts
     uint16_t msg = 0b00000000000;
 
