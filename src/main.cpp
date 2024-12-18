@@ -75,8 +75,11 @@ int main(void) {
     // pass the timer1 overflow variable from the IR protocol to the Display lib
     uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
     display.setTimingVariable(timer1_overflow_count);
+    audio.setTimingVariable(timer1_overflow_count);
 
     display.drawStartMenu();
+
+    audio.playSound(Audio::Sound::StartUp);
     
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
@@ -84,12 +87,12 @@ int main(void) {
 
         game.buttonListener();
 
-        if(ir.isBufferReady()){
-            uint16_t data = ir.decodeIRMessage();
-            game.reactToRecievedData(data, *timer1_overflow_count);
-        } else {
-            game.sendStart(false, Display::Difficulty::nine);
-        }
+        // if(ir.isBufferReady()){
+        //     uint16_t data = ir.decodeIRMessage();
+        //     game.reactToRecievedData(data, *timer1_overflow_count);
+        // } else {
+        //     game.sendStart(false, Display::Difficulty::nine);
+        // }
 
         // _delay_ms(10);
     }

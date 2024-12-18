@@ -7,7 +7,7 @@ class Audio {
     public:
         Audio();
         
-        enum Sound {
+        enum Sound : uint8_t {
             ThemeSong0 = 0,
             ThemeSong1 = 1,
 
@@ -20,10 +20,11 @@ class Audio {
             GameOver = 6,
             GameWin = 7,
 
-            ButtonPress = 8
+            ButtonPress = 8,
+            StartUp = 9
         };
 
-        enum Note {
+        enum Note : uint16_t {
             C4 = 262,
             CS4 = 277,
             D4 = 294,
@@ -52,6 +53,11 @@ class Audio {
             REST = 0
         };
 
+        struct NoteDuration {
+            Note note;
+            uint8_t duration;
+        };
+
         void init();
         void playSound(Sound sound);
         void handleTimer1ISR();
@@ -59,7 +65,9 @@ class Audio {
     
     private:
         uint8_t freqToOCRTop(uint16_t freq);
-        void player(uint16_t sound_array[], uint8_t length);
+        void audioPlayer(NoteDuration *sound_array, uint8_t sound_array_length);
+        void enablePWM();
+        void disablePWM();
 
         uint32_t* timer1_overflow_count;
         
@@ -68,8 +76,10 @@ class Audio {
         uint16_t remaining_note_time;
         bool is_playing_sound;
         uint32_t note_start_time;
+        bool firstNoteStartTimeIsSet;
 
-        uint16_t buttonPress[2];
+        NoteDuration buttonPress[1];
+        NoteDuration startUp[4];
 
 };
 

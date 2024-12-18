@@ -1,5 +1,6 @@
 #include <Audio.h>
 #include <avr/io.h>
+#include <HardwareSerial.h>
 
 Audio::Audio()
     : timer1_overflow_count{0}
@@ -7,16 +8,30 @@ Audio::Audio()
     , current_note{0}
     , remaining_note_time{0}
     , is_playing_sound{false}
+    , firstNoteStartTimeIsSet{false}
 
-    , buttonPress{C5, 4}
+    // note, duration [in 32ms ticks]
+    , buttonPress{
+        NoteDuration{C5, 4}
+        } 
+    , startUp{
+        NoteDuration{C4, 4},
+        NoteDuration{E4, 4},
+        NoteDuration{G4, 4},
+        NoteDuration{C5, 4}
+    }
 {
 }
 
 uint8_t Audio::freqToOCRTop(uint16_t freq) {
-    return F_CPU / (2 * 256 * freq) - 1;
+    return (F_CPU / (2 * 64 * freq)) - 1;
 }
 
-void Audio::setTimingVariable(uint32_t* timer1_overflow_count){
+void Audio::setTimingVariable(uint32_t* timer1_overflow_count) {
+    if (timer1_overflow_count == nullptr) {
+        // Handle the error, e.g., set a flag or assert
+        return;
+    }
     this->timer1_overflow_count = timer1_overflow_count;
 }
 
@@ -25,43 +40,59 @@ void Audio::init(){
     DDRD |= (1 << PD3);
 
     // Set up Timer2 for PWM
-    TCCR2A = (1 << WGM21) | (1 << COM2B0);  // CTC mode, toggle OC2B on compare match
-    TCCR2B = (1 << CS22) | (1 << CS20);     // Prescaler of 64
+    TCCR2A = (1 << WGM21) | (1 << WGM20) | (1 << COM2B1);  // Fast PWM, clear OC2B on compare match
+    TCCR2B = (1 << WGM22) | (1 << CS22) | (1 << CS20);     // Fast PWM with prescaler of 64
 }
 
 void Audio::handleTimer1ISR() {
     if (!is_playing_sound) {
-        TCCR2A &= ~(1 << COM2B0); // Turn off PWM
-        PORTD &= ~(1 << PD3); // Turn off the speaker
+        disablePWM();
         return;
     }
 
     switch (current_sound) {
         case ButtonPress:
-            player(buttonPress, 2);
+            audioPlayer(buttonPress, 1);
+            break;
+        case StartUp:
+            audioPlayer(startUp, 4);
             break;
     }
 }
 
-void Audio::player(uint16_t sound_array[], uint8_t length) {
-    // Play the note
-    TCCR2A |= (1 << COM2B0); // Turn on PWM
-    OCR2B = freqToOCRTop(sound_array[current_note]);
-    remaining_note_time = sound_array[current_note] - (*timer1_overflow_count - note_start_time);
+void Audio::enablePWM() {
+    TCCR2A |= (1 << COM2B0) | (1 << COM2B1);
+}
 
-    // Go to next note if the current note is done
-    if (remaining_note_time == 0) {
+void Audio::disablePWM() {
+    TCCR2A &= ~((1 << COM2B0) | (1 << COM2B1));
+    PORTD &= ~(1 << PD3); // Turn off the speaker for good measure
+}
+
+void Audio::audioPlayer(NoteDuration *sound_array, uint8_t sound_array_length) {
+    enablePWM();
+
+    if (!firstNoteStartTimeIsSet) {
         note_start_time = *timer1_overflow_count;
-        current_note += 2;
-
-        // Stop playing the sound if the last note is done
-        if (current_note == 1) {
-            is_playing_sound = false;
-            return;
-        }
+        firstNoteStartTimeIsSet = true;
     }
 
-    else remaining_note_time--;
+    // Check if the current note is complete
+    if (*timer1_overflow_count - note_start_time >= sound_array[current_note].duration) {
+        current_note++;
+
+        if (current_note >= sound_array_length) {
+            is_playing_sound = false;  // Stop playback
+            disablePWM();
+            return;
+        }
+        note_start_time = *timer1_overflow_count;  // Start the next note
+    }
+
+    // Update PWM for the current note
+    uint8_t ocrTop = freqToOCRTop(sound_array[current_note].note);
+    OCR2A = ocrTop;
+    OCR2B = ocrTop / 2;  // Set duty cycle to 50%
 }
 
 void Audio::playSound(Sound sound) {
@@ -74,6 +105,7 @@ void Audio::playSound(Sound sound) {
     remaining_note_time = 0;
     note_start_time = 0;
     is_playing_sound = true;
+    firstNoteStartTimeIsSet = false;
 
     switch (sound)
     {
@@ -111,6 +143,10 @@ void Audio::playSound(Sound sound) {
 
         case ButtonPress:
             current_sound = ButtonPress;
+            break;
+
+        case StartUp:
+            current_sound = StartUp;
             break;
     }
         
