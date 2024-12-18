@@ -195,7 +195,6 @@ void Display::init() {
 }
 
 void Display::refreshBacklight() {
-    // Add code to refresh the backlight as needed
     PORTD |= (1<<_backlight_pin);
     // if(!(ADCSRA & (1<<ADSC))){
     //     // OCR0B = ADCH;

@@ -183,23 +183,25 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
 
     switch(proc){
         case Game::startGame: {
-            display.characterMole = (data >> 3) & 1; //set character based on bit 3
+            if(display.displayedScreen != Display::game){
+                display.characterMole = (data >> 3) & 1; //set character based on bit 3
 
-            uint8_t lastThreeBits = data & 0x7; //Set difficulty based on 3 LSBs
-            if(lastThreeBits == 1){ //Bit 0 is set -> 2x2
-                display.selectedDifficulty = Display::four;
+                uint8_t lastThreeBits = data & 0x7; //Set difficulty based on 3 LSBs
+                if(lastThreeBits == 1){ //Bit 0 is set -> 2x2
+                    display.selectedDifficulty = Display::four;
+                }
+                else if(lastThreeBits == 2){ //Bit 1 is set -> 3x3
+                    display.selectedDifficulty = Display::nine;
+                }
+                else if(lastThreeBits == 4){ //Bit 2 is set -> 4x4
+                    display.selectedDifficulty = Display::sixteen;
+                }
+                else{ //If invalid difficulty is recieved
+                    Serial.println("Difficulty set error");
+                    //TODO terugsturen en terug ontvangen voor correcte check
+                }
+                display.drawGame(display.selectedDifficulty);
             }
-            else if(lastThreeBits == 2){ //Bit 1 is set -> 3x3
-                display.selectedDifficulty = Display::nine;
-            }
-            else if(lastThreeBits == 4){ //Bit 2 is set -> 4x4
-                display.selectedDifficulty = Display::sixteen;
-            }
-            else{ //If invalid difficulty is recieved
-                Serial.println("Difficulty set error");
-                //TODO terugsturen en terug ontvangen voor correcte check
-            }
-            display.drawGame(display.selectedDifficulty);
             break;
         }
 
@@ -255,7 +257,9 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             break;
         
         case Game::recieveScore:
-            opponentsScore = data & 0xFF; //Get score from 8 LSBs
+            if(display.displayedScreen != Display::gameOver){
+                opponentsScore = (uint8_t) data; //Get score from 8 LSBs    
+            }
             break;
 
         default:
@@ -266,7 +270,10 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
 
 Game::process Game::readRecievedProcess(uint16_t data){
     data = data >> 8;
-    if(data == 1){
+    if(data == 0){
+        return invalidProcess;
+    }
+    else if(data == 1){
         return startGame;
     }
     else if(data == 2){
