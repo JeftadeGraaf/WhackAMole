@@ -270,7 +270,7 @@ void Display::drawGame(Difficulty selectedDifficulty){
         Xmax        = 210;
         Ymax        = 170;
         gridSize    = 2;
-        for(uint8_t i = 1; i <= (gridSize * gridSize); i++){
+        for(uint8_t i = 0; i < (gridSize * gridSize); i++){
             drawOrRemoveHole(i, true);
         }
         
@@ -285,7 +285,7 @@ void Display::drawGame(Difficulty selectedDifficulty){
         Xmax        = 230;
         Ymax        = 195;
         gridSize    = 3;
-        for(uint8_t i = 1; i <= (gridSize * gridSize); i++){
+        for(uint8_t i = 0; i < (gridSize * gridSize); i++){
             drawOrRemoveHole(i, true);
         }
 
@@ -300,7 +300,7 @@ void Display::drawGame(Difficulty selectedDifficulty){
         Xmax        = 279;
         Ymax        = 189;
         gridSize    = 4;
-        for(uint8_t i = 1; i <= (gridSize * gridSize); i++){
+        for(uint8_t i = 0; i < (gridSize * gridSize); i++){
             drawOrRemoveHole(i, true);
         }
     }
