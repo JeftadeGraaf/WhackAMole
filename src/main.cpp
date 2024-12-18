@@ -59,7 +59,6 @@ int main(void) {
     Serial.begin(BAUDRATE);
     ir.initialize();
     sei(); // Enable global interrupts
-    // uint16_t msg = 0b00000000000;
 
 	// Initialize backlight
 	display.init();     
@@ -67,11 +66,16 @@ int main(void) {
 	display.clearScreen();
     init_nunchuck();
 
+    ir.decodeIRMessage();
+
     // pass the timer1 overflow variable from the IR protocol to the Display lib
     uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
     display.setTimingVariable(timer1_overflow_count);
 
     display.drawStartMenu();
+
+    // uint16_t data = 0x104; //start, hamer, 4x4
+    // game.reactToRecievedData(data, *timer1_overflow_count);
     
 
 	while (1) {
@@ -80,13 +84,11 @@ int main(void) {
 
         game.buttonListener();
 
-
-        // if(ir.isBufferReady()){
-        //     uint16_t data = ir.decodeIRMessage();
-        //     game.reactToRecievedData(data, *timer1_overflow_count);
-        // } else {
-        //     game.sendStart(false, Display::Difficulty::nine);
-        // }
+        if(ir.isBufferReady()){
+            uint16_t data = ir.decodeIRMessage();
+            Serial.println(data, HEX);
+            game.reactToRecievedData(data, *timer1_overflow_count);
+        }
 
         _delay_ms(10);
     }

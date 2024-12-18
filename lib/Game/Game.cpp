@@ -259,13 +259,13 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             break;
 
         default:
-            Serial.println("error");
+            Serial.println("Error: Unknown process");
             break;
     }
 }
 
 Game::process Game::readRecievedProcess(uint16_t data){
-    data = data & 0xF00;
+    data = data >> 8;
     if(data == 1){
         return startGame;
     }
