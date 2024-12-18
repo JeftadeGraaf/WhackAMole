@@ -95,6 +95,28 @@ int main(void) {
         // }
 
         // _delay_ms(10);
+
+        _delay_ms(1000);
+        audio.playSound(Audio::Sound::ButtonPress);
+        Serial.println("ButtonPress");
+        _delay_ms(1000);
+        audio.playSound(Audio::Sound::GameOver);
+        Serial.println("GameOver");
+        _delay_ms(1000);
+        audio.playSound(Audio::Sound::GameWin);
+        Serial.println("GameWin");
+        _delay_ms(1000);
+        audio.playSound(Audio::Sound::MoleDown);
+        Serial.println("MoleDown");
+        _delay_ms(1000);
+        audio.playSound(Audio::Sound::MoleUp);
+        Serial.println("MoleUp");
+        _delay_ms(1000);
+        audio.playSound(Audio::Sound::HammerHit);
+        Serial.println("HammerHit");
+        _delay_ms(1000);
+        audio.playSound(Audio::Sound::HammerMiss);
+        Serial.println("HammerMiss");
     }
 	//never reach
 	return 0;

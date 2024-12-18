@@ -25,6 +25,18 @@ class Audio {
         };
 
         enum Note : uint16_t {
+            C3 = 131,
+            CS3 = 139,
+            D3 = 147,
+            DS3 = 156,
+            E3 = 165,
+            F3 = 175,
+            FS3 = 185,
+            G3 = 196,
+            GS3 = 208,
+            A3 = 220,
+            AS3 = 233,
+            B3 = 247,
             C4 = 262,
             CS4 = 277,
             D4 = 294,
@@ -80,6 +92,12 @@ class Audio {
 
         NoteDuration buttonPress[1];
         NoteDuration startUp[4];
+        NoteDuration gameOver[5];
+        NoteDuration gameWin[4];
+        NoteDuration moleUp[2];
+        NoteDuration moleDown[2];
+        NoteDuration hammerHit[2];
+        NoteDuration hammerMiss[2];
 
 };
 

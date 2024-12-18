@@ -12,19 +12,76 @@ Audio::Audio()
 
     // note, duration [in 32ms ticks]
     , buttonPress{
-        NoteDuration{C5, 4}
+        NoteDuration{C4, 4}
         } 
     , startUp{
+        NoteDuration{C3, 4},
+        NoteDuration{E3, 4},
+        NoteDuration{G3, 4},
+        NoteDuration{C3, 4}
+    }
+    , gameOver{
+        NoteDuration{G3, 8},
+        NoteDuration{FS3, 8},
+        NoteDuration{F3, 8},
+        NoteDuration{E3, 8},
+        NoteDuration{D3, 8}
+    }
+    , gameWin{
+        NoteDuration{C3, 8},
+        NoteDuration{E3, 8},
+        NoteDuration{G3, 8},
+        NoteDuration{C4, 16}
+    }
+    , moleUp{
+        NoteDuration{C3, 4},
+        NoteDuration{G3, 4}
+    }
+    , moleDown{
+        NoteDuration{G3, 4},
+        NoteDuration{C3, 4}
+    }
+    , hammerHit{
+        NoteDuration{G3, 4},
+        NoteDuration{C4, 4}
+    }
+    , hammerMiss{
         NoteDuration{C4, 4},
-        NoteDuration{E4, 4},
-        NoteDuration{G4, 4},
-        NoteDuration{C5, 4}
+        NoteDuration{FS3, 4}
     }
 {
 }
 
+void setPrescaler32() {
+    TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
+    TCCR2B |= (1 << CS21) | (1 << CS20);
+}
+
+void setPrescaler64() {
+    TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
+    TCCR2B |= (1 << CS22);
+}
+
+void setPrescaler256() {
+    TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
+    TCCR2B |= (1 << CS22) | (1 << CS21);
+}
+
+// function that returns the OCR value for a given frequency, and sets the prescaler accordingly
 uint8_t Audio::freqToOCRTop(uint16_t freq) {
-    return (F_CPU / (2 * 64 * freq)) - 1;
+    uint16_t ocrTop = (F_CPU / (2 * 64 * freq)) - 1;
+    if (ocrTop > 255) {
+        // setPrescaler256();
+        // ocrTop = (F_CPU / (2 * 256 * freq)) - 1;
+        setPrescaler32();
+        ocrTop = (F_CPU / (2 * 32 * freq)) - 1;
+    } else if (ocrTop < 64) {
+        setPrescaler256();
+        ocrTop = (F_CPU / (2 * 256 * freq)) - 1;
+    } else {
+        setPrescaler64();
+    }
+    return ocrTop;
 }
 
 void Audio::setTimingVariable(uint32_t* timer1_overflow_count) {
@@ -56,6 +113,24 @@ void Audio::handleTimer1ISR() {
             break;
         case StartUp:
             audioPlayer(startUp, 4);
+            break;
+        case GameOver:
+            audioPlayer(gameOver, 5);
+            break;
+        case GameWin:
+            audioPlayer(gameWin, 4);
+            break;
+        case MoleUp:
+            audioPlayer(moleUp, 2);
+            break;
+        case MoleDown:
+            audioPlayer(moleDown, 2);
+            break;
+        case HammerHit:
+            audioPlayer(hammerHit, 2);
+            break;
+        case HammerMiss:
+            audioPlayer(hammerMiss, 2);
             break;
     }
 }
@@ -149,5 +224,4 @@ void Audio::playSound(Sound sound) {
             current_sound = StartUp;
             break;
     }
-        
 }
