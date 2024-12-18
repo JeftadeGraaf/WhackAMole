@@ -73,11 +73,7 @@ int main(void) {
     display.setTimingVariable(timer1_overflow_count);
 
     display.drawStartMenu();
-
-    // uint16_t data = 0x104; //start, hamer, 4x4
-    // game.reactToRecievedData(data, *timer1_overflow_count);
     
-
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
@@ -86,7 +82,6 @@ int main(void) {
 
         if(ir.isBufferReady()){
             uint16_t data = ir.decodeIRMessage();
-            Serial.println(data, HEX);
             game.reactToRecievedData(data, *timer1_overflow_count);
         }
 
