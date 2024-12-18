@@ -3,13 +3,11 @@
 
 #include "Game.h"
 
-
 // Constructor
 Game::Game(IRComm &ir, Display &display) :
     ir(ir),
     display(display)
     {
-    display.setGamePtr(this);
 }
 
 // commands are built up like this:
@@ -135,7 +133,7 @@ void Game::buttonListener() {
     //Switch between different screens
     switch(display.displayedScreen) {
         case Display::game:
-            display.updateGame(0, ZPressed);
+            updateGame(0, ZPressed);
             break;
 
         case Display::gameOver:
@@ -161,7 +159,7 @@ void Game::buttonListener() {
 
         case Display::difficulty:
             //Update selection
-            display.updateDifficulty(ZPressed);
+            updateDifficulty(ZPressed);
             //Go back to choose character screen
             if(CPressed){
                 display.drawChooseCharacter();
@@ -281,4 +279,138 @@ Game::process Game::readRecievedProcess(uint16_t data){
         return recieveScore;
     }
     return invalidProcess;
+}
+
+//TODO joystick (debounce)
+//TODO calculate score
+void Game::updateGame(uint8_t score, bool ZPressed){
+    //Dynamic Time and Score
+    display.updateGameTimeScore(score);
+
+    display.oldSelectedHeap = display.selectedHeap;
+    display.oldDynamicStartX = display.dynamicStartX;
+    display.oldDynamicStartY = display.dynamicStartY;
+
+    //Read movement
+    if((!display.characterMole && !display.hammerJustHit) || display.characterMole){
+        if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.dynamicStartX != display.Xmax){
+            display.dynamicStartX += display.Xcrement; //Move right
+            display.selectedHeap += 1;
+        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.dynamicStartX != display.startX){
+            display.dynamicStartX -= display.Xcrement; //Move left
+            display.selectedHeap -= 1;
+        }
+
+        if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.dynamicStartY != display.Ymax){
+            display.dynamicStartY += display.Ycrement; //Move down
+            display.selectedHeap += display.gridSize;
+        } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.dynamicStartY != display.startY){
+            display.dynamicStartY -= display.Ycrement; //Move up
+            display.selectedHeap -= display.gridSize;
+        }
+    }
+
+    //If character is mole
+    if(display.characterMole){
+        //Draw selector rectangle
+        display._tft.drawRect(display.dynamicStartX-2, display.dynamicStartY-2, display.selectWidthHeight+4, display.selectWidthHeight+4, ILI9341_BLACK);
+        //If other heap is selected, remove old selector
+        if(display.oldSelectedHeap != display.selectedHeap){
+            display._tft.drawRect(display.oldDynamicStartX-2, display.oldDynamicStartY-2, display.selectWidthHeight+4, display.selectWidthHeight+4, ILI9341_GREEN);
+        }
+        //If Z is pressed and mole is not placed, draw mole
+        if(ZPressed && !display.molePlaced){
+            sendMoleUp(display.selectedHeap); //Send placed mole to other console
+            display.drawOrRemoveMole(display.selectedHeap, true);
+            display.molePlaced = 0x1;
+            display.molePlacedTime = display.get_t1_overflows();
+            display.molePlacedHeap = display.selectedHeap;
+        }
+        //If mole is placed and time is up, remove mole
+        if(display.molePlaced && (display.get_t1_overflows() - display.molePlacedTime >= 60)){
+            display.drawOrRemoveMole(display.molePlacedHeap, false);
+            display.molePlaced = 0x0;
+        }
+    }
+
+    //If character is hammer
+    else{
+        //If the hammers movement is not blocked
+        if (display.get_t1_overflows() - display.lastHammerUse >= 30) { // 30 overflows ≈ 1 second
+            //If hammer finished hitting
+            if(display.hammerJustHit){
+                //Remove horizontal hammer
+                display.drawOrRemoveHammer(display.selectedHeap, false, true);
+                //Place selector hammer and hole
+                display.drawOrRemoveHammer(display.selectedHeap, true, false);
+                display.drawOrRemoveHole(display.selectedHeap, true);
+                display.hammerJustHit = false;
+            }
+            //If other heap is selected
+            if(display.oldSelectedHeap != display.selectedHeap){
+                //remove old selector
+                display.drawOrRemoveHammer(display.oldSelectedHeap, false, false);
+                //Draw selector hammer
+                display.drawOrRemoveHammer(display.selectedHeap, true, false);
+            }
+            if(ZPressed) {
+                // Update last usage timestamp
+                display.lastHammerUse = display.get_t1_overflows();
+            }
+        }
+        //If the hammer is blocked
+        else if(!display.hammerJustHit){
+            //Remove selector hammer
+            display.drawOrRemoveHammer(display.selectedHeap, false, false);
+            // Perform hammer action
+            display.drawOrRemoveHammer(display.selectedHeap, true, true);
+            display.hammerJustHit = true;
+        }
+        sendHammerMove(display.selectedHeap, display.hammerJustHit); //Send hammer position to other console
+    }
+
+    if (display.time == 0) {
+        // Game over
+        sendScore(score); //Send score to other console
+        bool moleWon = false;
+        if((display.characterMole && score > opponentsScore) || (!display.characterMole && !(score < opponentsScore))){
+            moleWon = true;
+        }
+        else{
+            moleWon = false;
+        }
+        display.drawGameOverMenu(score, opponentsScore, moleWon);
+    }
+}
+
+void Game::updateDifficulty(bool buttonPressed){
+    display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_GREEN);
+    if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.selectedDifficulty != Display::sixteen){
+        //move down
+        display.difficultyCircleY += 50;
+        //When moving down, change the difficulty to the value under it
+        if(display.selectedDifficulty == Display::four){
+            display.selectedDifficulty = Display::nine;
+        }
+        else if(display.selectedDifficulty == Display::nine){
+            display.selectedDifficulty = Display::sixteen;
+        }
+    } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.selectedDifficulty != Display::four){
+        //move up
+        display.difficultyCircleY -= 50;
+        //When moving down, change the difficulty to the value above it
+        if(display.selectedDifficulty == Display::sixteen){
+            display.selectedDifficulty = Display::nine;
+        }
+        else if(display.selectedDifficulty == Display::nine){
+            display.selectedDifficulty = Display::four;
+        }
+    }
+    display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_BLACK);
+
+    //Start the game with the selected difficulty when button is pressed
+    if(buttonPressed){
+        sendStart(display.characterMole, display.selectedDifficulty); //Send start game process to other console
+        display.drawGame(display.selectedDifficulty);
+    }
 }

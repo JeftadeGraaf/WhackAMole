@@ -19,6 +19,9 @@ public:
     void buttonListener();
     void reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count);
 
+    void updateGame(uint8_t score, bool ZPressed);
+    void updateDifficulty(bool buttonPressed);
+
     enum process{
         startGame = 1,
         moleUp = 2,

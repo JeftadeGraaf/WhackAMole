@@ -73,8 +73,6 @@ int main(void) {
 
     display.drawStartMenu();
     
-    // recievedData = 0x10A; //start, mole, 3x3
-    // game.reactToRecievedData(recievedData, *timer1_overflow_count);
 
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)

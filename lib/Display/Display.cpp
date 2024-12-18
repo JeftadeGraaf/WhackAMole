@@ -1,11 +1,10 @@
 #include "Display.h"
-#include "Game.h"
 #include "Nunchuk.h"
 
 uint32_t gameTimeTracker = 0;
 uint32_t *timer1_all_overflows;
 
-uint32_t get_t1_overflows(){
+uint32_t Display::get_t1_overflows(){
     return *timer1_all_overflows;
 }
 
@@ -311,111 +310,6 @@ void Display::drawGame(Difficulty selectedDifficulty){
     selectWidthHeight = picturePixelSize * multiplySize;
 }
 
-//TODO joystick (debounce)
-//TODO calculate score
-void Display::updateGame(uint8_t score, bool ZPressed){
-    //Dynamic Time and Score
-    updateGameTimeScore(score);
-
-    oldSelectedHeap = selectedHeap;
-    oldDynamicStartX = dynamicStartX;
-    oldDynamicStartY = dynamicStartY;
-
-    //Read movement
-    if((!characterMole && !hammerJustHit) || characterMole){
-        if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartX != Xmax){
-            dynamicStartX+=Xcrement; //Move right
-            selectedHeap += 1;
-        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartX != startX){
-            dynamicStartX-=Xcrement; //Move left
-            selectedHeap -= 1;
-        }
-
-        if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartY != Ymax){
-            dynamicStartY+=Ycrement; //Move down
-            selectedHeap += gridSize;
-        } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartY != startY){
-            dynamicStartY-=Ycrement; //Move up
-            selectedHeap -= gridSize;
-        }
-    }
-
-    //If character is mole
-    if(characterMole){
-        //Draw selector rectangle
-        _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
-        //If other heap is selected, remove old selector
-        if(oldSelectedHeap != selectedHeap){
-            _tft.drawRect(oldDynamicStartX-2, oldDynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
-        }
-
-        //If Z is pressed and mole is not placed, draw mole
-        if(ZPressed && !molePlaced){
-            gamePtr->sendMoleUp(selectedHeap); //Send placed mole to other console
-            drawOrRemoveMole(selectedHeap, true);
-            molePlaced = 0x1;
-            molePlacedTime = get_t1_overflows();
-            molePlacedHeap = selectedHeap;
-        }
-        //If mole is placed and time is up, remove mole
-        if(molePlaced && (get_t1_overflows() - molePlacedTime >= 60)){
-            drawOrRemoveMole(molePlacedHeap, false);
-            molePlaced = 0x0;
-        }
-    }
-    
-    //If character is hammer
-    else{
-        //If the hammers movement is not blocked
-        if (get_t1_overflows() - lastHammerUse >= 30) { // 30 overflows ≈ 1 second
-            //If hammer finished hitting
-            if(hammerJustHit){
-                //Remove horizontal hammer
-                drawOrRemoveHammer(selectedHeap, false, true);
-                //Place selector hammer and hole
-                drawOrRemoveHammer(selectedHeap, true, false);
-                drawOrRemoveHole(selectedHeap, true);
-                hammerJustHit = false;
-            }
-            //If other heap is selected
-            if(oldSelectedHeap != selectedHeap){
-                //remove old selector
-                drawOrRemoveHammer(oldSelectedHeap, false, false);
-                //Draw selector hammer
-                drawOrRemoveHammer(selectedHeap, true, false);
-            }
-            if(ZPressed) {
-                // Update last usage timestamp
-                lastHammerUse = get_t1_overflows();
-            }
-        }
-        //If the hammer is blocked
-        else if(!hammerJustHit){
-            //Remove selector hammer
-            // if(hammerJustHit == false){
-                drawOrRemoveHammer(selectedHeap, false, false);
-                // Perform hammer action
-                drawOrRemoveHammer(selectedHeap, true, true);
-            // }
-            hammerJustHit = true;
-        }
-        gamePtr->sendHammerMove(selectedHeap, hammerJustHit); //Send hammer position to other console
-    }
-
-    if (time == 0) {
-        // Game over
-        gamePtr->sendScore(score); //Send score to other console
-        bool moleWon = false;
-        if((characterMole && score > gamePtr->opponentsScore) || (!characterMole && !(score < gamePtr->opponentsScore))){
-            moleWon = true;
-        }
-        else{
-            moleWon = false;
-        }
-        drawGameOverMenu(score, gamePtr->opponentsScore, moleWon);
-    }
-}
-
 void Display::calculateHeapPosition(uint8_t heapNumber, uint16_t& xPos, uint16_t& yPos) {
     xPos = startX + (heapNumber % gridSize) * Xcrement;
     yPos = startY + (heapNumber / gridSize) * Ycrement;
@@ -593,38 +487,6 @@ void Display::drawDifficulty(){
 
     drawPixelArray(mole, mole_palette, 10, 210, 50);
     drawPixelArray(hole, hole_palette, 10, 210, 130);
-}
-
-void Display::updateDifficulty(bool buttonPressed){
-    _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_GREEN);
-    if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && selectedDifficulty != sixteen){
-        //move down
-        difficultyCircleY += 50;
-        //When moving down, change the difficulty to the value under it
-        if(selectedDifficulty == four){
-            selectedDifficulty = nine;
-        }
-        else if(selectedDifficulty == nine){
-            selectedDifficulty = sixteen;
-        }
-    } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && selectedDifficulty != four){
-        //move up
-        difficultyCircleY -= 50;
-        //When moving down, change the difficulty to the value above it
-        if(selectedDifficulty == sixteen){
-            selectedDifficulty = nine;
-        }
-        else if(selectedDifficulty == nine){
-            selectedDifficulty = four;
-        }
-    }
-    _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_BLACK);
-
-    //Start the game with the selected difficulty when button is pressed
-    if(buttonPressed){
-        gamePtr->sendStart(characterMole, selectedDifficulty); //Send start game process to other console
-        drawGame(selectedDifficulty);
-    }
 }
 
 void Display::drawStartMenu(){
