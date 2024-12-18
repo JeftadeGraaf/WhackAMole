@@ -2,12 +2,13 @@
 #define IR_COMM_H
 
 #include <Arduino.h>
+#include <Timer1Overflow.h>
 
 class IRComm
 {
 public:
     // Constructor
-    IRComm();
+    IRComm(Timer1Overflow &timer1);
 
     // Initialization function
     void initialize();
@@ -21,11 +22,7 @@ public:
 
     // Interrupt service routine for receiving IR data
     void onReceiveInterrupt();
-    void onTimer1Overflow();
     void onTimer0CompareMatch();
-
-    // Get the pointer to the overflow count
-    uint32_t* getOverflowCountPtr();
 
 private:
     // Buffer processing methods
@@ -44,26 +41,27 @@ private:
 
     // Member variables for managing IR data
     volatile bool half_bit_buffers[2][32];   // Buffer for received bits
+    uint8_t active_buffer_idx;               // Index of the active buffer    
     uint8_t buffer_position[2];              // Current position in the buffer
     bool buffer_ready_flags[2];              // Flags to indicate buffer readiness
-    uint8_t active_buffer_idx;               // Index of the active buffer
-    uint8_t decoded_frame[16];               // Decoded IR frame
+    uint16_t decoded_frame;                  // Decoded IR frame
     uint8_t bit_index;                       // Index for sending bits
     bool is_tx_active;                       // Whether transmission is active
     bool is_tx_high;                         // IR LED state for sending
-    uint32_t overflow_count;                 // Timer overflow counter
     uint16_t prev_timer_value;               // Previous timer value
     uint16_t bit_duration;                   // Duration of the received bit
     bool is_first_interrupt;                 // Flag for first interrupt
     bool is_frame_ready;                     // Flag indicating if a frame is ready
     bool is_frame_valid;                     // Flag indicating if a frame is valid
-    uint32_t timer1_all_overflows;           // Total number of Timer1 overflows
 
     // Transmission frame
     bool tx_frame[16];  // Array to store the current transmission frame
 
     // Timing constants
     static const uint16_t IR_PULSE_DURATION = 850; // Duration of each IR pulse in microseconds
+
+    // Timer object for managing overflows
+    Timer1Overflow* timer1;
 };
 
 #endif
