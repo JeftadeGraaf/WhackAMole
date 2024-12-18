@@ -351,7 +351,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
                 _tft.fillRect(level.dynamicStartX, level.dynamicStartY, selectWidthHeight+25, selectWidthHeight, ILI9341_GREEN);
                 //Place selector hammer and hole
                 drawPixelArray(*hole, hole_palette, level.multiplySize, level.dynamicStartX, level.dynamicStartY + level.multiplySize*4, 8, 4);
-                drawPixelArray(&hammerVert[0][0], hammerPalette, level.multiplySize, level.dynamicStartX+30, level.dynamicStartY, 5, 8);
+                drawPixelArray(&hammerVert[0][0], hammerPalette, level.multiplySize, level.dynamicStartX+30+level.multiplySize*2, level.dynamicStartY, 5, 8);
                 hammerJustHit = false;
             }
             if(oldSelectedHeap != selectedHeap){
@@ -360,7 +360,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
                 drawPixelArray(*hole, hole_palette, level.multiplySize, oldDynamicStartX, oldDynamicStartY + level.multiplySize*4, 8, 4);
                 //Draw selector hammer
                 drawPixelArray(*hole, hole_palette, level.multiplySize, level.dynamicStartX, level.dynamicStartY + level.multiplySize*4, 8, 4);
-                drawPixelArray(&hammerVert[0][0], hammerPalette, level.multiplySize, level.dynamicStartX+30, level.dynamicStartY, 5, 8);
+                drawPixelArray(&hammerVert[0][0], hammerPalette, level.multiplySize, level.dynamicStartX+30+level.multiplySize*2, level.dynamicStartY, 5, 8);
             }
             if(ZPressed) {
                 // Update last usage timestamp
@@ -374,7 +374,7 @@ void Display::updateGame(uint8_t score, bool ZPressed){
                 _tft.fillRect(level.dynamicStartX+20, level.dynamicStartY, selectWidthHeight+5, selectWidthHeight, ILI9341_GREEN);
                 drawPixelArray(*hole, hole_palette, level.multiplySize, oldDynamicStartX, oldDynamicStartY + level.multiplySize*4, 8, 4);
                 // Perform hammer action
-                drawPixelArray(*hammerHori, hammerPalette, level.multiplySize, level.dynamicStartX + (2 * level.multiplySize), level.dynamicStartY - (1 * level.multiplySize), 8, 5);
+                drawPixelArray(*hammerHori, hammerPalette, level.multiplySize, level.dynamicStartX, level.dynamicStartY + (2 * level.multiplySize), 8, 5);
             }
             hammerJustHit = true;
         }
