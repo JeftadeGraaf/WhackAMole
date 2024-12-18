@@ -183,11 +183,11 @@ void Display::drawPixelArray(const uint8_t *pixels, const uint8_t palette[][3], 
             uint8_t blue = palette[pixelIndex][2];
 
             // Calculate the position where the pixel will be drawn
-            int xPos = xStart + x * pixelSize;
-            int yPos = yStart + y * pixelSize;
+            int xPos = xStart + x * backgroundPixelSize;
+            int yPos = yStart + y * backgroundPixelSize;
 
             // Draw the pixel
-            _tft.fillRect(xPos, yPos, pixelSize, pixelSize, _tft.color565(red, green, blue));
+            _tft.fillRect(xPos, yPos, backgroundPixelSize, backgroundPixelSize, _tft.color565(red, green, blue));
         }
     }
 }
@@ -246,8 +246,8 @@ void Display::drawGame(Difficulty selectedDifficulty){
 }
 
 void Display::calculateHeapPosition(uint8_t heapNumber, uint16_t& xPos, uint16_t& yPos) {
-    xPos = level.startX + (heapNumber % level.gridSize) * level.Xcrement;
-    yPos = level.startY + (heapNumber / level.gridSize) * level.Ycrement;
+    xPos = level.startX + (heapNumber % level.gridSize) * level.Xincrement;
+    yPos = level.startY + (heapNumber / level.gridSize) * level.Yincrement;
 }
 
 void Display::drawOrRemoveMole(uint8_t heapNumber, bool draw) {
@@ -255,11 +255,11 @@ void Display::drawOrRemoveMole(uint8_t heapNumber, bool draw) {
     calculateHeapPosition(heapNumber, xPos, yPos);
     
     if (draw) {
-        drawPixelArray(*mole, mole_palette, level.multiplySize, xPos, yPos);
-        drawPixelArray(*hole, hole_palette, level.multiplySize, xPos, yPos);
+        drawPixelArray(*mole, mole_palette, level.multiplySize, xPos, yPos, 8, 8);
+        drawPixelArray(*hole, hole_palette, level.multiplySize, xPos, yPos, 8, 4);
     } else {
         _tft.fillRect(xPos, yPos, selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
-        drawPixelArray(*hole, hole_palette, level.multiplySize, xPos, yPos);
+        drawPixelArray(*hole, hole_palette, level.multiplySize, xPos, yPos, 8, 4);
     }
 }
 
@@ -269,18 +269,18 @@ void Display::drawOrRemoveHammer(uint8_t heapNumber, bool draw, bool horizontal)
 
     if (draw) {
         if(!horizontal){
-            drawPixelArray(*hammerVert, hammerVert_palette, level.multiplySize, xPos + (picturePixelSize * level.multiplySize), yPos);
+            drawPixelArray(*hammerVert, hammerPalette, level.multiplySize, xPos + (picturePixelSize * level.multiplySize), yPos, 5, 8);
         }
         else{
-            drawPixelArray(*hammerHori, hammerHori_palette, level.multiplySize, level.dynamicStartX + (2 * level.multiplySize), level.dynamicStartY - level.multiplySize);
+            drawPixelArray(*hammerHori, hammerPalette, level.multiplySize, level.dynamicStartX + (2 * level.multiplySize), level.dynamicStartY - level.multiplySize, 8, 5);
         }
     } else {
         if(!horizontal){
             _tft.fillRect(xPos  + (picturePixelSize * level.multiplySize), yPos, (picturePixelSize * level.multiplySize), (picturePixelSize * level.multiplySize), ILI9341_GREEN);
-            drawPixelArray(*hole, hole_palette, level.multiplySize, xPos, yPos);
+            drawPixelArray(*hole, hole_palette, level.multiplySize, xPos, yPos, 8, 4);
         }
         else{
-            drawPixelArray(*hole, hole_palette, multiplySize, xPos, yPos);
+            drawPixelArray(*hole, hole_palette, multiplySize, xPos, yPos, 8, 4);
             _tft.fillRect(xPos + (2 * level.multiplySize), yPos - level.multiplySize, (picturePixelSize * level.multiplySize), (picturePixelSize * level.multiplySize), ILI9341_GREEN);
         }
     }
@@ -291,7 +291,7 @@ void Display::drawOrRemoveHole(uint8_t heapNumber, bool draw) {
     calculateHeapPosition(heapNumber, xPos, yPos);
 
     if (draw) {
-        drawPixelArray(*hole, hole_palette, level.multiplySize, xPos, yPos);
+        drawPixelArray(*hole, hole_palette, level.multiplySize, xPos, yPos, 8, 4);
     } else {
         _tft.fillRect(xPos, yPos, selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
     }
@@ -427,38 +427,6 @@ void Display::drawDifficulty(){
     drawPixelArray(*hole, hole_palette, 10, 210, 170, 8, 4);
 
     _tft.fillCircle(difficultyCircleX, difficultyCircleY, 4, ILI9341_BLACK);
-}
-
-//TODO hard is 4 for mole and 16 for hammer. Change needed
-void Display::updateDifficulty(bool buttonPressed){
-    _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_GREEN);
-    if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && selectedDifficulty != sixteen){
-        //move down
-        difficultyCircleY += 50;
-        //When moving down, change the difficulty to the value under it
-        if(selectedDifficulty == four){
-            selectedDifficulty = nine;
-        }
-        else if(selectedDifficulty == nine){
-            selectedDifficulty = sixteen;
-        }
-    } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && selectedDifficulty != four){
-        //move up
-        difficultyCircleY -= 50;
-        //When moving down, change the difficulty to the value above it
-        if(selectedDifficulty == sixteen){
-            selectedDifficulty = nine;
-        }
-        else if(selectedDifficulty == nine){
-            selectedDifficulty = four;
-        }
-    }
-    _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_BLACK);
-
-    //Start the game with the selected difficulty when button is pressed
-    if(buttonPressed){
-        drawGame(selectedDifficulty);
-    }
 }
 
 void Display::drawStartMenu(){

@@ -2,11 +2,13 @@
 #include <HardwareSerial.h>
 
 #include "Game.h"
+#include <Timer1Overflow.h>
 
 // Constructor
-Game::Game(IRComm &ir, Display &display) :
+Game::Game(IRComm &ir, Display &display, Timer1Overflow &timer1) :
     ir(ir),
-    display(display)
+    display(display),
+    timer1(timer1)    
     {
 }
 
@@ -330,11 +332,11 @@ void Game::updateGame(uint8_t score, bool ZPressed){
             sendMoleUp(display.selectedHeap); //Send placed mole to other console
             display.drawOrRemoveMole(display.selectedHeap, true);
             display.molePlaced = 0x1;
-            display.molePlacedTime = display.get_t1_overflows();
+            display.molePlacedTime = timer1.overflowCount;
             display.molePlacedHeap = display.selectedHeap;
         }
         //If mole is placed and time is up, remove mole
-        if(display.molePlaced && (display.get_t1_overflows() - display.molePlacedTime >= 60)){
+        if(display.molePlaced && (timer1.overflowCount - display.molePlacedTime >= 60)){
             display.drawOrRemoveMole(display.molePlacedHeap, false);
             display.molePlaced = 0x0;
         }
@@ -343,7 +345,7 @@ void Game::updateGame(uint8_t score, bool ZPressed){
     //If character is hammer
     else{
         //If the hammers movement is not blocked
-        if (display.get_t1_overflows() - display.lastHammerUse >= 30) { // 30 overflows ≈ 1 second
+        if (timer1.overflowCount - display.lastHammerUse >= 30) { // 30 overflows ≈ 1 second
             //If hammer finished hitting
             if(display.hammerJustHit){
                 //Remove horizontal hammer
@@ -362,7 +364,7 @@ void Game::updateGame(uint8_t score, bool ZPressed){
             }
             if(ZPressed) {
                 // Update last usage timestamp
-                display.lastHammerUse = display.get_t1_overflows();
+                display.lastHammerUse = timer1.overflowCount;
             }
         }
         //If the hammer is blocked
