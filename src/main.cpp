@@ -9,7 +9,9 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include <Display.h>
-#include <Game.h>
+
+// Instance of IR object
+IRComm ir;
 
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
@@ -28,19 +30,14 @@ uint16_t score = 100;
 #define TFT_DC 9
 #define TFT_CS 10
 
-// Instance of IR object
-IRComm ir;
-// Create display object
+// Create display objects
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
-// Create game object
-Game game(ir, display);
 
-uint16_t recievedData; //!TEMP recieved data
-
-//local functions
+// prototypes
 bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
 bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
+void buttonListener();
 
 //Interrupts
 ISR(INT0_vect){
@@ -48,7 +45,7 @@ ISR(INT0_vect){
 }
 
 ISR(TIMER1_OVF_vect){
-    ir.onTimer1Overflow();
+    timer1.onTimer1Overflow();
 }
 
 ISR(TIMER0_COMPA_vect){
@@ -57,6 +54,7 @@ ISR(TIMER0_COMPA_vect){
 
 int main(void) {
     Serial.begin(BAUDRATE);
+    timer1.init();  // Initialize Timer1Overflow object
     ir.initialize();
     sei(); // Enable global interrupts
 
@@ -66,81 +64,30 @@ int main(void) {
 	display.clearScreen();
     init_nunchuck();
 
-    ir.decodeIRMessage();
-
     // pass the timer1 overflow variable from the IR protocol to the Display lib
     uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
     display.setTimingVariable(timer1_overflow_count);
 
     display.drawStartMenu();
-    
+
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
 
-        game.buttonListener();
+        buttonListener();
 
+        //Check for IR messages
         if(ir.isBufferReady()){
             uint16_t data = ir.decodeIRMessage();
-            game.reactToRecievedData(data, *timer1_overflow_count);
+            Serial.print("Received data: ");
+            Serial.println(data);
+            msg = data + 1;
+            _delay_ms(200);
+        } else {
+            ir.sendFrame(msg);
         }
-
-        _delay_ms(10);
     }
 	//never reach
 	return 0;
-}
-
-//Init nunchuk
-bool init_nunchuck(){
-	Serial.print("-------- Connecting to nunchuk at address 0x");
-	Serial.println(NUNCHUK_ADDRESS, HEX);
-
-    //Make connection to Nunchuk
-	if (!Nunchuk.begin(NUNCHUK_ADDRESS)) {
-        //If nunchuk is not found, print error and return false
-		Serial.println("******** No nunchuk found");
-		Serial.flush();
-		return(false);
-	}
-    //After succesful handshake, print Nunchuk ID
-	Serial.print("-------- Nunchuk with Id: ");
-	Serial.println(Nunchuk.id);
-	return true;
-}
-
-//Nunchuk test function
-bool nunchuck_show_state_TEST() {
-    //Print Nunchuk state
-	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
-        //If nunchuk is not found, print error and return false
-		Serial.println("******** No nunchuk found");
-		Serial.flush();
-		return (false);
-	}
-    Serial.println("------State data--------------------------");
-    Serial.print("Joy X: ");
-    Serial.print(Nunchuk.state.joy_x_axis);
-    Serial.print("\t\tButton C: ");
-    Serial.println(Nunchuk.state.c_button);
-
-    Serial.print("Joy Y: ");
-    Serial.print(Nunchuk.state.joy_y_axis);
-    Serial.print("\t\tButton Z: ");
-    Serial.println(Nunchuk.state.z_button);
-
-		// wait a while
-		_delay_ms(NUNCHUCK_WAIT);
-
-		return(true);
-}
-
-//Init IR settings
-void init_IR_transmitter_timer0(){
-	DDRD |= (1 << DDD6);        // IR LED output
-	TCCR0B |= (1 << CS00);      // no prescaler
-	TCCR0A |= (1 << WGM01);     // CTC mode (reset at OCR)
-	TCCR0A |= (1 << COM0A0);    // toggle mode
-	OCR0A = OCR0A_value;
 }
 

@@ -46,6 +46,8 @@ class NunChuk {
 		uint16_t centerValue = 128;
 		uint8_t deadzone = 20;
 
+		bool init_nunchuck(int NUNCHUK_ADDRESS);
+        bool nunchuck_show_state_TEST(int NUNCHUK_ADDRESS, int NUNCHUCK_WAIT);
 	private:
 		bool	_getId(uint8_t address);
 		uint8_t _read(uint8_t address, uint8_t offset, uint8_t len);
