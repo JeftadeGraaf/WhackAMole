@@ -374,10 +374,8 @@ void Game::updateGame(uint8_t score, bool ZPressed){
         bool moleWon = false;
 
         //Reset variables for next game
-        recievedMoleHeap = 0;
-        oldRecievedMoleHeap = 0;
-        hammerHitting = false;
-        recievedHammerHitting = false;
+        display.selectedHeap = 0;
+        display.oldSelectedHeap = 0;
 
         if((display.characterMole && score > opponentsScore) || (!display.characterMole && !(score < opponentsScore))){
             moleWon = true;
