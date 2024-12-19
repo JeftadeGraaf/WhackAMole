@@ -34,6 +34,9 @@ struct ncCal {
     uint16_t chksum;
 };
 
+const uint8_t NUNCHUK_ADDRESS = 0x52;       //Nunchuk I2c address
+const uint16_t NUNCHUCK_WAIT = 1000;        //Wait for nunchuk test function
+
 class NunChuk {
 public:
     NunChuk();
@@ -51,7 +54,7 @@ public:
 
 private:
     bool _getId(uint8_t address);
-    uint8_t _read(uint8_t address, uint8_t offset, uint8_t len);
+    uint8_t _read(uint8_t address, uint8_t offset, uint8_t len, uint8_t* buffer);
 };
 
 // Nunchuk globally declared in Nunchuk.cpp
