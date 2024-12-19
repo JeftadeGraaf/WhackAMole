@@ -174,7 +174,7 @@ void IRComm::processBuffer(uint8_t buffer_idx)
         else
         {
             buffer_ready_flags[buffer_idx] = false;
-            Serial.println("Invalid bit detected");
+            // Serial.println("Invalid bit detected");
             return;
         }
 

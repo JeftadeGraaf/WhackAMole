@@ -85,8 +85,10 @@ int main(void) {
             game.reactToRecievedData(data, *timer1_overflow_count);
         }
 
-
-
+        if(display.displayedScreen == Display::game){
+            game.loopRecievedProcess();
+        }
+        
         _delay_ms(10);
     }
 	//never reach

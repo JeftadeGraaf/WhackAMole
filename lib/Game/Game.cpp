@@ -24,18 +24,18 @@ command id: 0x1
 
 data bits:
 mSB-3: -
-4: opponentIsMole
+4: opponentIsHammer
 5: gridSize if 16 else 0
 6: gridSize if 9 else 0
 LSB: gridSize if 4 else 0
 */
-void Game::sendStart(bool opponentIsMole, uint8_t gridSize) {
+void Game::sendStart(bool opponentIsHammer, uint8_t gridSize) {
 
     uint16_t command = 0;
 
     command |= 0x0100; // command id as 16-bit value
 
-    if (!opponentIsMole) {
+    if (!opponentIsHammer) {
         command |= (1 << 3);
     }
 
@@ -179,7 +179,7 @@ void Game::buttonListener() {
 }
 
 void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
-    process proc = readRecievedProcess(data);
+    proc = readRecievedProcess(data);
 
     switch(proc){
         case Game::startGame: {
@@ -204,7 +204,7 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             }
             break;
         }
-
+        //TODO wanneer nieuwe game gestart wordt, wordt mol in verkeerde hol geplaatst
         case Game::moleUp:{
             recievedMoleHeap = data & 0xF; //Get mole heap from 4 LSBs
             //If mole is not up, draw mole
@@ -214,44 +214,35 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
                 processCurrentTime = display.get_t1_overflows();
                 oldRecievedMoleHeap = recievedMoleHeap;
             }
-            //If mole is up, check if it has been up for 2 seconds
-            if(moleIsUp && (display.get_t1_overflows() - processCurrentTime >= timeMoleUp)) {
-                //Remove mole after 2 seconds
-                display.drawOrRemoveMole(oldRecievedMoleHeap, false);
-                moleIsUp = false;
-            }
             break;
         }
 
         case Game::hammerPositionHit:
             recievedMoleHeap = data & 0xF; //Get mole heap from 4 LSBs
-            recievedHammerHitting = data & 0x10; //Get hammer hitting from 5th LSB
+            recievedHammerHitting = (data & 0x10) != 0; //Get hammer hitting from 5th LSB
 
-            //If hammer is not hitting, update cursor
-            if(display.get_t1_overflows() - processCurrentTime >= 30){
-                if(recievedHammerHitting){
-                    display.drawOrRemoveHammer(recievedMoleHeap, false, false); //remove cursor
-                    display.drawOrRemoveHole(recievedMoleHeap, true); //draw hole
-                    display.drawOrRemoveHammer(recievedMoleHeap, true, true); //draw hitting hammer
-                    processCurrentTime = display.get_t1_overflows();
-                    hammerHitting = true;
-                }
-                if(recievedMoleHeap != oldRecievedMoleHeap){
-                    display.drawOrRemoveHammer(oldRecievedMoleHeap, false, false); //remove cursor from old heap
-                    display.drawOrRemoveHammer(recievedMoleHeap, true, false); //draw cursor on new heap
-                }
+            Serial.println(recievedHammerHitting);
+
+            if(recievedMoleHeap != oldRecievedMoleHeap){
+                display.drawOrRemoveHammer(oldRecievedMoleHeap, false, false); //remove cursor from old heap
+                display.drawOrRemoveHammer(recievedMoleHeap, true, false); //draw cursor on new heap
             }
-            //If hammer is hitting, update hitting hammer
-            else{
-                if(hammerHitting){
-                    display.drawOrRemoveHammer(recievedMoleHeap, false, true); //remove hitting hammer
-                    display.drawOrRemoveHole(recievedMoleHeap, true); //remove hole
-                    display.drawOrRemoveHammer(recievedMoleHeap, true, false); //draw cursor
-                }
+
+            //Recieved that the hammer should be hitting
+            if(recievedHammerHitting && !hammerHitting){
+                display.drawOrRemoveHammer(recievedMoleHeap, false, false); //remove selector
+                display.drawOrRemoveHole(recievedMoleHeap, true); //place hole
+                display.drawOrRemoveHammer(recievedMoleHeap, true, true); //draw hitting hammer
+                hammerHitting = true;
+            }
+            //Hammer is not hitting anymore, but it was before
+            else if(!recievedHammerHitting && hammerHitting){
+                display.drawOrRemoveHammer(recievedMoleHeap, false, true); //remove hitting hammer
+                display.drawOrRemoveHole(recievedMoleHeap, true); //remove hole
+                display.drawOrRemoveHammer(recievedMoleHeap, true, false); //place selector
                 hammerHitting = false;
             }
 
-            //update previous values
             oldRecievedMoleHeap = recievedMoleHeap;
             break;
         
@@ -340,7 +331,7 @@ void Game::updateGame(uint8_t score, bool ZPressed){
     //If character is hammer
     else{
         //If the hammers movement is not blocked
-        if (display.get_t1_overflows() - display.lastHammerUse >= 30) { // 30 overflows ≈ 1 second
+        if (display.get_t1_overflows() - display.lastHammerUse >= timeHammerDown) { // 30 overflows ≈ 1 second
             //If hammer finished hitting
             if(display.hammerJustHit){
                 //Remove horizontal hammer
@@ -381,6 +372,13 @@ void Game::updateGame(uint8_t score, bool ZPressed){
         // Game over
         sendScore(score); //Send score to other console
         bool moleWon = false;
+
+        //Reset variables for next game
+        recievedMoleHeap = 0;
+        oldRecievedMoleHeap = 0;
+        hammerHitting = false;
+        recievedHammerHitting = false;
+
         if((display.characterMole && score > opponentsScore) || (!display.characterMole && !(score < opponentsScore))){
             moleWon = true;
         }
@@ -422,3 +420,15 @@ void Game::updateDifficulty(bool buttonPressed){
         display.drawGame(display.selectedDifficulty);
     }
 }
+
+void Game::loopRecievedProcess(){
+    if(proc == moleUp){
+        //If mole is up, check if it has been up for 2 seconds
+        if(moleIsUp && (display.get_t1_overflows() - processCurrentTime >= timeMoleUp)) {
+            //Remove mole after 2 seconds
+            display.drawOrRemoveMole(oldRecievedMoleHeap, false);
+            moleIsUp = false;
+        }
+    }
+}
+

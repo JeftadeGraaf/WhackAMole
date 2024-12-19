@@ -338,7 +338,7 @@ void Display::drawOrRemoveHammer(uint8_t heapNumber, bool draw, bool horizontal)
             drawPixelArray(hammerVert, hammerVert_palette, multiplySize, xPos + (picturePixelSize * multiplySize), yPos);
         }
         else{
-            drawPixelArray(hammerHori, hammerHori_palette, multiplySize, dynamicStartX + (2 * multiplySize), dynamicStartY - multiplySize);
+            drawPixelArray(hammerHori, hammerHori_palette, multiplySize, xPos + (2 * multiplySize), yPos);
         }
     } else {
         if(!horizontal){
