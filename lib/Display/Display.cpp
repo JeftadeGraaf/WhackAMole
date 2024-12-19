@@ -258,8 +258,6 @@ void Display::drawGame(Difficulty selectedDifficulty){
         _tft.setTextSize(1);
         _tft.getTextBounds(text, 0, 0, &x1, &y1, &textWidth, &textHeight);
         // Center the text on the screen
-        x = (SCREEN_WIDTH - textWidth) / 2;
-
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 15);
         _tft.print(text);
 
@@ -413,12 +411,7 @@ void Display::drawChooseCharacter(){
         textYCoor = 120;
         text = "Mole";
 
-        _tft.setTextSize(2);
-        _tft.getTextBounds(text, 0, 0, &x1, &y1, &textWidth, &textHeight);
-        // Center the text on the screen
-        x = (SCREEN_WIDTH - textWidth) / 2;
-
-        moleTextXCoor = x / 2 - 20;
+        moleTextXCoor = calcCenterScreenText(text, 2) - 20;
         _tft.setCursor(moleTextXCoor, textYCoor);
         _tft.print(text);
         //Draw mole character
@@ -512,7 +505,6 @@ void Display::drawStartMenu(){
         _tft.getTextBounds(text, 0, 0, &x1, &y1, &textWidth, &textHeight);
         // Center the text on the screen
         x = (SCREEN_WIDTH - textWidth) / 2;
-        y = (SCREEN_HEIGHT - textHeight) / 2;
         
         _tft.setCursor(x, 30);
         _tft.print(text);
@@ -648,8 +640,7 @@ int Display::calcCenterScreenText(String text, uint8_t textSize){
     _tft.setTextSize(textSize);
     _tft.getTextBounds(text, 0, 0, &x1, &y1, &textWidth, &textHeight);
     // Center the text on the screen
-    y = (SCREEN_HEIGHT - textHeight) / 2;
-    return (SCREEN_WIDTH - textWidth) / 2;
+    return ((SCREEN_WIDTH - textWidth) / 2);
 }
 
 void Display::drawPixelField(uint8_t y){
