@@ -5,11 +5,11 @@
 #include <Timer1Overflow.h>
 
 // Constructor
-Game::Game(IRComm &ir, Display &display, Timer1Overflow &timer1) :
-    ir(ir),
-    display(display),
-    timer1(timer1)    
+Game::Game(IRComm* ir, Display* display, Timer1Overflow* timer1)   
     {
+        this->display = display;
+        this->ir = ir;
+        this->timer1 = timer1;
 }
 
 // commands are built up like this:
@@ -50,7 +50,7 @@ void Game::sendStart(bool opponentIsMole, uint8_t gridSize) {
     }
 
     // send command
-    ir.sendFrame(command);
+    ir->sendFrame(command);
 }
 
 /* 
@@ -68,7 +68,7 @@ void Game::sendMoleUp(uint8_t grid_position) {
     command |= grid_position;
 
     // send command
-    ir.sendFrame(command);
+    ir->sendFrame(command);
 }
 
 /*
@@ -91,7 +91,7 @@ void Game::sendHammerMove(uint8_t grid_position, bool strike) {
     command |= grid_position;
 
     // send command
-    ir.sendFrame(command);
+    ir->sendFrame(command);
 }
 
 /* 
@@ -108,7 +108,7 @@ void Game::sendScore(uint8_t score) {
     command |= score;
 
     // send command
-    ir.sendFrame(command);
+    ir->sendFrame(command);
 }
 
 /*
@@ -123,7 +123,7 @@ void Game::sendInvalidCommandSignal() {
     command |= 0x0500; // command id as 16-bit value
 
     // send command
-    ir.sendFrame(command);
+    ir->sendFrame(command);
 }
 
 void Game::buttonListener() {
@@ -133,7 +133,7 @@ void Game::buttonListener() {
     CPressed = Nunchuk.state.c_button;
 
     //Switch between different screens
-    switch(display.displayedScreen) {
+    switch(display->displayedScreen) {
         case Display::game:
             updateGame(0, ZPressed);
             break;
@@ -141,21 +141,21 @@ void Game::buttonListener() {
         case Display::gameOver:
             //Go to start menu
             if(ZPressed){
-                display.drawStartMenu();
+                display->drawStartMenu();
             }
             break;
 
         case Display::startMenu:
             //Update selection
-            display.updateStartMenu(ZPressed);
+            display->updateStartMenu(ZPressed);
             break;
 
         case Display::chooseCharacter:
             //Update selection
-            display.updateChooseCharacter(ZPressed);
+            display->updateChooseCharacter(ZPressed);
             //Go back to start menu
             if(CPressed){
-                display.drawStartMenu();
+                display->drawStartMenu();
             }
             break;
 
@@ -164,14 +164,14 @@ void Game::buttonListener() {
             updateDifficulty(ZPressed);
             //Go back to choose character screen
             if(CPressed){
-                display.drawChooseCharacter();
+                display->drawChooseCharacter();
             }
             break;
 
         case Display::highscores:
             //Go back to start menu
             if(CPressed){
-                display.drawStartMenu();
+                display->drawStartMenu();
             }
             break;
 
@@ -185,24 +185,24 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
 
     switch(proc){
         case Game::startGame: {
-            if(display.displayedScreen != Display::game){
-                display.characterMole = (data >> 3) & 1; //set character based on bit 3
+            if(display->displayedScreen != Display::game){
+                display->characterMole = (data >> 3) & 1; //set character based on bit 3
 
                 uint8_t lastThreeBits = data & 0x7; //Set difficulty based on 3 LSBs
                 if(lastThreeBits == 1){ //Bit 0 is set -> 2x2
-                    display.selectedDifficulty = Display::four;
+                    display->selectedDifficulty = Display::four;
                 }
                 else if(lastThreeBits == 2){ //Bit 1 is set -> 3x3
-                    display.selectedDifficulty = Display::nine;
+                    display->selectedDifficulty = Display::nine;
                 }
                 else if(lastThreeBits == 4){ //Bit 2 is set -> 4x4
-                    display.selectedDifficulty = Display::sixteen;
+                    display->selectedDifficulty = Display::sixteen;
                 }
                 else{ //If invalid difficulty is recieved
                     Serial.println("Difficulty set error");
                     //TODO terugsturen en terug ontvangen voor correcte check
                 }
-                display.drawGame(display.selectedDifficulty);
+                display->drawGame(display->selectedDifficulty);
             }
             break;
         }
@@ -211,7 +211,7 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             recievedMoleHeap = data & 0xF; //Get mole heap from 4 LSBs
             //If mole is not up, draw mole
             if(!moleIsUp){
-                display.drawOrRemoveMole(recievedMoleHeap, true);
+                display->drawOrRemoveMole(recievedMoleHeap, true);
                 processCurrentTime = timer1_overflow_count;
                 moleIsUp = true;
             }
@@ -219,7 +219,7 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             else{
                 if (timer1_overflow_count - processCurrentTime >= 60) {
                     //Remove mole after 2 seconds
-                    display.drawOrRemoveMole(recievedMoleHeap, false);
+                    display->drawOrRemoveMole(recievedMoleHeap, false);
                     moleIsUp = false;
                 }
             }
@@ -233,23 +233,23 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             //If hammer is not hitting, update cursor
             if(timer1_overflow_count - processCurrentTime >= 30){
                 if(recievedHammerHitting){
-                    display.drawOrRemoveHammer(recievedMoleHeap, false, false); //remove cursor
-                    display.drawOrRemoveHole(recievedMoleHeap, true); //draw hole
-                    display.drawOrRemoveHammer(recievedMoleHeap, true, true); //draw hitting hammer
+                    display->drawOrRemoveHammer(recievedMoleHeap, false, false); //remove cursor
+                    display->drawOrRemoveHole(recievedMoleHeap, true); //draw hole
+                    display->drawOrRemoveHammer(recievedMoleHeap, true, true); //draw hitting hammer
                     processCurrentTime = timer1_overflow_count;
                     hammerHitting = true;
                 }
                 if(recievedMoleHeap != oldRecievedMoleHeap){
-                    display.drawOrRemoveHammer(oldRecievedMoleHeap, false, false); //remove cursor from old heap
-                    display.drawOrRemoveHammer(recievedMoleHeap, true, false); //draw cursor on new heap
+                    display->drawOrRemoveHammer(oldRecievedMoleHeap, false, false); //remove cursor from old heap
+                    display->drawOrRemoveHammer(recievedMoleHeap, true, false); //draw cursor on new heap
                 }
             }
             //If hammer is hitting, update hitting hammer
             else{
                 if(hammerHitting){
-                    display.drawOrRemoveHammer(recievedMoleHeap, false, true); //remove hitting hammer
-                    display.drawOrRemoveHole(recievedMoleHeap, true); //remove hole
-                    display.drawOrRemoveHammer(recievedMoleHeap, true, false); //draw cursor
+                    display->drawOrRemoveHammer(recievedMoleHeap, false, true); //remove hitting hammer
+                    display->drawOrRemoveHole(recievedMoleHeap, true); //remove hole
+                    display->drawOrRemoveHammer(recievedMoleHeap, true, false); //draw cursor
                 }
                 hammerHitting = false;
             }
@@ -259,7 +259,7 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             break;
         
         case Game::recieveScore:
-            if(display.displayedScreen != Display::gameOver){
+            if(display->displayedScreen != Display::gameOver){
                 opponentsScore = (uint8_t) data; //Get score from 8 LSBs    
             }
             break;
@@ -294,132 +294,132 @@ Game::process Game::readRecievedProcess(uint16_t data){
 //TODO calculate score
 void Game::updateGame(uint8_t score, bool ZPressed){
     //Dynamic Time and Score
-    display.updateGameTimeScore(score);
+    display->updateGameTimeScore(score);
 
-    display.oldSelectedHeap = display.selectedHeap;
-    display.oldDynamicStartX = display.dynamicStartX;
-    display.oldDynamicStartY = display.dynamicStartY;
+    display->oldSelectedHeap = display->selectedHeap;
+    display->oldDynamicStartX = display->dynamicStartX;
+    display->oldDynamicStartY = display->dynamicStartY;
 
     //Read movement
-    if((!display.characterMole && !display.hammerJustHit) || display.characterMole){
-        if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.dynamicStartX != display.Xmax){
-            display.dynamicStartX += display.Xcrement; //Move right
-            display.selectedHeap += 1;
-        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.dynamicStartX != display.startX){
-            display.dynamicStartX -= display.Xcrement; //Move left
-            display.selectedHeap -= 1;
+    if((!display->characterMole && !display->hammerJustHit) || display->characterMole){
+        if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && display->dynamicStartX != display->Xmax){
+            display->dynamicStartX += display->Xcrement; //Move right
+            display->selectedHeap += 1;
+        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && display->dynamicStartX != display->startX){
+            display->dynamicStartX -= display->Xcrement; //Move left
+            display->selectedHeap -= 1;
         }
 
-        if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.dynamicStartY != display.Ymax){
-            display.dynamicStartY += display.Ycrement; //Move down
-            display.selectedHeap += display.gridSize;
-        } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.dynamicStartY != display.startY){
-            display.dynamicStartY -= display.Ycrement; //Move up
-            display.selectedHeap -= display.gridSize;
+        if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && display->dynamicStartY != display->Ymax){
+            display->dynamicStartY += display->Ycrement; //Move down
+            display->selectedHeap += display->gridSize;
+        } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && display->dynamicStartY != display->startY){
+            display->dynamicStartY -= display->Ycrement; //Move up
+            display->selectedHeap -= display->gridSize;
         }
     }
 
     //If character is mole
-    if(display.characterMole){
+    if(display->characterMole){
         //Draw selector rectangle
-        display._tft.drawRect(display.dynamicStartX-2, display.dynamicStartY-2, display.selectWidthHeight+4, display.selectWidthHeight+4, ILI9341_BLACK);
+        display->_tft.drawRect(display->level.dynamicStartX-2, display->level.dynamicStartY-2, display->selectWidthHeight+4, display->selectWidthHeight+4, ILI9341_BLACK);
         //If other heap is selected, remove old selector
-        if(display.oldSelectedHeap != display.selectedHeap){
-            display._tft.drawRect(display.oldDynamicStartX-2, display.oldDynamicStartY-2, display.selectWidthHeight+4, display.selectWidthHeight+4, ILI9341_GREEN);
+        if(display->oldSelectedHeap != display->selectedHeap){
+            display->_tft.drawRect(display->oldDynamicStartX-2, display->oldDynamicStartY-2, display->selectWidthHeight+4, display->selectWidthHeight+4, ILI9341_GREEN);
         }
         //If Z is pressed and mole is not placed, draw mole
-        if(ZPressed && !display.molePlaced){
-            sendMoleUp(display.selectedHeap); //Send placed mole to other console
-            display.drawOrRemoveMole(display.selectedHeap, true);
-            display.molePlaced = 0x1;
-            display.molePlacedTime = timer1.overflowCount;
-            display.molePlacedHeap = display.selectedHeap;
+        if(ZPressed && !display->molePlaced){
+            sendMoleUp(display->selectedHeap); //Send placed mole to other console
+            display->drawOrRemoveMole(display->selectedHeap, true);
+            display->molePlaced = 0x1;
+            display->molePlacedTime = timer1->overflowCount;
+            display->molePlacedHeap = display->selectedHeap;
         }
         //If mole is placed and time is up, remove mole
-        if(display.molePlaced && (timer1.overflowCount - display.molePlacedTime >= 60)){
-            display.drawOrRemoveMole(display.molePlacedHeap, false);
-            display.molePlaced = 0x0;
+        if(display->molePlaced && (timer1->overflowCount - display->molePlacedTime >= 60)){
+            display->drawOrRemoveMole(display->molePlacedHeap, false);
+            display->molePlaced = 0x0;
         }
     }
 
     //If character is hammer
     else{
         //If the hammers movement is not blocked
-        if (timer1.overflowCount - display.lastHammerUse >= 30) { // 30 overflows ≈ 1 second
+        if (timer1->overflowCount - display->lastHammerUse >= 30) { // 30 overflows ≈ 1 second
             //If hammer finished hitting
-            if(display.hammerJustHit){
+            if(display->hammerJustHit){
                 //Remove horizontal hammer
-                display.drawOrRemoveHammer(display.selectedHeap, false, true);
+                display->drawOrRemoveHammer(display->selectedHeap, false, true);
                 //Place selector hammer and hole
-                display.drawOrRemoveHammer(display.selectedHeap, true, false);
-                display.drawOrRemoveHole(display.selectedHeap, true);
-                display.hammerJustHit = false;
+                display->drawOrRemoveHammer(display->selectedHeap, true, false);
+                display->drawOrRemoveHole(display->selectedHeap, true);
+                display->hammerJustHit = false;
             }
             //If other heap is selected
-            if(display.oldSelectedHeap != display.selectedHeap){
+            if(display->oldSelectedHeap != display->selectedHeap){
                 //remove old selector
-                display.drawOrRemoveHammer(display.oldSelectedHeap, false, false);
+                display->drawOrRemoveHammer(display->oldSelectedHeap, false, false);
                 //Draw selector hammer
-                display.drawOrRemoveHammer(display.selectedHeap, true, false);
+                display->drawOrRemoveHammer(display->selectedHeap, true, false);
             }
             if(ZPressed) {
                 // Update last usage timestamp
-                display.lastHammerUse = timer1.overflowCount;
+                display->lastHammerUse = timer1->overflowCount;
             }
         }
         //If the hammer is blocked
-        else if(!display.hammerJustHit){
+        else if(!display->hammerJustHit){
             //Remove selector hammer
-            display.drawOrRemoveHammer(display.selectedHeap, false, false);
+            display->drawOrRemoveHammer(display->selectedHeap, false, false);
             // Perform hammer action
-            display.drawOrRemoveHammer(display.selectedHeap, true, true);
-            display.hammerJustHit = true;
+            display->drawOrRemoveHammer(display->selectedHeap, true, true);
+            display->hammerJustHit = true;
         }
-        sendHammerMove(display.selectedHeap, display.hammerJustHit); //Send hammer position to other console
+        sendHammerMove(display->selectedHeap, display->hammerJustHit); //Send hammer position to other console
     }
 
-    if (display.time == 0) {
+    if (display->time == 0) {
         // Game over
         sendScore(score); //Send score to other console
         bool moleWon = false;
-        if((display.characterMole && score > opponentsScore) || (!display.characterMole && !(score < opponentsScore))){
+        if((display->characterMole && score > opponentsScore) || (!display->characterMole && !(score < opponentsScore))){
             moleWon = true;
         }
         else{
             moleWon = false;
         }
-        display.drawGameOverMenu(score, opponentsScore, moleWon);
+        display->drawGameOverMenu(score, opponentsScore, moleWon);
     }
 }
 
 void Game::updateDifficulty(bool buttonPressed){
-    display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_GREEN);
-    if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.selectedDifficulty != Display::sixteen){
+    display->_tft.fillCircle(display->difficultyCircleX, display->difficultyCircleY, 5, ILI9341_GREEN);
+    if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && display->selectedDifficulty != Display::sixteen){
         //move down
-        display.difficultyCircleY += 50;
+        display->difficultyCircleY += 50;
         //When moving down, change the difficulty to the value under it
-        if(display.selectedDifficulty == Display::four){
-            display.selectedDifficulty = Display::nine;
+        if(display->selectedDifficulty == Display::four){
+            display->selectedDifficulty = Display::nine;
         }
-        else if(display.selectedDifficulty == Display::nine){
-            display.selectedDifficulty = Display::sixteen;
+        else if(display->selectedDifficulty == Display::nine){
+            display->selectedDifficulty = Display::sixteen;
         }
-    } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.selectedDifficulty != Display::four){
+    } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && display->selectedDifficulty != Display::four){
         //move up
-        display.difficultyCircleY -= 50;
+        display->difficultyCircleY -= 50;
         //When moving down, change the difficulty to the value above it
-        if(display.selectedDifficulty == Display::sixteen){
-            display.selectedDifficulty = Display::nine;
+        if(display->selectedDifficulty == Display::sixteen){
+            display->selectedDifficulty = Display::nine;
         }
-        else if(display.selectedDifficulty == Display::nine){
-            display.selectedDifficulty = Display::four;
+        else if(display->selectedDifficulty == Display::nine){
+            display->selectedDifficulty = Display::four;
         }
     }
-    display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_BLACK);
+    display->_tft.fillCircle(display->difficultyCircleX, display->difficultyCircleY, 5, ILI9341_BLACK);
 
     //Start the game with the selected difficulty when button is pressed
     if(buttonPressed){
-        sendStart(display.characterMole, display.selectedDifficulty); //Send start game process to other console
-        display.drawGame(display.selectedDifficulty);
+        sendStart(display->characterMole, display->selectedDifficulty); //Send start game process to other console
+        display->drawGame(display->selectedDifficulty);
     }
 }

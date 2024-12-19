@@ -108,12 +108,6 @@ public:
 
     void updateGameTimeScore(uint8_t score); //Update the time and score in the game screen
 
-private:
-    void calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
-    void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
-    void drawPixelField(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t pixelSize);
-    void drawPixelArray(const uint8_t *pixels, const uint8_t palette[][3], uint8_t pixelSize, int xStart, int yStart, int xSize, int ySize);
-
     struct DifficultyLevel {
         uint8_t multiplySize;
         uint16_t startX;
@@ -132,7 +126,14 @@ private:
         {5, 50, 55, 90, 70, 3, 230, 195},     // Difficulty 9
         {4, 15, 54, 88, 45, 4, 279, 189},     // Difficulty 16
     };
-    DifficultyLevel level;
+
+    DifficultyLevel level;    
+
+private:
+    void calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
+    void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
+    void drawPixelField(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t pixelSize);
+    void drawPixelArray(const uint8_t *pixels, const uint8_t palette[][3], uint8_t pixelSize, int xStart, int yStart, int xSize, int ySize);
 
     Timer1Overflow* _timer1;
     SevenSegment* _sevenSegment;
