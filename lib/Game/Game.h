@@ -5,10 +5,11 @@
 #include "Display.h"
 #include "Nunchuk.h"
 #include "IRComm.h"
+#include <Timer1Overflow.h>
 
 class Game {
 public:
-    Game(IRComm &ir, Display &display);
+    Game(IRComm &ir, Display &display, Timer1Overflow &timer1);
 
     uint8_t heapCoordinatesToHeapNumber(uint8_t x, uint8_t y, uint8_t gridWidth);
     void sendStart(bool opponentIsMole, uint8_t difficulty);
@@ -38,6 +39,7 @@ public:
 private:
     IRComm& ir;
     Display& display;
+    Timer1Overflow* _timer1;
 
     bool moleIsUp; //If mole is up
     uint32_t processCurrentTime; //Time the mole went up or hammer is hit
