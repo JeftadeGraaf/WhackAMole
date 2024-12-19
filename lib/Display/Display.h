@@ -14,6 +14,7 @@ public:
     Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1, SevenSegment &sevenSegment);
     void init(); //Initialize the display
     void refreshBacklight(); //Change the brightness of the display based on the potmeter value
+    // void updateGameTimeScore(uint8_t score); //Update the time and score in the game screen
 
     // void updateGame(uint8_t score, bool buttonPressed); //Update the game, hammer position, mole position, score and time
     void updateChooseCharacter(bool buttonPressed); //Update the choose character menu based on user input
@@ -47,6 +48,10 @@ public:
         difficulty,
         highscores,
     };
+
+     const uint32_t SCREEN_WIDTH = 320; //Displays screen width
+    const uint16_t SCREEN_HEIGHT = 240; //Displays screen height
+    const uint8_t picturePixelSize = 8; //the size per pixel of used images
     Screens displayedScreen; //The current displayed screen
     bool characterMole = true; //Saves the selected playable character
     bool molePlaced; //If mole is placed
@@ -112,7 +117,9 @@ private:
     void drawPixelArray(const uint8_t *pixels, const uint8_t palette[][3], uint8_t pixelSize, int xStart, int yStart, int xSize, int ySize);
     void updateGameTimeScore(uint8_t score); //Update the time and score in the game screen
 
+    Adafruit_ILI9341 _tft; //An instance of the display
 
+    void updateGameTimeScore(uint8_t score); //Update the time and score in the game screen
 
     struct DifficultyLevel {
         uint8_t multiplySize;
@@ -132,7 +139,14 @@ private:
         {5, 50, 55, 90, 70, 3, 230, 195},     // Difficulty 9
         {4, 15, 54, 88, 45, 4, 279, 189},     // Difficulty 16
     };
-    DifficultyLevel level;
+
+    DifficultyLevel level;    
+
+private:
+    void calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
+    void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
+    void drawPixelField(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t pixelSize);
+    void drawPixelArray(const uint8_t *pixels, const uint8_t palette[][3], uint8_t pixelSize, int xStart, int yStart, int xSize, int ySize);
 
     Timer1Overflow* _timer1;
     SevenSegment* _sevenSegment;
