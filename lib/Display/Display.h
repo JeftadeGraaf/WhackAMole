@@ -107,7 +107,7 @@ public:
     uint8_t selectedHeap = 0; //Which molehole is selected
 
 private:
-    void calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
+    int calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
     void drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t backgroundPixelSize, int xStart, int yStart); // Draw a pixelarray with its corresponding palette
     

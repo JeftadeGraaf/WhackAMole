@@ -245,8 +245,7 @@ void Display::drawGame(Difficulty selectedDifficulty){
     _tft.setTextColor(ILI9341_BLACK);
     _tft.setFont(&IrishGrover_Regular8pt7b);
         text = "Whack a Mole";
-        calcCenterScreenText(text, 2);
-        _tft.setCursor(x, 30);
+        _tft.setCursor(calcCenterScreenText(text, 2), 30);
         _tft.print(text);
 
     _tft.setFont(&InriaSans_Regular8pt7b);
@@ -375,7 +374,6 @@ void Display::updateGameTimeScore(uint8_t score){
         _tft.print(String(time));
         
         text = String(oldScore);
-        calcCenterScreenText(text, 1);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
         _tft.print(text);
 
@@ -391,7 +389,6 @@ void Display::updateGameTimeScore(uint8_t score){
         _tft.print(String(time));
         
         text = String(score);
-        calcCenterScreenText(text, 1);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
         _tft.print(text);
 }
@@ -406,12 +403,10 @@ void Display::drawChooseCharacter(){
     _tft.setTextColor(ILI9341_BLACK);
     _tft.setFont(&IrishGrover_Regular8pt7b);
         text = "Choose your";
-        calcCenterScreenText(text, 2);
-        _tft.setCursor(x, 40);
+        _tft.setCursor(calcCenterScreenText(text, 2), 40);
         _tft.print(text);
         text = "character";
-        calcCenterScreenText(text, 2);
-        _tft.setCursor(x, 80);
+        _tft.setCursor(calcCenterScreenText(text, 2), 80);
         _tft.print(text);
 
     _tft.setFont(&InriaSans_Regular8pt7b);
@@ -484,8 +479,7 @@ void Display::drawDifficulty(){
     _tft.setTextColor(ILI9341_BLACK);
     _tft.setFont(&IrishGrover_Regular8pt7b);
         text = "Whack a Mole";
-        calcCenterScreenText(text, 2);
-        _tft.setCursor(x, 30);
+        _tft.setCursor(calcCenterScreenText(text, 2), 30);
         _tft.print(text);
 
     _tft.setFont(&InriaSans_Regular8pt7b);
@@ -566,8 +560,7 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
     _tft.setTextColor(ILI9341_BLACK);
     _tft.setFont(&IrishGrover_Regular8pt7b);
         text = "Whack a Mole";
-        calcCenterScreenText(text, 2);
-        _tft.setCursor(x, 30);
+        _tft.setCursor(calcCenterScreenText(text, 2), 30);
         _tft.print(text);
 
         //If player won
@@ -576,19 +569,16 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
         } else {
             text = "You Lost!";
         }
-        calcCenterScreenText(text, 2);
-        _tft.setCursor(x, 90);
+        _tft.setCursor(calcCenterScreenText(text, 2), 90);
         _tft.print(text);
 
     _tft.setFont(&InriaSans_Regular8pt7b);
         text = "Your score: " + String(player_score);
-        calcCenterScreenText(text, 1);
-        _tft.setCursor(x, 120);
+        _tft.setCursor(calcCenterScreenText(text, 1), 120);
         _tft.print(text);
 
         text = "Opponents score: " + String(opponent_score);
-        calcCenterScreenText(text, 1);
-        _tft.setCursor(x, 136);
+        _tft.setCursor(calcCenterScreenText(text, 1), 136);
         _tft.print(text);
 
         text = "Z: Return to menu";
@@ -621,8 +611,7 @@ void Display::drawHighscores(){
     _tft.setTextColor(ILI9341_BLACK);
     _tft.setFont(&IrishGrover_Regular8pt7b);
         text = "Whack a Mole";
-        calcCenterScreenText(text, 2);
-        _tft.setCursor(x, 35);
+        _tft.setCursor(calcCenterScreenText(text, 2), 35);
         _tft.print(text);
     
     _tft.drawLine(20, 70, 300, 70, ILI9341_BLACK);      //Horizontal
@@ -630,17 +619,14 @@ void Display::drawHighscores(){
 
     _tft.setFont(&InriaSans_Regular8pt7b);
         text = "Highscores";
-        calcCenterScreenText(text, 1);
-        _tft.setCursor(x, 51);
+        _tft.setCursor(calcCenterScreenText(text, 1), 51);
         _tft.print(text);
 
         text = "Mole";
-        calcCenterScreenText(text, 1);
-        _tft.setCursor(x * 1.5, 68);
+        _tft.setCursor(calcCenterScreenText(text, 1) * 1.5, 68);
         _tft.print(text);
         text = "Hammer";
-        calcCenterScreenText(text, 1);
-        _tft.setCursor(x / 2, 68);
+        _tft.setCursor(calcCenterScreenText(text, 1) / 2, 68);
         _tft.print(text);
 
         uint8_t highscoresY = 85;
@@ -658,12 +644,12 @@ void Display::drawHighscores(){
         }
 }
 
-void Display::calcCenterScreenText(String text, uint8_t textSize){
+int Display::calcCenterScreenText(String text, uint8_t textSize){
     _tft.setTextSize(textSize);
     _tft.getTextBounds(text, 0, 0, &x1, &y1, &textWidth, &textHeight);
     // Center the text on the screen
-    x = (SCREEN_WIDTH - textWidth) / 2;
     y = (SCREEN_HEIGHT - textHeight) / 2;
+    return (SCREEN_WIDTH - textWidth) / 2;
 }
 
 void Display::drawPixelField(uint8_t y){
