@@ -133,7 +133,7 @@ void Game::buttonListener() {
     //Switch between different screens
     switch(display.displayedScreen) {
         case Display::game:
-            updateGame(0, ZPressed);
+            updateGame(ZPressed);
             break;
 
         case Display::gameOver:
@@ -281,7 +281,7 @@ Game::process Game::readRecievedProcess(uint16_t data){
 
 //TODO joystick (debounce)
 //TODO calculate score
-void Game::updateGame(uint8_t score, bool ZPressed){
+void Game::updateGame(bool ZPressed){
     //Dynamic Time and Score
     display.updateGameTimeScore(score);
 
@@ -376,6 +376,7 @@ void Game::updateGame(uint8_t score, bool ZPressed){
         //Reset variables for next game
         display.selectedHeap = 0;
         display.oldSelectedHeap = 0;
+        score = 0;
 
         if((display.characterMole && score > opponentsScore) || (!display.characterMole && !(score < opponentsScore))){
             moleWon = true;
@@ -421,6 +422,10 @@ void Game::updateDifficulty(bool buttonPressed){
 
 void Game::loopRecievedProcess(){
     if(proc == moleUp){
+        if((moleIsUp && display.hammerJustHit) && (display.selectedHeap == recievedMoleHeap) && (display.get_t1_overflows() - scoreIncrementedTime >= timeHammerDown)){
+            score += hammerHitMolePoints;
+            scoreIncrementedTime = display.get_t1_overflows();
+        }
         //If mole is up, check if it has been up for 2 seconds
         if(moleIsUp && (display.get_t1_overflows() - processCurrentTime >= timeMoleUp)) {
             //Remove mole after 2 seconds

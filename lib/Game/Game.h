@@ -6,6 +6,8 @@
 #include "Nunchuk.h"
 #include "IRComm.h"
 
+#define hammerHitMolePoints 1
+
 class Game {
 public:
     Game(IRComm &ir, Display &display);
@@ -21,7 +23,7 @@ public:
 
     void loopRecievedProcess();
 
-    void updateGame(uint8_t score, bool ZPressed);
+    void updateGame(bool ZPressed);
     void updateDifficulty(bool buttonPressed);
 
     enum process{
@@ -34,7 +36,7 @@ public:
     process proc;
     process readRecievedProcess(uint16_t data);
 
-    uint8_t score = 0; //TODO wordt niet gebruikt
+    uint8_t score = 0; //Player score
     uint8_t opponentsScore = 0; //Opponents score
 
 private:
@@ -43,6 +45,7 @@ private:
 
     const uint8_t timeMoleUp = 60; //Time mole is up
     const uint8_t timeHammerDown = 30; //Time hammer is down
+    uint32_t scoreIncrementedTime; //Time score is incremented
 
     bool moleIsUp = false; //If mole is up
     uint32_t processCurrentTime; //Time the mole went up or hammer is hit

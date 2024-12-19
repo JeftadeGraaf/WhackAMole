@@ -389,6 +389,8 @@ void Display::updateGameTimeScore(uint8_t score){
         text = String(score);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
         _tft.print(text);
+
+    oldScore = score;
 }
 
 void Display::drawChooseCharacter(){
@@ -571,14 +573,6 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
 
         text = "Opponents score: " + String(opponent_score);
         _tft.setCursor(calcCenterScreenText(text, 1), 136);
-        _tft.print(text);
-
-        text = "Z: Return to menu";
-        _tft.setCursor(11, 200);
-        _tft.print(text);
-
-        text = "C: Save name";
-        _tft.setCursor(11, 220);
         _tft.print(text);
 
     //If mole won, draw mole. Else, draw hammerHori
