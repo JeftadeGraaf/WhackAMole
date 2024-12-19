@@ -39,7 +39,10 @@ private:
     IRComm& ir;
     Display& display;
 
-    bool moleIsUp; //If mole is up
+    uint8_t timeMoleUp = 60; //Time mole is up
+    uint8_t timeHammerDown = 30; //Time hammer is down
+
+    bool moleIsUp = false; //If mole is up
     uint32_t processCurrentTime; //Time the mole went up or hammer is hit
     uint8_t recievedMoleHeap = 0; //Recieved mole heap
     uint8_t oldRecievedMoleHeap = 0; //previous recieved mole heap

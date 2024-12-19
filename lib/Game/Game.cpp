@@ -35,7 +35,7 @@ void Game::sendStart(bool opponentIsMole, uint8_t gridSize) {
 
     command |= 0x0100; // command id as 16-bit value
 
-    if (opponentIsMole) {
+    if (!opponentIsMole) {
         command |= (1 << 3);
     }
 
@@ -184,7 +184,7 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
     switch(proc){
         case Game::startGame: {
             if(display.displayedScreen != Display::game){
-                display.characterMole = (data >> 3) & 1; //set character based on bit 3
+                display.characterMole = (data & 0x08) != 0; //set character based on bit 3
 
                 uint8_t lastThreeBits = data & 0x7; //Set difficulty based on 3 LSBs
                 if(lastThreeBits == 1){ //Bit 0 is set -> 2x2
@@ -210,16 +210,15 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             //If mole is not up, draw mole
             if(!moleIsUp){
                 display.drawOrRemoveMole(recievedMoleHeap, true);
-                processCurrentTime = timer1_overflow_count;
                 moleIsUp = true;
+                processCurrentTime = display.get_t1_overflows();
+                oldRecievedMoleHeap = recievedMoleHeap;
             }
             //If mole is up, check if it has been up for 2 seconds
-            else{
-                if (timer1_overflow_count - processCurrentTime >= 60) {
-                    //Remove mole after 2 seconds
-                    display.drawOrRemoveMole(recievedMoleHeap, false);
-                    moleIsUp = false;
-                }
+            if(moleIsUp && (display.get_t1_overflows() - processCurrentTime >= timeMoleUp)) {
+                //Remove mole after 2 seconds
+                display.drawOrRemoveMole(oldRecievedMoleHeap, false);
+                moleIsUp = false;
             }
             break;
         }
@@ -229,12 +228,12 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             recievedHammerHitting = data & 0x10; //Get hammer hitting from 5th LSB
 
             //If hammer is not hitting, update cursor
-            if(timer1_overflow_count - processCurrentTime >= 30){
+            if(display.get_t1_overflows() - processCurrentTime >= 30){
                 if(recievedHammerHitting){
                     display.drawOrRemoveHammer(recievedMoleHeap, false, false); //remove cursor
                     display.drawOrRemoveHole(recievedMoleHeap, true); //draw hole
                     display.drawOrRemoveHammer(recievedMoleHeap, true, true); //draw hitting hammer
-                    processCurrentTime = timer1_overflow_count;
+                    processCurrentTime = display.get_t1_overflows();
                     hammerHitting = true;
                 }
                 if(recievedMoleHeap != oldRecievedMoleHeap){
@@ -266,6 +265,7 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             Serial.println("Error: Unknown process");
             break;
     }
+
 }
 
 Game::process Game::readRecievedProcess(uint16_t data){
@@ -294,10 +294,6 @@ void Game::updateGame(uint8_t score, bool ZPressed){
     //Dynamic Time and Score
     display.updateGameTimeScore(score);
 
-    display.oldSelectedHeap = display.selectedHeap;
-    display.oldDynamicStartX = display.dynamicStartX;
-    display.oldDynamicStartY = display.dynamicStartY;
-
     //Read movement
     if((!display.characterMole && !display.hammerJustHit) || display.characterMole){
         if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.dynamicStartX != display.Xmax){
@@ -325,18 +321,19 @@ void Game::updateGame(uint8_t score, bool ZPressed){
         if(display.oldSelectedHeap != display.selectedHeap){
             display._tft.drawRect(display.oldDynamicStartX-2, display.oldDynamicStartY-2, display.selectWidthHeight+4, display.selectWidthHeight+4, ILI9341_GREEN);
         }
+
         //If Z is pressed and mole is not placed, draw mole
         if(ZPressed && !display.molePlaced){
             sendMoleUp(display.selectedHeap); //Send placed mole to other console
-            display.drawOrRemoveMole(display.selectedHeap, true);
-            display.molePlaced = 0x1;
-            display.molePlacedTime = display.get_t1_overflows();
-            display.molePlacedHeap = display.selectedHeap;
+            display.drawOrRemoveMole(display.selectedHeap, true); //Draw the mole on the selected heap
+            display.molePlaced = true; //A mole has been placed
+            display.molePlacedTime = display.get_t1_overflows(); //Save the time the mole was placed
+            display.molePlacedHeap = display.selectedHeap; //Save the heap the mole was placed in
         }
         //If mole is placed and time is up, remove mole
-        if(display.molePlaced && (display.get_t1_overflows() - display.molePlacedTime >= 60)){
+        if(display.molePlaced && (display.get_t1_overflows() - display.molePlacedTime >= timeMoleUp)){ //Check if mole has been placed for 2 seconds
             display.drawOrRemoveMole(display.molePlacedHeap, false);
-            display.molePlaced = 0x0;
+            display.molePlaced = false;
         }
     }
 
@@ -375,6 +372,10 @@ void Game::updateGame(uint8_t score, bool ZPressed){
         }
         sendHammerMove(display.selectedHeap, display.hammerJustHit); //Send hammer position to other console
     }
+
+    display.oldSelectedHeap = display.selectedHeap;
+    display.oldDynamicStartX = display.dynamicStartX;
+    display.oldDynamicStartY = display.dynamicStartY;
 
     if (display.time == 0) {
         // Game over

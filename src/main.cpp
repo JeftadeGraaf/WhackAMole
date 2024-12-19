@@ -72,7 +72,7 @@ int main(void) {
     uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
     display.setTimingVariable(timer1_overflow_count);
 
-    display.drawStartMenu();
+    display.drawStartMenu(); //Draw the initial screen
     
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
@@ -84,6 +84,8 @@ int main(void) {
             uint16_t data = ir.decodeIRMessage();
             game.reactToRecievedData(data, *timer1_overflow_count);
         }
+
+
 
         _delay_ms(10);
     }
