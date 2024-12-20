@@ -544,7 +544,7 @@ void Display::updateStartMenu(bool buttonPressed){
     }
 }
 
-void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mole_win){
+void Display::drawGameOverMenu(){
     displayedScreen = gameOver;
     //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
@@ -556,8 +556,10 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
         text = "Whack a Mole";
         _tft.setCursor(calcCenterScreenText(text, 2), 30);
         _tft.print(text);
+}
 
-        //If player won
+void Display::updateGameOver(uint8_t player_score, uint8_t opponent_score, bool mole_win){
+    //If player won
         if(player_score > opponent_score){
             text = "You Won!";
         } else {
@@ -574,7 +576,7 @@ void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, boo
         text = "Opponents score: " + String(opponent_score);
         _tft.setCursor(calcCenterScreenText(text, 1), 136);
         _tft.print(text);
-
+    
     //If mole won, draw mole. Else, draw hammerHori
     if(mole_win){
         drawPixelArray(mole, mole_palette, 8, 150, 150);

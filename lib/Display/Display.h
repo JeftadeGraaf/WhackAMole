@@ -34,7 +34,8 @@ public:
     void drawGame(Difficulty selectedDifficulty); //Draw the game
     void drawChooseCharacter(); //Draw the choose character menu
     void drawDifficulty(); //Draw the choose difficulty menu
-    void drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mol_win); //Draw the game over menu
+    void drawGameOverMenu(); //Draw the game over menu
+    void updateGameOver(uint8_t player_score, uint8_t opponent_score, bool mole_win); //Update the game over screen based on the winner
     void drawStartMenu(); //Draw the start menu
     void drawHighscores(); //Draw the highscores screen
 

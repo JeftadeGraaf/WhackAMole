@@ -7,6 +7,9 @@
 #include "IRComm.h"
 
 #define hammerHitMolePoints 1
+#define moleAvoidPoints 1
+#define timeMoleUp (uint8_t)25
+#define timeHammerDown (uint8_t)30
 
 class Game {
 public:
@@ -40,13 +43,15 @@ public:
     uint8_t opponentsScore = 0; //Opponents score
 
 private:
+    void gameOver();
+
     IRComm& ir;
     Display& display;
 
-    const uint8_t timeMoleUp = 60; //Time mole is up
-    const uint8_t timeHammerDown = 30; //Time hammer is down
+
     uint32_t scoreIncrementedTime; //Time score is incremented
 
+    bool moleWon = false;
     bool moleIsUp = false; //If mole is up
     uint32_t processCurrentTime; //Time the mole went up or hammer is hit
     uint8_t recievedMoleHeap; //Recieved mole heap

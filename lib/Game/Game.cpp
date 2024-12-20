@@ -247,9 +247,16 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             break;
         
         case Game::recieveScore:
-            if(display.displayedScreen != Display::gameOver){
                 opponentsScore = (uint8_t) data; //Get score from 8 LSBs    
-            }
+                gameOver();
+
+                if((display.characterMole && score > opponentsScore) || (!display.characterMole && !(score < opponentsScore))){
+                    moleWon = true;
+                }
+                else{
+                    moleWon = false;
+                }
+                display.updateGameOver(score, opponentsScore, moleWon);
             break;
 
         default:
@@ -321,10 +328,17 @@ void Game::updateGame(bool ZPressed){
             display.molePlacedTime = display.get_t1_overflows(); //Save the time the mole was placed
             display.molePlacedHeap = display.selectedHeap; //Save the heap the mole was placed in
         }
+
         //If mole is placed and time is up, remove mole
         if(display.molePlaced && (display.get_t1_overflows() - display.molePlacedTime >= timeMoleUp)){ //Check if mole has been placed for 2 seconds
             display.drawOrRemoveMole(display.molePlacedHeap, false);
             display.molePlaced = false;
+        }
+        if(display.molePlaced && (display.get_t1_overflows() - display.molePlacedTime < timeMoleUp)){
+            if((display.molePlaced && !hammerHitting) && (display.get_t1_overflows() - scoreIncrementedTime >= timeMoleUp)){
+                score += moleAvoidPoints;
+                scoreIncrementedTime = display.get_t1_overflows();
+            }
         }
     }
 
@@ -371,20 +385,7 @@ void Game::updateGame(bool ZPressed){
     if (display.time == 0) {
         // Game over
         sendScore(score); //Send score to other console
-        bool moleWon = false;
-
-        //Reset variables for next game
-        display.selectedHeap = 0;
-        display.oldSelectedHeap = 0;
-        score = 0;
-
-        if((display.characterMole && score > opponentsScore) || (!display.characterMole && !(score < opponentsScore))){
-            moleWon = true;
-        }
-        else{
-            moleWon = false;
-        }
-        display.drawGameOverMenu(score, opponentsScore, moleWon);
+        // gameOver();
     }
 }
 
@@ -433,5 +434,13 @@ void Game::loopRecievedProcess(){
             moleIsUp = false;
         }
     }
+
 }
 
+void Game::gameOver(){
+//Reset variables for next game
+    display.selectedHeap = 0;
+    display.oldSelectedHeap = 0;
+    display.drawGameOverMenu();
+    score = 0;
+}
