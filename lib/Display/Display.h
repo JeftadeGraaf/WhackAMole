@@ -106,7 +106,7 @@ public:
 
     //Variables for selector and heap generation. updateGame(), drawGame(), updateChooseCharacter() functions
     uint8_t selectedHeap = 0; //Which molehole is selected
-
+    bool gameOverUpdated = false;
 private:
     int calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels

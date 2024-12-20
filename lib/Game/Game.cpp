@@ -137,8 +137,18 @@ void Game::buttonListener() {
             break;
 
         case Display::gameOver:
+            if(!display.gameOverUpdated){
+                sendScore(score);
+                if(proc == recieveScore){
+                    display.updateGameOver(score, opponentsScore, moleWon);
+                    display.gameOverUpdated = true;
+                }
+            }
+
             //Go to start menu
             if(ZPressed){
+                display.gameOverUpdated = false;
+                score = 0;
                 display.drawStartMenu();
             }
             break;
@@ -248,15 +258,13 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
         
         case Game::recieveScore:
                 opponentsScore = (uint8_t) data; //Get score from 8 LSBs    
-                gameOver();
-
-                if((display.characterMole && score > opponentsScore) || (!display.characterMole && !(score < opponentsScore))){
+                sendScore(score); //Send own score to other console
+                if((display.characterMole && score > opponentsScore) || (!display.characterMole && score < opponentsScore)){
                     moleWon = true;
                 }
                 else{
                     moleWon = false;
                 }
-                display.updateGameOver(score, opponentsScore, moleWon);
             break;
 
         default:
@@ -384,8 +392,7 @@ void Game::updateGame(bool ZPressed){
 
     if (display.time == 0) {
         // Game over
-        sendScore(score); //Send score to other console
-        // gameOver();
+        gameOver();
     }
 }
 
@@ -442,5 +449,4 @@ void Game::gameOver(){
     display.selectedHeap = 0;
     display.oldSelectedHeap = 0;
     display.drawGameOverMenu();
-    score = 0;
 }

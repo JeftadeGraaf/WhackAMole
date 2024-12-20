@@ -560,13 +560,13 @@ void Display::drawGameOverMenu(){
 
 void Display::updateGameOver(uint8_t player_score, uint8_t opponent_score, bool mole_win){
     //If player won
-        if(player_score > opponent_score){
-            text = "You Won!";
-        } else {
-            text = "You Lost!";
-        }
-        _tft.setCursor(calcCenterScreenText(text, 2), 90);
-        _tft.print(text);
+    if(player_score > opponent_score){
+        text = "You Won!";
+    } else {
+        text = "You Lost!";
+    }
+    _tft.setCursor(calcCenterScreenText(text, 2), 90);
+    _tft.print(text);
 
     _tft.setFont(&InriaSans_Regular8pt7b);
         text = "Your score: " + String(player_score);

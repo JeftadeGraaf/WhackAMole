@@ -32,8 +32,6 @@ Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC);
 // Create game object
 Game game(ir, display);
 
-uint16_t recievedData; //!TEMP recieved data
-
 //local functions
 bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
 bool init_nunchuck();               //Initialise connection to nunchuk
@@ -74,7 +72,6 @@ int main(void) {
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
-
         game.buttonListener();
 
         if(ir.isBufferReady()){

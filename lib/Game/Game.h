@@ -41,6 +41,7 @@ public:
 
     uint8_t score = 0; //Player score
     uint8_t opponentsScore = 0; //Opponents score
+    bool moleWon = false;
 
 private:
     void gameOver();
@@ -51,7 +52,6 @@ private:
 
     uint32_t scoreIncrementedTime; //Time score is incremented
 
-    bool moleWon = false;
     bool moleIsUp = false; //If mole is up
     uint32_t processCurrentTime; //Time the mole went up or hammer is hit
     uint8_t recievedMoleHeap; //Recieved mole heap
