@@ -78,10 +78,6 @@ int main(void) {
             uint16_t data = ir.decodeIRMessage();
             game.reactToRecievedData(data, *timer1_overflow_count);
         }
-
-        if(display.displayedScreen == Display::game){
-            game.loopRecievedProcess();
-        }
         
         _delay_ms(10);
     }

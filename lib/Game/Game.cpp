@@ -134,21 +134,22 @@ void Game::buttonListener() {
     switch(display.displayedScreen) {
         case Display::game:
             updateGame(ZPressed);
+            loopRecievedProcess();
             break;
 
         case Display::gameOver:
+            //Update the game over screen when data is recieved
             if(!display.gameOverUpdated){
                 sendScore(score);
                 if(proc == recieveScore){
                     display.updateGameOver(score, opponentsScore, moleWon);
                     display.gameOverUpdated = true;
+                    score = 0;
                 }
             }
 
             //Go to start menu
             if(ZPressed){
-                display.gameOverUpdated = false;
-                score = 0;
                 display.drawStartMenu();
             }
             break;
@@ -342,6 +343,7 @@ void Game::updateGame(bool ZPressed){
             display.drawOrRemoveMole(display.molePlacedHeap, false);
             display.molePlaced = false;
         }
+        //If mole is placed and hammer is not hitting, increment score
         if(display.molePlaced && (display.get_t1_overflows() - display.molePlacedTime < timeMoleUp)){
             if((display.molePlaced && !hammerHitting) && (display.get_t1_overflows() - scoreIncrementedTime >= timeMoleUp)){
                 score += moleAvoidPoints;

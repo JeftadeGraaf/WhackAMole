@@ -231,6 +231,7 @@ void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[]
 
 void Display::drawGame(Difficulty selectedDifficulty){
     displayedScreen = game;
+    gameOverUpdated = false;
     this->characterMole = characterMole;
 
     reset_t1_overflows();
@@ -562,8 +563,12 @@ void Display::updateGameOver(uint8_t player_score, uint8_t opponent_score, bool 
     //If player won
     if(player_score > opponent_score){
         text = "You Won!";
-    } else {
+    }
+    else if (player_score < opponent_score){
         text = "You Lost!";
+    }
+    else{
+        text = "It's a tie!";
     }
     _tft.setCursor(calcCenterScreenText(text, 2), 90);
     _tft.print(text);
