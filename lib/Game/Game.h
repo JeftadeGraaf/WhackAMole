@@ -13,14 +13,6 @@
 
 class Game {
 public:
-    enum ProcessType {
-        INVALID_PROCESS = 0,
-        START_GAME = 1,
-        MOLE_UP = 2,
-        HAMMER_POSITION_HIT = 3,
-        RECEIVE_SCORE = 4
-    };
-
     Game(IRComm &ir, Display &display);
 
     uint8_t heapCoordinatesToHeapNumber(uint8_t x, uint8_t y, uint8_t gridWidth);
@@ -30,9 +22,9 @@ public:
     void sendScore(uint8_t score);
     void sendInvalidCommandSignal();
     void buttonListener();
-    void reactToReceivedData(uint16_t data, uint32_t timer1_overflow_count);
+    void reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count);
 
-    void loopReceivedProcess();
+    void loopRecievedProcess();
 
     void updateGame(bool ZPressed);
     void updateDifficulty(bool buttonPressed);
@@ -41,11 +33,11 @@ public:
         startGame = 1,
         moleUp = 2,
         hammerPositionHit = 3,
-        receiveScore = 4,
+        recieveScore = 4,
         invalidProcess = 5
     };
     process proc;
-    process readReceivedProcess(uint16_t data);
+    process readRecievedProcess(uint16_t data);
 
     uint8_t score = 0; //Player score
     uint8_t opponentsScore = 0; //Opponents score
@@ -62,10 +54,10 @@ private:
     bool moleWon = false;
     bool moleIsUp = false; //If mole is up
     uint32_t processCurrentTime; //Time the mole went up or hammer is hit
-    uint8_t receivedMoleHeap; //Received mole heap
-    uint8_t oldreceivedMoleHeap = 0; //previous received mole heap
+    uint8_t recievedMoleHeap; //Recieved mole heap
+    uint8_t oldRecievedMoleHeap = 0; //previous recieved mole heap
     bool hammerHitting = false; //If hammer is hitting
-    bool receivedHammerHitting = false; //Received hammer hitting
+    bool recievedHammerHitting = false; //Recieved hammer hitting
 
     const uint8_t NUNCHUK_ADDRESS = 0x52;       //Nunchuk I2c address
     //Save button state
