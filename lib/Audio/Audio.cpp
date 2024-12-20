@@ -1,6 +1,7 @@
 #include <Audio.h>
 #include <avr/io.h>
 #include <util/delay.h>
+#include <HardwareSerial.h>
 
 #define PRESCALER_64_THRESHOLD 488
 
@@ -54,15 +55,20 @@ Audio::Audio()
 {
 }
 
-// void setPrescaler8() {
-//     TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
-//     TCCR2B |= (1 << CS21);
-// }
+void setPrescaler1() {
+    TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
+    TCCR2B |= (1 << CS20);
+}
 
-// void setPrescaler32() {
-//     TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
-//     TCCR2B |= (1 << CS21) | (1 << CS20);
-// }
+void setPrescaler8() {
+    TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
+    TCCR2B |= (1 << CS21);
+}
+
+void setPrescaler32() {
+    TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
+    TCCR2B |= (1 << CS21) | (1 << CS20);
+}
 
 void setPrescaler64() {
     TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
@@ -74,34 +80,72 @@ void setPrescaler128() {
     TCCR2B |= (1 << CS22) | (1 << CS20);
 }
 
-// void setPrescaler256() {
-//     TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
-//     TCCR2B |= (1 << CS22) | (1 << CS21);
-// }
+void setPrescaler256() {
+    TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
+    TCCR2B |= (1 << CS22) | (1 << CS21);
+}
 
-// function that returns the OCR value for a given frequency, and sets the prescaler accordingly
+void setPrescaler1024() {
+    TCCR2B &= ~((1 << CS22) | (1 << CS21) | (1 << CS20));
+    TCCR2B |= (1 << CS22) | (1 << CS21) | (1 << CS20);
+}
+
+// Function that returns the OCR value for a given frequency and sets the prescaler accordingly
 uint8_t Audio::freqToOCRTop(uint16_t freq) {
-    // uint16_t ocrTop = (F_CPU / (2 * 64 * freq)) - 1;
-    // if (ocrTop > 255) {
-    //     setPrescaler256();
-    //     ocrTop = (F_CPU / (2 * 256 * freq)) - 1;
-    // } else if (ocrTop < 64) {
-    //     setPrescaler8();
-    //     ocrTop = (F_CPU / (2 * 8 * freq)) - 1;
-    // } else {
-    //     setPrescaler64();
-    // }
+    // Available prescaler values for Timer2
+    const uint16_t prescalerValues[] = {1, 8, 32, 64, 128, 256, 1024};
+    const uint8_t prescalerCount = sizeof(prescalerValues) / sizeof(prescalerValues[0]);
 
-    // dynamic prescaler no longer needed for current note range; theme song has been scrapped
-    uint16_t ocrTop = (F_CPU / (2 * 128 * freq)) - 1;
-    setPrescaler128();
+    uint8_t bestOcrTop = 0;
+    uint16_t bestPrescaler = 0;
 
-    if (freq > PRESCALER_64_THRESHOLD) {
-        ocrTop = (F_CPU / (2 * 64 * freq)) - 1;
-        setPrescaler64();
+    // Iterate over the available prescaler values to find the best prescaler and OCR value
+    for (uint8_t i = 0; i < prescalerCount; i++) {
+        uint16_t prescaler = prescalerValues[i];
+        uint32_t ocrTop = (F_CPU / (2UL * prescaler * freq)) - 1;
+
+        // Check if ocrTop fits in 8 bits
+        if (ocrTop <= 255) {
+            // Prefer higher ocrTop value for better resolution
+            if (ocrTop > bestOcrTop) {
+                bestOcrTop = ocrTop;
+                bestPrescaler = prescaler;
+            }
+        }
     }
 
-    return (uint8_t) ocrTop;
+    // If a suitable prescaler was found, set it
+    if (bestPrescaler != 0) {
+        switch (bestPrescaler) {
+            case 1:
+                setPrescaler1();
+                break;
+            case 8:
+                setPrescaler8();
+                break;
+            case 32:
+                setPrescaler32();
+                break;
+            case 64:
+                setPrescaler64();
+                break;
+            case 128:
+                setPrescaler128();
+                break;
+            case 256:
+                setPrescaler256();
+                break;
+            case 1024:
+                setPrescaler1024();
+                break;
+        }
+    } else {
+        // If no suitable prescaler was found, use the highest prescaler value
+        setPrescaler1024();
+        bestOcrTop = 255;
+    }
+
+    return bestOcrTop;
 }
 
 void Audio::setTimingVariable(uint32_t* timer1_overflow_count) {
@@ -177,7 +221,7 @@ void Audio::audioPlayer(NoteDuration *sound_array, uint8_t sound_array_length) {
         current_note++;
 
         if (current_note >= sound_array_length) {
-            is_playing_sound = false;  // Stop playback
+            is_playing_sound = false;  // End of sound is reached, stop playback
             disablePWM();
             return;
         }
@@ -191,7 +235,7 @@ void Audio::audioPlayer(NoteDuration *sound_array, uint8_t sound_array_length) {
 }
 
 void Audio::playSound(Sound sound) {
-    if (is_playing_sound) {
+    if (is_playing_sound || timer1_overflow_count == nullptr) {
         return;
     }
 
