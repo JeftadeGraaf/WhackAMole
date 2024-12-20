@@ -69,8 +69,7 @@ int main(void) {
     init_nunchuck();
 
     audio.init();
-    // playSound example
-    // audio.playSound(Audio::Sound::HammerHit);
+    audio.playSound(Audio::Sound::StartUp);
 
     // pass the timer1 overflow variable from the IR protocol to the Display lib
     uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
@@ -78,8 +77,6 @@ int main(void) {
     audio.setTimingVariable(timer1_overflow_count);
 
     display.drawStartMenu();
-
-    audio.playSound(Audio::Sound::StartUp);
     
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
@@ -96,7 +93,7 @@ int main(void) {
 
         // _delay_ms(10);
 
-        audio.test_one_by_one();
+        audio.playSound(Audio::Sound::ThemeSong1);
     }
 	//never reach
 	return 0;

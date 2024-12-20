@@ -1,9 +1,6 @@
 #include <Audio.h>
 #include <avr/io.h>
 #include <util/delay.h>
-#include <HardwareSerial.h>
-
-#define PRESCALER_64_THRESHOLD 488
 
 Audio::Audio()
     : timer1_overflow_count{0}
@@ -52,6 +49,52 @@ Audio::Audio()
         NoteDuration{C5, NOTELENGTH_SHORT},
         NoteDuration{FS4, NOTELENGTH_SHORT}
     }
+    , themeSong0{ // 3 measures of bass
+        NoteDuration{C4, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+        NoteDuration{G3, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+        NoteDuration{D4, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+        NoteDuration{G3, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+
+        NoteDuration{G4, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+        NoteDuration{G3, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+        NoteDuration{C4, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+        NoteDuration{G3, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+
+        NoteDuration{C4, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+        NoteDuration{G3, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+        NoteDuration{C4, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+        NoteDuration{G3, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM}
+    }
+    , themeSong1{
+        NoteDuration{C5, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+        NoteDuration{C5, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+        NoteDuration{D5, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+        NoteDuration{D5, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, NOTELENGTH_MEDIUM},
+
+        NoteDuration{G5, NOTELENGTH_DOTTED_MEDIUM},
+        NoteDuration{E5, NOTELENGTH_MEDIUM},
+        NoteDuration{C5, NOTELENGTH_MEDIUM},
+        NoteDuration{REST, 24}, // rest for 3 mediums
+
+        NoteDuration{REST, 64} // rest for 8 mediums / 1 bar
+
+    }
 {
 }
 
@@ -94,13 +137,12 @@ void setPrescaler1024() {
 uint8_t Audio::freqToOCRTop(uint16_t freq) {
     // Available prescaler values for Timer2
     const uint16_t prescalerValues[] = {1, 8, 32, 64, 128, 256, 1024};
-    const uint8_t prescalerCount = sizeof(prescalerValues) / sizeof(prescalerValues[0]);
 
     uint8_t bestOcrTop = 0;
     uint16_t bestPrescaler = 0;
 
     // Iterate over the available prescaler values to find the best prescaler and OCR value
-    for (uint8_t i = 0; i < prescalerCount; i++) {
+    for (uint8_t i = 0; i < 6; i++) {
         uint16_t prescaler = prescalerValues[i];
         uint32_t ocrTop = (F_CPU / (2UL * prescaler * freq)) - 1;
 
@@ -140,7 +182,7 @@ uint8_t Audio::freqToOCRTop(uint16_t freq) {
                 break;
         }
     } else {
-        // If no suitable prescaler was found, use the highest prescaler value
+        // If no suitable prescaler was found, use the lowest frequency possible
         setPrescaler1024();
         bestOcrTop = 255;
     }
@@ -196,6 +238,12 @@ void Audio::handleTimer1ISR() {
         case HammerMiss:
             audioPlayer(hammerMiss, hammerMiss_LENGTH);
             break;
+        case ThemeSong0:
+            audioPlayer(themeSong0, themeSong0_LENGTH);
+            break;
+        case ThemeSong1:
+            audioPlayer(themeSong1, themeSong1_LENGTH);
+            break;
     }
 }
 
@@ -209,8 +257,6 @@ void Audio::disablePWM() {
 }
 
 void Audio::audioPlayer(NoteDuration *sound_array, uint8_t sound_array_length) {
-    enablePWM();
-
     if (!firstNoteStartTimeIsSet) {
         note_start_time = *timer1_overflow_count;
         firstNoteStartTimeIsSet = true;
@@ -228,10 +274,21 @@ void Audio::audioPlayer(NoteDuration *sound_array, uint8_t sound_array_length) {
         note_start_time = *timer1_overflow_count;  // Start the next note
     }
 
-    // Update PWM for the current note
-    uint8_t ocrTop = freqToOCRTop(sound_array[current_note].note);
-    OCR2A = ocrTop;
-    OCR2B = ocrTop / PWM_DUTY_CYCLE_DIVIDER;  // Set duty cycle to 50%
+    // Handle rest or note
+    if (sound_array[current_note].note == 0) {
+        // Rest: disable PWM
+        disablePWM();
+    } else {
+        // Note: enable PWM and set frequency
+        enablePWM();
+        uint8_t ocrTop = freqToOCRTop(sound_array[current_note].note);
+        OCR2A = ocrTop;
+    }
+}
+
+void Audio::stopSound() {
+    is_playing_sound = false;
+    disablePWM();
 }
 
 void Audio::playSound(Sound sound) {
@@ -246,48 +303,7 @@ void Audio::playSound(Sound sound) {
     is_playing_sound = true;
     firstNoteStartTimeIsSet = false;
 
-    switch (sound)
-    {
-        // case ThemeSong0:
-        //     current_sound = ThemeSong0;
-        //     break;
-
-        // case ThemeSong1:
-        //     current_sound = ThemeSong1;
-        //     break;
-
-        case MoleUp:
-            current_sound = MoleUp;
-            break;
-
-        case MoleDown:
-            current_sound = MoleDown;
-            break;
-
-        case HammerHit:
-            current_sound = HammerHit;
-            break;
-
-        case HammerMiss:
-            current_sound = HammerMiss;
-            break;
-
-        case GameOver:
-            current_sound = GameOver;
-            break;
-
-        case GameWin:
-            current_sound = GameWin;
-            break;
-
-        case ButtonPress:
-            current_sound = ButtonPress;
-            break;
-
-        case StartUp:
-            current_sound = StartUp;
-            break;
-    }
+    current_sound = sound;
 }
 
 void Audio::test_one_by_one() {
@@ -308,5 +324,9 @@ void Audio::test_one_by_one() {
         playSound(HammerHit);
         _delay_ms(1000);
         playSound(HammerMiss);
+        _delay_ms(1000);
+        playSound(ThemeSong0);
+        _delay_ms(1000);
+        playSound(ThemeSong1);
     }
 }
