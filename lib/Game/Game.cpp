@@ -178,25 +178,6 @@ void Game::buttonListener() {
     }
 }
 
-// Function to read the received process
-Game::process Game::readReceivedProcess(uint16_t data) {
-    data = data >> 8;
-    switch (data) {
-        case INVALID_PROCESS:
-            return invalidProcess;
-        case START_GAME:
-            return startGame;
-        case MOLE_UP:
-            return moleUp;
-        case HAMMER_POSITION_HIT:
-            return hammerPositionHit;
-        case RECEIVE_SCORE:
-            return receiveScore;
-        default:
-            return invalidProcess;
-    }
-}
-
 void Game::reactToReceivedData(uint16_t data, uint32_t timer1_overflow_count){
     proc = readReceivedProcess(data);
 
@@ -283,8 +264,26 @@ void Game::reactToReceivedData(uint16_t data, uint32_t timer1_overflow_count){
             Serial.println("Error: Unknown process");
             break;
     }
-    }
 
+}
+
+// Function to read the received process
+Game::process Game::readReceivedProcess(uint16_t data) {
+    data = data >> 8;
+    switch (data) {
+        case INVALID_PROCESS:
+            return invalidProcess;
+        case START_GAME:
+            return startGame;
+        case MOLE_UP:
+            return moleUp;
+        case HAMMER_POSITION_HIT:
+            return hammerPositionHit;
+        case RECEIVE_SCORE:
+            return receiveScore;
+        default:
+            return invalidProcess;
+    }
 }
 
 //TODO joystick (debounce)

@@ -79,11 +79,11 @@ int main(void) {
 
         if(ir.isBufferReady()){
             uint16_t data = ir.decodeIRMessage();
-            game.reactToReceivedData(data, *timer1_overflow_count);
+            game.reactToRecievedData(data, *timer1_overflow_count);
         }
 
         if(display.displayedScreen == Display::game){
-            game.loopReceivedProcess();
+            game.loopRecievedProcess();
         }
         
         _delay_ms(10);
