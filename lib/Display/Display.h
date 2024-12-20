@@ -108,13 +108,24 @@ public:
     uint8_t selectedHeap = 0; //Which molehole is selected
 
 private:
-    int calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
-    void drawPixelArray(const uint8_t *pixels, const uint8_t palette[][3], uint8_t pixelSize, int xStart, int yStart, int xSize, int ySize); //Draws an array of pixels
+    void drawPixelArray(const uint8_t *pixels, const uint8_t (&palette)[82][3], uint8_t pixelSize, 
+                           int xStart, int yStart, int xSize, int ySize); //Draws an array of pixels
     
     const uint32_t SCREEN_WIDTH = 320; //Displays screen width
     const uint16_t SCREEN_HEIGHT = 240; //Displays screen height
     const uint8_t picturePixelSize = 8; //the size per pixel of used images
+
+    inline void setupDifficulty(uint8_t mSize, uint16_t sX, uint16_t sY, 
+                              uint8_t xC, uint8_t yC, uint16_t xM, uint8_t yM, uint8_t gSize);
+    
+    // Optimize center calculation
+    inline int calcCenterScreenText(const String& text, uint8_t textSize);
+    
+    // ... (rest of private members remain the same)
+    
+    // Add constant for color cache size
+    static const uint8_t COLOR_CACHE_SIZE = 82;
 };
 
 #endif

@@ -12,132 +12,132 @@ void reset_t1_overflows(){
     *timer1_all_overflows = 0;
 }
 
+// Combined palette for mole, hole, and hammer sprites
+const uint8_t combined_palette[82][3] = {
+    { 0, 0, 0 },        // 0  - Black (shared)
+    { 254, 252, 249 },  // 1  - Original mole[1]
+    { 20, 17, 18 },     // 2  - Original mole[2]
+    { 166, 132, 61 },   // 3  - Original mole[3]
+    { 108, 86, 44 },    // 4  - Original mole[4]
+    { 175, 162, 139 },  // 5  - Original mole[5]
+    { 167, 156, 135 },  // 6  - Original mole[6]
+    { 204, 177, 122 },  // 7  - Original mole[7]
+    { 154, 119, 48 },   // 8  - Original mole[8]
+    { 139, 109, 47 },   // 9  - Original mole[9]
+    { 128, 93, 24 },    // 10 - Original mole[10]
+    { 229, 219, 198 },  // 11 - Original mole[11]
+    { 199, 164, 90 },   // 12 - Original mole[12]
+    { 50, 43, 34 },     // 13 - Original mole[13]
+    { 238, 234, 227 },  // 14 - Original mole[14]
+    { 210, 186, 136 },  // 15 - Original mole[15]
+    { 177, 144, 74 },   // 16 - Original mole[16]
+    { 140, 118, 75 },   // 17 - Original mole[17]
+    { 144, 114, 53 },   // 18 - Original mole[18]
+    { 135, 111, 67 },   // 19 - Original mole[19]
+    { 131, 101, 40 },   // 20 - Original mole[20]
+    { 138, 102, 28 },   // 21 - Original mole[21]
+    { 133, 99, 29 },    // 22 - Original mole[22]
+    { 138, 101, 28 },   // 23 - Original mole[23]
+    { 128, 95, 30 },    // 24 - Original mole[24]
+    { 203, 175, 117 },  // 25 - Original mole[25]
+    { 123, 90, 21 },    // 26 - Original mole[26]
+    { 82, 64, 34 },     // 27 - Original mole[27]
+    { 91, 67, 21 },     // 28 - Original mole[28]
+    { 91, 72, 31 },     // 29 - Original mole[29]
+    { 64, 59, 57 },     // 30 - Original mole[30]
+    { 86, 62, 17 },     // 31 - Original mole[31]
+    { 88, 63, 14 },     // 32 - Original mole[32]
+    { 88, 62, 14 },     // 33 - Original mole[33]
+    { 78, 53, 4 },      // 34 - Original mole[34]
+    { 48, 46, 53 },     // 35 - Original mole[35]
+    { 39, 39, 39 },     // 36 - Original mole[36]
+    { 36, 36, 36 },     // 37 - Original mole[37]
+    { 57, 38, 0 },      // 38 - Original mole[38]
+    { 33, 26, 26 },     // 39 - Original mole[39]
+    { 0, 0, 2 },        // 40 - Original mole[0]
+    { 105, 69, 4 },     // 41 - Original hole[1]
+    { 90, 61, 6 },      // 42 - Original hole[2]
+    { 94, 62, 4 },      // 43 - Original hole[3]
+    { 111, 73, 9 },     // 44 - Original hole[4]
+    { 108, 71, 4 },     // 45 - Original hole[5]
+    { 65, 44, 5 },      // 46 - Original hole[6]
+    { 93, 63, 9 },      // 47 - Original hole[7]
+    { 54, 37, 5 },      // 48 - Original hole[8]
+    { 51, 51, 0 },      // 49 - Original hole[9]
+    { 102, 71, 10 },    // 50 - Original hole[10]
+    { 69, 48, 5 },      // 51 - Original hole[11]
+    { 55, 39, 5 },      // 52 - Original hole[12]
+    { 53, 37, 5 },      // 53 - Original hole[13]
+    { 58, 39, 0 },      // 54 - Original hole[14]
+    { 45, 31, 4 },      // 55 - Original hole[15]
+    // Hammer palette colors (56-81)
+    { 60, 2, 0 },       // 56 - Original hammer[1]
+    { 248, 201, 20 },   // 57 - Original hammer[2]
+    { 251, 180, 24 },   // 58 - Original hammer[3]
+    { 253, 161, 25 },   // 59 - Original hammer[4]
+    { 250, 166, 25 },   // 60 - Original hammer[5]
+    { 250, 150, 29 },   // 61 - Original hammer[6]
+    { 244, 148, 28 },   // 62 - Original hammer[7]
+    { 247, 141, 29 },   // 63 - Original hammer[8]
+    { 246, 133, 31 },   // 64 - Original hammer[9]
+    { 249, 127, 30 },   // 65 - Original hammer[10]
+    { 255, 51, 51 },    // 66 - Original hammer[11]
+    { 235, 215, 19 },   // 67 - Original hammer[12]
+    { 174, 106, 43 },   // 68 - Original hammer[13]
+    { 146, 114, 94 },   // 69 - Original hammer[14]
+    { 135, 81, 56 },    // 70 - Original hammer[15]
+    { 255, 255, 218 },  // 71 - Original hammer[16]
+    { 114, 69, 53 },    // 72 - Original hammer[17]
+    { 93, 48, 33 },     // 73 - Original hammer[18]
+    { 92, 57, 34 },     // 74 - Original hammer[19]
+    { 86, 39, 27 },     // 75 - Original hammer[20]
+    { 85, 0, 0 },       // 76 - Original hammer[21]
+    { 63, 31, 0 },      // 77 - Original hammer[22]
+    { 171, 136, 118 },  // 78 - Original hammer[23]
+    { 59, 2, 0 },       // 79 - Original hammer[24]
+    { 0, 85, 85 }       // 80 - Original hammer[25]
+};
+
+// Updated mole sprite with new indices
 const uint8_t mole[8][8] = {
-    {0, 13, 34, 10, 26, 38, 13, 0},
-    {39, 4, 17, 6, 6, 19, 4, 2},
-    {0, 23, 16, 5, 5, 3, 24, 2},
-    {35, 31, 15, 14, 14, 7, 28, 30},
+    {0, 13, 31, 10, 24, 35, 13, 0},
+    {36, 4, 17, 6, 6, 19, 4, 2},
+    {0, 21, 16, 5, 5, 3, 21, 2},
+    {32, 29, 15, 14, 14, 7, 26, 28},
     {4, 21, 11, 1, 1, 11, 8, 20},
-    {9, 12, 25, 1, 1, 7, 12, 18},
-    {27, 8, 22, 3, 3, 10, 9, 29},
-    {0, 2, 0, 33, 32, 0, 0, 0},
-};
-const uint8_t mole_palette[40][3] = {
-    { 0, 0, 2 },
-    { 254, 252, 249 },
-    { 20, 17, 18 },
-    { 166, 132, 61 },
-    { 108, 86, 44 },
-    { 175, 162, 139 },
-    { 167, 156, 135 },
-    { 204, 177, 122 },
-    { 154, 119, 48 },
-    { 139, 109, 47 },
-    { 128, 93, 24 },
-    { 229, 219, 198 },
-    { 199, 164, 90 },
-    { 50, 43, 34 },
-    { 238, 234, 227 },
-    { 210, 186, 136 },
-    { 177, 144, 74 },
-    { 140, 118, 75 },
-    { 144, 114, 53 },
-    { 135, 111, 67 },
-    { 131, 101, 40 },
-    { 138, 102, 28 },
-    { 133, 99, 29 },
-    { 138, 101, 28 },
-    { 128, 95, 30 },
-    { 203, 175, 117 },
-    { 123, 90, 21 },
-    { 82, 64, 34 },
-    { 91, 67, 21 },
-    { 91, 72, 31 },
-    { 64, 59, 57 },
-    { 86, 62, 17 },
-    { 88, 63, 14 },
-    { 88, 62, 14 },
-    { 78, 53, 4 },
-    { 48, 46, 53 },
-    { 39, 39, 39 },
-    { 36, 36, 36 },
-    { 57, 38, 0 },
-    { 33, 26, 26 }
+    {9, 12, 7, 1, 1, 7, 12, 18},
+    {25, 8, 22, 3, 3, 10, 9, 27},
+    {0, 2, 0, 30, 30, 0, 0, 0}
 };
 
-
+// Updated hole sprite - using original hole colors
 const uint8_t hole[4][8] = {
-    {0, 0, 0, 4, 4, 14, 13, 9},
-    {7, 7, 10, 5, 1, 5, 6, 15},
-    {2, 2, 1, 1, 1, 1, 6, 8},
-    {11, 2, 3, 1, 1, 3, 8, 12},
-};
-const uint8_t hole_palette[16][3] = {
-    { 0, 0, 0 },
-    { 105, 69, 4 },
-    { 90, 61, 6 },
-    { 94, 62, 4 },
-    { 111, 73, 9 },
-    { 108, 71, 4 },
-    { 65, 44, 5 },
-    { 93, 63, 9 },
-    { 54, 37, 5 },
-    { 51, 51, 0 },
-    { 102, 71, 10 },
-    { 69, 48, 5 },
-    { 55, 39, 5 },
-    { 53, 37, 5 },
-    { 58, 39, 0 },
-    { 45, 31, 4 }
+    {0, 0, 0, 44, 44, 53, 52, 48},    // Making sure black is 0, keeping other hole colors at original indices
+    {47, 47, 50, 45, 41, 45, 46, 55},
+    {42, 42, 41, 41, 41, 41, 46, 48},
+    {51, 42, 43, 41, 41, 43, 48, 52}
 };
 
-
+// Updated hammer horizontal - using original hammer colors
 const uint8_t hammerHori[5][8] = {
-    {21, 19, 25, 0,  0, 0, 0, 0 },
-    {1,  18, 15, 10, 9, 8, 6, 7 },
-    {1,  20, 13, 4,  5, 3, 2, 12},
-    {24, 17, 14, 0,  0, 0, 0, 0 },
-    {22, 23, 16, 0,  0, 0, 0, 0 },
-};
-const uint8_t hammerVert[8][5] = {
-    {22, 24, 1,  1,  21},
-    {23, 17, 20, 18, 19},
-    {16, 14, 13, 15, 25},
-    {0,  0,  4,  10, 0},
-    {0,  0,  5,  9,  0},
-    {0,  0,  3,  8,  0},
-    {0,  0,  2,  6,  0},
-    {0,  0,  12, 7,  0},
-};
-const uint8_t hammerPalette[26][3] = {
-    { 0, 0, 0 },
-    { 60, 2, 0 },
-    { 248, 201, 20 },
-    { 251, 180, 24 },
-    { 253, 161, 25 },
-    { 250, 166, 25 },
-    { 250, 150, 29 },
-    { 244, 148, 28 },
-    { 247, 141, 29 },
-    { 246, 133, 31 },
-    { 249, 127, 30 },
-    { 255, 51, 51 },
-    { 235, 215, 19 },
-    { 174, 106, 43 },
-    { 146, 114, 94 },
-    { 135, 81, 56 },
-    { 255, 255, 218 },
-    { 114, 69, 53 },
-    { 93, 48, 33 },
-    { 92, 57, 34 },
-    { 86, 39, 27 },
-    { 85, 0, 0 },
-    { 63, 31, 0 },
-    { 171, 136, 118 },
-    { 59, 2, 0 },
-    { 0, 85, 85 }
+    {76, 74, 80, 0, 0, 0, 0, 0},      // Making sure black is 0, keeping other hammer colors at original indices
+    {56, 73, 70, 65, 64, 63, 61, 62},
+    {56, 75, 68, 59, 60, 58, 57, 67},
+    {79, 72, 69, 0, 0, 0, 0, 0},
+    {77, 78, 71, 0, 0, 0, 0, 0}
 };
 
+// Updated hammer vertical - using original hammer colors
+const uint8_t hammerVert[8][5] = {
+    {77, 79, 56, 56, 76},
+    {78, 72, 75, 73, 74},
+    {71, 69, 68, 70, 80},
+    {0, 0, 59, 65, 0},
+    {0, 0, 60, 64, 0},
+    {0, 0, 58, 63, 0},
+    {0, 0, 57, 61, 0},
+    {0, 0, 67, 62, 0}
+};
 
 // Initialize the display
 Display::Display(int backlight_pin, int tft_cs, int tft_dc)
@@ -172,28 +172,31 @@ void Display::refreshBacklight() {
 }
 
 // Draw a pixelarray with its corresponding palette
-void Display::drawPixelArray(const uint8_t *pixels, const uint8_t palette[][3], uint8_t pixelSize, int xStart, int yStart, int xSize, int ySize) {
+void Display::drawPixelArray(const uint8_t *pixels, const uint8_t (&palette)[82][3], uint8_t pixelSize, 
+                           int xStart, int yStart, int xSize, int ySize) {
+    uint16_t colorCache[82] = {0}; // Cache for converted colors
+    bool colorCacheInitialized[82] = {false};
+
     for (int y = 0; y < ySize; y++) {
         for (int x = 0; x < xSize; x++) {
-            // Get the pixel value (the pixel array is a linearized 2D array)
             uint8_t pixelIndex = *(pixels + y * xSize + x);
+            
+            if (pixelIndex == 0) continue; // Skip black pixels
 
-            // If the pixel is black, don't draw it
-            if (pixelIndex == 0) {
-                continue;
+            // Use cached color if available
+            if (!colorCacheInitialized[pixelIndex]) {
+                colorCache[pixelIndex] = _tft.color565(
+                    palette[pixelIndex][0],
+                    palette[pixelIndex][1],
+                    palette[pixelIndex][2]
+                );
+                colorCacheInitialized[pixelIndex] = true;
             }
 
-            // Get the corresponding color from the palette
-            uint8_t red = palette[pixelIndex][0];
-            uint8_t green = palette[pixelIndex][1];
-            uint8_t blue = palette[pixelIndex][2];
-
-            // Calculate the position where the pixel will be drawn
             int xPos = xStart + x * pixelSize;
             int yPos = yStart + y * pixelSize;
-
-            // Draw the pixel
-            _tft.fillRect(xPos, yPos, pixelSize, pixelSize, _tft.color565(red, green, blue));
+            
+            _tft.fillRect(xPos, yPos, pixelSize, pixelSize, colorCache[pixelIndex]);
         }
     }
 }
@@ -290,11 +293,11 @@ void Display::drawOrRemoveMole(uint8_t heapNumber, bool draw) {
     calculateHeapPosition(heapNumber, xPos, yPos);
     
     if (draw) {
-        drawPixelArray(*mole, mole_palette, multiplySize, xPos, yPos, 8, 8);
-        drawPixelArray(*hole, hole_palette, multiplySize, xPos, yPos + multiplySize*4, 8, 4);
+        drawPixelArray(*mole, combined_palette, multiplySize, xPos, yPos, 8, 8);
+        drawPixelArray(*hole, combined_palette, multiplySize, xPos, yPos + multiplySize*4, 8, 4);
     } else {
         _tft.fillRect(xPos, yPos, selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
-        drawPixelArray(*hole, hole_palette, multiplySize, xPos, yPos + multiplySize*4, 8, 4);
+        drawPixelArray(*hole, combined_palette, multiplySize, xPos, yPos + multiplySize*4, 8, 4);
     }
 }
 
@@ -304,18 +307,18 @@ void Display::drawOrRemoveHammer(uint8_t heapNumber, bool draw, bool horizontal)
 
     if (draw) {
         if(!horizontal){
-            drawPixelArray(*hammerVert, hammerPalette, multiplySize, xPos + (picturePixelSize * multiplySize), yPos, 5, 8);
+            drawPixelArray(*hammerVert, combined_palette, multiplySize, xPos + (picturePixelSize * multiplySize), yPos, 5, 8);
         }
         else{
-            drawPixelArray(*hammerHori, hammerPalette, multiplySize, xPos + (2 * multiplySize), yPos, 8, 5);
+            drawPixelArray(*hammerHori, combined_palette, multiplySize, xPos + (2 * multiplySize), yPos, 8, 5);
         }
     } else {
         if(!horizontal){
             _tft.fillRect(xPos  + (picturePixelSize * multiplySize), yPos, (picturePixelSize * multiplySize), (picturePixelSize * multiplySize), ILI9341_GREEN);
-            drawPixelArray(*hole, hole_palette, multiplySize, xPos, yPos + multiplySize*4, 8, 4);
+            drawPixelArray(*hole, combined_palette, multiplySize, xPos, yPos + multiplySize*4, 8, 4);
         }
         else{
-            drawPixelArray(*hole, hole_palette, multiplySize, xPos, yPos + multiplySize*4, 8, 4);
+            drawPixelArray(*hole, combined_palette, multiplySize, xPos, yPos + multiplySize*4, 8, 4);
             _tft.fillRect(xPos + (2 * multiplySize), yPos - multiplySize, (picturePixelSize * multiplySize), (picturePixelSize * multiplySize), ILI9341_GREEN);
         }
     }
@@ -326,7 +329,7 @@ void Display::drawOrRemoveHole(uint8_t heapNumber, bool draw) {
     calculateHeapPosition(heapNumber, xPos, yPos);
 
     if (draw) {
-        drawPixelArray(*hole, hole_palette, multiplySize, xPos, yPos + multiplySize*4, 8, 4);
+        drawPixelArray(*hole, combined_palette, multiplySize, xPos, yPos + multiplySize*4, 8, 4);
     } else {
         _tft.fillRect(xPos, yPos, selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
     }
@@ -386,8 +389,8 @@ void Display::drawChooseCharacter(){
         _tft.setCursor(moleTextXCoor, textYCoor);
         _tft.print(text);
         //Draw mole character
-        drawPixelArray(*mole, mole_palette, 8, moleTextXCoor, 150, 8, 8);
-        drawPixelArray(*hole, hole_palette, 8, moleTextXCoor, 160 + 32, 8, 4);
+        drawPixelArray(*mole, combined_palette, 8, moleTextXCoor, 150, 8, 8);
+        drawPixelArray(*hole, combined_palette, 8, moleTextXCoor, 160 + 32, 8, 4);
         text = "Hammer";
 
         _tft.setTextSize(2);
@@ -399,7 +402,7 @@ void Display::drawChooseCharacter(){
         _tft.setCursor(hammerTextXCoor, textYCoor);
         _tft.print(text);
         //Draw hammerHori character
-        drawPixelArray(*hammerHori, hammerPalette, 8, x * 2 + 10, 150, 8, 5);
+        drawPixelArray(*hammerHori, combined_palette, 8, x * 2 + 10, 150, 8, 5);
 }
 
 void Display::updateChooseCharacter(bool buttonPressed){
@@ -457,8 +460,8 @@ void Display::drawDifficulty(){
         _tft.setCursor(25, 180);
         _tft.print("16 holes");
 
-    drawPixelArray(*mole, mole_palette, 10, 210, 50, 8, 8);
-    drawPixelArray(*hole, hole_palette, 10, 210, 130 + 40, 8, 4);
+    drawPixelArray(*mole, combined_palette, 10, 210, 50, 8, 8);
+    drawPixelArray(*hole, combined_palette, 10, 210, 130 + 40, 8, 4);
 }
 
 void Display::drawStartMenu(){
@@ -488,8 +491,8 @@ void Display::drawStartMenu(){
         _tft.setCursor(30, 115);
         _tft.print("Highscores");
 
-    drawPixelArray(*mole, mole_palette, 10, 200, 50, 8, 8);
-    drawPixelArray(*hole, hole_palette, 10, 200, 130 + 40, 8, 4);
+    drawPixelArray(*mole, combined_palette, 10, 200, 50, 8, 8);
+    drawPixelArray(*hole, combined_palette, 10, 200, 130 + 40, 8, 4);
 }
 
 void Display::updateStartMenu(bool buttonPressed){
@@ -548,12 +551,12 @@ void Display::updateGameOver(uint8_t player_score, uint8_t opponent_score, bool 
     
     //If mole won, draw mole. Else, draw hammerHori
     if(mole_win){
-        drawPixelArray(*mole, mole_palette, 8, 150, 150, 8, 8);
-        drawPixelArray(*hole, hole_palette, 8, 150, 160 + 32, 8, 4);
-        drawPixelArray(*hammerHori, hammerPalette, 8, 230, 150, 8, 5);
+        drawPixelArray(*mole, combined_palette, 8, 150, 150, 8, 8);
+        drawPixelArray(*hole, combined_palette, 8, 150, 160 + 32, 8, 4);
+        drawPixelArray(*hammerHori, combined_palette, 8, 230, 150, 8, 5);
     } else {
-        drawPixelArray(*hole, hole_palette, 8, 180, 160 + 32, 8, 4);
-        drawPixelArray(*hammerHori, hammerPalette, 8, 200, 150, 8, 5);
+        drawPixelArray(*hole, combined_palette, 8, 180, 160 + 32, 8, 4);
+        drawPixelArray(*hammerHori, combined_palette, 8, 200, 150, 8, 5);
     }
 }
 
@@ -601,7 +604,7 @@ void Display::drawHighscores(){
         }
 }
 
-int Display::calcCenterScreenText(String text, uint8_t textSize){
+int Display::calcCenterScreenText(const String &text, uint8_t textSize){
     _tft.setTextSize(textSize);
     _tft.getTextBounds(text, 0, 0, &x1, &y1, &textWidth, &textHeight);
     // Center the text on the screen
