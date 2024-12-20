@@ -52,7 +52,8 @@ private:
 
     uint32_t scoreIncrementedTime; //Time score is incremented
 
-    bool moleIsUp = false; //If mole is up
+    bool recievedMoleIsUp = false; //If mole is up
+    bool moleWasHit = false; //If mole was hit
     uint32_t processCurrentTime; //Time the mole went up or hammer is hit
     uint8_t recievedMoleHeap; //Recieved mole heap
     uint8_t oldRecievedMoleHeap = 0; //previous recieved mole heap
