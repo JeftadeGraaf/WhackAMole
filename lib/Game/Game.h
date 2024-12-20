@@ -21,6 +21,14 @@ public:
         RECEIVE_SCORE = 4
     };
 
+    enum process{
+        startGame = 1,
+        moleUp = 2,
+        hammerPositionHit = 3,
+        receiveScore = 4,
+        invalidProcess = 5
+    };
+
     Game(IRComm &ir, Display &display);
 
     uint8_t heapCoordinatesToHeapNumber(uint8_t x, uint8_t y, uint8_t gridWidth);
@@ -37,13 +45,6 @@ public:
     void updateGame(bool ZPressed);
     void updateDifficulty(bool buttonPressed);
 
-    enum process{
-        startGame = 1,
-        moleUp = 2,
-        hammerPositionHit = 3,
-        receiveScore = 4,
-        invalidProcess = 5
-    };
     process proc;
     process readReceivedProcess(uint16_t data);
 

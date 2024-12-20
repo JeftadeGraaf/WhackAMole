@@ -264,27 +264,10 @@ void Game::reactToReceivedData(uint16_t data, uint32_t timer1_overflow_count){
             Serial.println("Error: Unknown process");
             break;
     }
-
-}
-
-// Function to read the received process
-Game::process Game::readReceivedProcess(uint16_t data) {
-    data = data >> 8;
-    switch (data) {
-        case INVALID_PROCESS:
-            return invalidProcess;
-        case START_GAME:
-            return startGame;
-        case MOLE_UP:
-            return moleUp;
-        case HAMMER_POSITION_HIT:
-            return hammerPositionHit;
-        case RECEIVE_SCORE:
-            return receiveScore;
-        default:
-            return invalidProcess;
     }
+
 }
+
 
 //TODO joystick (debounce)
 //TODO calculate score
@@ -438,8 +421,28 @@ void Game::loopReceivedProcess(){
 
 }
 
-void Game::gameOver(){
-//Reset variables for next game
+Game::process Game::readReceivedProcess(uint16_t data)
+{
+    data = data >> 8;
+    switch (data) {
+        case INVALID_PROCESS:
+            return invalidProcess;
+        case START_GAME:
+            return startGame;
+        case MOLE_UP:
+            return moleUp;
+        case HAMMER_POSITION_HIT:
+            return hammerPositionHit;
+        case RECEIVE_SCORE:
+            return receiveScore;
+        default:
+            return invalidProcess;
+    }
+}
+
+void Game::gameOver()
+{
+    // Reset variables for next game
     display.selectedHeap = 0;
     display.oldSelectedHeap = 0;
     display.drawGameOverMenu();
