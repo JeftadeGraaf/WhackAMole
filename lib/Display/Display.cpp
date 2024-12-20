@@ -413,7 +413,7 @@ void Display::drawChooseCharacter(){
         textYCoor = 120;
         text = "Mole";
 
-        moleTextXCoor = calcCenterScreenText(text, 2) - 20;
+        moleTextXCoor = calcCenterScreenText(text, 2) / 2 - 20;
         _tft.setCursor(moleTextXCoor, textYCoor);
         _tft.print(text);
         //Draw mole character
