@@ -17,9 +17,6 @@ const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
 
 const uint16_t BAUDRATE = 9600;             //UART baud rate
 
-const uint8_t NUNCHUK_ADDRESS = 0x52;       //Nunchuk I2c address
-const uint16_t NUNCHUCK_WAIT = 1000;        //Wait for nunchuk test function
-
 //Game variables
 uint16_t score = 100;
 
