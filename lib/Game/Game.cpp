@@ -1,5 +1,4 @@
 #include <avr/io.h>
-#include <HardwareSerial.h>
 
 #include "Game.h"
 
@@ -184,7 +183,8 @@ void Game::buttonListener() {
             break;
 
         default:
-            Serial.println("ERROR, unknown screen");
+            //Serial.println("ERROR, unknown screen");
+            break;
     }
 }
 
@@ -207,7 +207,7 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
                     display.selectedDifficulty = Display::sixteen;
                 }
                 else{ //If invalid difficulty is recieved
-                    Serial.println("Difficulty set error");
+                    //Serial.println("Difficulty set error");
                     //TODO terugsturen en terug ontvangen voor correcte check
                 }
                 display.drawGame(display.selectedDifficulty);
@@ -266,7 +266,7 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             break;
 
         default:
-            Serial.println("Error: Unknown process");
+            //Serial.println("Error: Unknown process");
             break;
     }
 

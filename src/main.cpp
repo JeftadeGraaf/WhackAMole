@@ -2,7 +2,6 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <Wire.h>
-#include <HardwareSerial.h>
 #include <Nunchuk.h>
 
 #include "SPI.h"
@@ -51,7 +50,7 @@ ISR(TIMER0_COMPA_vect){
 }
 
 int main(void) {
-    Serial.begin(BAUDRATE);
+    //Serial.begin(BAUDRATE);
     ir.initialize();
     sei(); // Enable global interrupts
 
@@ -87,19 +86,19 @@ int main(void) {
 
 //Init nunchuk
 bool init_nunchuck(){
-	Serial.print("-------- Connecting to nunchuk at address 0x");
-	Serial.println(NUNCHUK_ADDRESS, HEX);
+	//Serial.print("-------- Connecting to nunchuk at address 0x");
+	//Serial.println(NUNCHUK_ADDRESS, HEX);
 
     //Make connection to Nunchuk
 	if (!Nunchuk.begin(NUNCHUK_ADDRESS)) {
         //If nunchuk is not found, print error and return false
-		Serial.println("******** No nunchuk found");
-		Serial.flush();
+		//Serial.println("******** No nunchuk found");
+		//Serial.flush();
 		return(false);
 	}
     //After succesful handshake, print Nunchuk ID
-	Serial.print("-------- Nunchuk with Id: ");
-	Serial.println(Nunchuk.id);
+	//Serial.print("-------- Nunchuk with Id: ");
+	//Serial.println(Nunchuk.id);
 	return true;
 }
 
@@ -108,20 +107,20 @@ bool nunchuck_show_state_TEST() {
     //Print Nunchuk state
 	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
         //If nunchuk is not found, print error and return false
-		Serial.println("******** No nunchuk found");
-		Serial.flush();
+		//Serial.println("******** No nunchuk found");
+		//Serial.flush();
 		return (false);
 	}
-    Serial.println("------State data--------------------------");
-    Serial.print("Joy X: ");
-    Serial.print(Nunchuk.state.joy_x_axis);
-    Serial.print("\t\tButton C: ");
-    Serial.println(Nunchuk.state.c_button);
+    //Serial.println("------State data--------------------------");
+    //Serial.print("Joy X: ");
+    //Serial.print(Nunchuk.state.joy_x_axis);
+    //Serial.print("\t\tButton C: ");
+    //Serial.println(Nunchuk.state.c_button);
 
-    Serial.print("Joy Y: ");
-    Serial.print(Nunchuk.state.joy_y_axis);
-    Serial.print("\t\tButton Z: ");
-    Serial.println(Nunchuk.state.z_button);
+    //Serial.print("Joy Y: ");
+    //Serial.print(Nunchuk.state.joy_y_axis);
+    //Serial.print("\t\tButton Z: ");
+    //Serial.println(Nunchuk.state.z_button);
 
 		// wait a while
 		_delay_ms(NUNCHUCK_WAIT);
