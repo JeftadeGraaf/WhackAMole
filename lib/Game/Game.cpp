@@ -1,5 +1,4 @@
 #include <avr/io.h>
-#include <HardwareSerial.h>
 
 #include "Game.h"
 
@@ -174,7 +173,7 @@ void Game::buttonListener() {
             break;
 
         default:
-            Serial.println("ERROR, unknown screen");
+            break;
     }
 }
 
@@ -197,7 +196,6 @@ void Game::reactToReceivedData(uint16_t data, uint32_t timer1_overflow_count){
                     display.selectedDifficulty = Display::sixteen;
                 }
                 else{ //If invalid difficulty is recieved
-                    Serial.println("Difficulty set error");
                     //TODO terugsturen en terug ontvangen voor correcte check
                 }
                 display.drawGame(display.selectedDifficulty);
@@ -221,7 +219,6 @@ void Game::reactToReceivedData(uint16_t data, uint32_t timer1_overflow_count){
             receivedMoleHeap = data & 0xF; //Get mole heap from 4 LSBs
             receivedHammerHitting = (data & 0x10) != 0; //Get hammer hitting from 5th LSB
 
-            Serial.println(receivedHammerHitting);
 
             if(receivedMoleHeap != oldreceivedMoleHeap){
                 display.drawOrRemoveHammer(oldreceivedMoleHeap, false, false); //remove cursor from old heap
@@ -261,7 +258,6 @@ void Game::reactToReceivedData(uint16_t data, uint32_t timer1_overflow_count){
             break;
 
         default:
-            Serial.println("Error: Unknown process");
             break;
     }
     }

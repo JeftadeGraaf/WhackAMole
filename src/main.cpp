@@ -34,9 +34,6 @@ Game game(ir, display);
 
 uint16_t recievedData; //!TEMP recieved data
 
-//local functions
-bool nunchuck_show_state_TEST();    //!Print Nunchuk state for tests !USES NUNCHUK_WAIT DELAY!
-bool init_nunchuck();               //Initialise connection to nunchuk
 void init_IR_transmitter_timer0();  //initialise Timer0 for IR transmitter
 
 //Interrupts
@@ -61,7 +58,7 @@ int main(void) {
 	display.init();     
 	display.refreshBacklight();
 	display.clearScreen();
-    init_nunchuck();
+    NunChuk();
 
     ir.decodeIRMessage();
 
@@ -90,50 +87,6 @@ int main(void) {
     }
 	//never reach
 	return 0;
-}
-
-//Init nunchuk
-bool init_nunchuck(){
-	Serial.print("-------- Connecting to nunchuk at address 0x");
-	Serial.println(NUNCHUK_ADDRESS, HEX);
-
-    //Make connection to Nunchuk
-	if (!Nunchuk.begin(NUNCHUK_ADDRESS)) {
-        //If nunchuk is not found, print error and return false
-		Serial.println("******** No nunchuk found");
-		Serial.flush();
-		return(false);
-	}
-    //After succesful handshake, print Nunchuk ID
-	Serial.print("-------- Nunchuk with Id: ");
-	Serial.println(Nunchuk.id);
-	return true;
-}
-
-//Nunchuk test function
-bool nunchuck_show_state_TEST() {
-    //Print Nunchuk state
-	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
-        //If nunchuk is not found, print error and return false
-		Serial.println("******** No nunchuk found");
-		Serial.flush();
-		return (false);
-	}
-    Serial.println("------State data--------------------------");
-    Serial.print("Joy X: ");
-    Serial.print(Nunchuk.state.joy_x_axis);
-    Serial.print("\t\tButton C: ");
-    Serial.println(Nunchuk.state.c_button);
-
-    Serial.print("Joy Y: ");
-    Serial.print(Nunchuk.state.joy_y_axis);
-    Serial.print("\t\tButton Z: ");
-    Serial.println(Nunchuk.state.z_button);
-
-		// wait a while
-		_delay_ms(NUNCHUCK_WAIT);
-
-		return(true);
 }
 
 //Init IR settings
