@@ -52,6 +52,9 @@ public:
     uint16_t centerValue = 128;
     uint8_t deadzone = 20;
 
+    bool init_nunchuck();
+    bool nunchuck_show_state_TEST();
+
 private:
     bool _getId(uint8_t address);
     uint8_t _read(uint8_t address, uint8_t offset, uint8_t len, uint8_t* buffer);

@@ -2,15 +2,6 @@
 #include "Nunchuk.h"
 
 uint32_t gameTimeTracker = 0;
-uint32_t *timer1_all_overflows;
-
-uint32_t Display::get_t1_overflows(){
-    return *timer1_all_overflows;
-}
-
-void reset_t1_overflows(){
-    *timer1_all_overflows = 0;
-}
 
 const uint8_t mole[8][8] = {
     {0, 13, 34, 10, 26, 38, 13, 0},
@@ -172,8 +163,8 @@ const uint8_t hammerHori_palette[78] = {
 };
 
 // Initialize the display
-Display::Display(int backlight_pin, int tft_cs, int tft_dc)
-    : _tft(tft_cs, tft_dc) {
+Display::Display(int backlight_pin, int tft_cs, int tft_dc, SevenSegment &sevenSegment, Timer1Overflow &timer1)
+    : _tft(tft_cs, tft_dc), sevenSegment(sevenSegment), timer1(timer1) {
     // Constructor
     _backlight_pin = backlight_pin;
 }
@@ -234,7 +225,7 @@ void Display::drawGame(Difficulty selectedDifficulty){
     gameOverUpdated = false;
     this->characterMole = characterMole;
 
-    reset_t1_overflows();
+    timer1.resetOverflow();
     gameTimeTracker = 0;
     time = 60;
 
@@ -377,9 +368,12 @@ void Display::updateGameTimeScore(uint8_t score){
         _tft.print(text);
 
     // update time variable
-    if (get_t1_overflows() - gameTimeTracker > 30) {
+    if (timer1.overflowCount - gameTimeTracker > 30) {
         time--;
-        gameTimeTracker = get_t1_overflows();
+        gameTimeTracker = timer1.overflowCount;
+        if(time < 10){
+            sevenSegment.displayDigit(time);
+        }
     }
 
         //Write new text
@@ -664,8 +658,4 @@ void Display::drawPixelField(uint8_t y){
 
 void Display::clearScreen() {
     _tft.fillScreen(ILI9341_BLACK);
-}
-
-void Display::setTimingVariable(uint32_t *timer1_overflows_32ms){
-    timer1_all_overflows = timer1_overflows_32ms;
 }

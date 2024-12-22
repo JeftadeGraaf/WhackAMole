@@ -4,16 +4,17 @@
 #include "Adafruit_ILI9341.h"
 #include "Fonts/InriaSans_Regular8pt7b.h"
 #include "Fonts/IrishGrover_Regular8pt7b.h"
+#include <Timer1Overflow.h>
+#include <SevenSegment.h>
 
 #include <SPI.h>
 
 class Display {
 public:
-    Display(int backlight_pin, int tft_cs, int tft_dc);
+    Display(int backlight_pin, int tft_cs, int tft_dc, SevenSegment &sevenSegment, Timer1Overflow &timer1);
     void init(); //Initialize the display
     void refreshBacklight(); //Change the brightness of the display based on the potmeter value
     void updateGameTimeScore(uint8_t score); //Update the time and score in the game screen
-    uint32_t get_t1_overflows();
     // void updateGame(uint8_t score, bool buttonPressed); //Update the game, hammer position, mole position, score and time
     void updateChooseCharacter(bool buttonPressed); //Update the choose character menu based on user input
     // void updateDifficulty(bool buttonPressed); //Update the difficulty menu based on user input
@@ -40,8 +41,6 @@ public:
     void drawHighscores(); //Draw the highscores screen
 
     void clearScreen(); //Turn screen black
-
-    void setTimingVariable(uint32_t *timer1_overflows_32ms); //Used for keeping the time in the game
 
     enum Screens {
         game,
@@ -107,6 +106,9 @@ public:
     //Variables for selector and heap generation. updateGame(), drawGame(), updateChooseCharacter() functions
     uint8_t selectedHeap = 0; //Which molehole is selected
     bool gameOverUpdated = false;
+
+    Timer1Overflow &timer1; //Instance of the timer1 overflow object
+    SevenSegment &sevenSegment; //Instance of the seven segment object
 private:
     int calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels

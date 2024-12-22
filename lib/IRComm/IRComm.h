@@ -2,12 +2,13 @@
 #define IR_COMM_H
 
 #include <Arduino.h>
+#include <Timer1Overflow.h>
 
 class IRComm
 {
 public:
     // Constructor
-    IRComm();
+    IRComm(Timer1Overflow &timer1);
 
     // Initialization function
     void initialize();
@@ -21,11 +22,9 @@ public:
 
     // Interrupt service routine for receiving IR data
     void onReceiveInterrupt();
-    void onTimer1Overflow();
     void onTimer0CompareMatch();
 
-    // Get the pointer to the overflow count
-    uint32_t* getOverflowCountPtr();
+    Timer1Overflow &timer1;
 
 private:
     // Buffer processing methods
@@ -51,13 +50,11 @@ private:
     uint8_t bit_index;                       // Index for sending bits
     bool is_tx_active;                       // Whether transmission is active
     bool is_tx_high;                         // IR LED state for sending
-    uint32_t overflow_count;                 // Timer overflow counter
     uint16_t prev_timer_value;               // Previous timer value
     uint16_t bit_duration;                   // Duration of the received bit
     bool is_first_interrupt;                 // Flag for first interrupt
     bool is_frame_ready;                     // Flag indicating if a frame is ready
     bool is_frame_valid;                     // Flag indicating if a frame is valid
-    uint32_t timer1_all_overflows;           // Total number of Timer1 overflows
 
     // Transmission frame
     bool tx_frame[16];  // Array to store the current transmission frame
