@@ -1,0 +1,260 @@
+[
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\CDC.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\CDC.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\CDC.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\CDC.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\HardwareSerial.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\HardwareSerial.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\HardwareSerial0.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial0.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial0.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\HardwareSerial0.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\HardwareSerial1.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial1.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial1.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\HardwareSerial1.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\HardwareSerial2.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial2.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial2.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\HardwareSerial2.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\HardwareSerial3.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial3.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\HardwareSerial3.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\HardwareSerial3.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\IPAddress.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\IPAddress.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\IPAddress.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\IPAddress.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\PluggableUSB.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\PluggableUSB.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\PluggableUSB.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\PluggableUSB.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\Print.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\Print.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\Print.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\Print.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\Stream.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\Stream.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\Stream.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\Stream.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\Tone.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\Tone.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\Tone.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\Tone.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\USBCore.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\USBCore.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\USBCore.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\USBCore.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\uno\\FrameworkArduino\\WInterrupts.c.o -c -std=gnu11 -fno-fat-lto-objects -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\WInterrupts.c",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\WInterrupts.c",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\WInterrupts.c.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\WMath.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\WMath.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\WMath.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\WMath.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\WString.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\WString.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\WString.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\WString.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\abi.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\abi.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\abi.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\abi.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\uno\\FrameworkArduino\\hooks.c.o -c -std=gnu11 -fno-fat-lto-objects -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\hooks.c",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\hooks.c",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\hooks.c.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\main.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\main.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\main.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\main.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\FrameworkArduino\\new.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\new.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\new.cpp",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\new.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\uno\\FrameworkArduino\\wiring.c.o -c -std=gnu11 -fno-fat-lto-objects -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring.c",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring.c",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\wiring.c.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\uno\\FrameworkArduino\\wiring_analog.c.o -c -std=gnu11 -fno-fat-lto-objects -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_analog.c",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_analog.c",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\wiring_analog.c.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\uno\\FrameworkArduino\\wiring_digital.c.o -c -std=gnu11 -fno-fat-lto-objects -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_digital.c",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_digital.c",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\wiring_digital.c.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -mmcu=atmega328p -x assembler-with-cpp -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard -c -o .pio\\build\\uno\\FrameworkArduino\\wiring_pulse.S.o C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_pulse.S",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_pulse.S",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\wiring_pulse.S.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\uno\\FrameworkArduino\\wiring_pulse.c.o -c -std=gnu11 -fno-fat-lto-objects -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_pulse.c",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_pulse.c",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\wiring_pulse.c.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\uno\\FrameworkArduino\\wiring_shift.c.o -c -std=gnu11 -fno-fat-lto-objects -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_shift.c",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino\\wiring_shift.c",
+        "output": ".pio\\build\\uno\\FrameworkArduino\\wiring_shift.c.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\libb46\\Wire\\Wire.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src\\Wire.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src\\Wire.cpp",
+        "output": ".pio\\build\\uno\\libb46\\Wire\\Wire.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\uno\\libb46\\Wire\\utility\\twi.c.o -c -std=gnu11 -fno-fat-lto-objects -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src\\utility\\twi.c",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src\\utility\\twi.c",
+        "output": ".pio\\build\\uno\\libb46\\Wire\\utility\\twi.c.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\libb56\\SPI\\SPI.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src\\SPI.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "C:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src\\SPI.cpp",
+        "output": ".pio\\build\\uno\\libb56\\SPI\\SPI.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o \".pio\\build\\uno\\lib43a\\Adafruit BusIO\\Adafruit_BusIO_Register.cpp.o\" -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 \"-I.pio\\libdeps\\uno\\Adafruit BusIO\" -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard \".pio\\libdeps\\uno\\Adafruit BusIO\\Adafruit_BusIO_Register.cpp\"",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": ".pio\\libdeps\\uno\\Adafruit BusIO\\Adafruit_BusIO_Register.cpp",
+        "output": ".pio\\build\\uno\\lib43a\\Adafruit BusIO\\Adafruit_BusIO_Register.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o \".pio\\build\\uno\\lib43a\\Adafruit BusIO\\Adafruit_I2CDevice.cpp.o\" -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 \"-I.pio\\libdeps\\uno\\Adafruit BusIO\" -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard \".pio\\libdeps\\uno\\Adafruit BusIO\\Adafruit_I2CDevice.cpp\"",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": ".pio\\libdeps\\uno\\Adafruit BusIO\\Adafruit_I2CDevice.cpp",
+        "output": ".pio\\build\\uno\\lib43a\\Adafruit BusIO\\Adafruit_I2CDevice.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o \".pio\\build\\uno\\lib43a\\Adafruit BusIO\\Adafruit_SPIDevice.cpp.o\" -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 \"-I.pio\\libdeps\\uno\\Adafruit BusIO\" -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard \".pio\\libdeps\\uno\\Adafruit BusIO\\Adafruit_SPIDevice.cpp\"",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": ".pio\\libdeps\\uno\\Adafruit BusIO\\Adafruit_SPIDevice.cpp",
+        "output": ".pio\\build\\uno\\lib43a\\Adafruit BusIO\\Adafruit_SPIDevice.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\lib063\\Adafruit_GFX_Library-1.11.11\\Adafruit_GFX.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\Adafruit_GFX_Library-1.11.11 \"-I.pio\\libdeps\\uno\\Adafruit BusIO\" -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard lib\\Adafruit_GFX_Library-1.11.11\\Adafruit_GFX.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "lib\\Adafruit_GFX_Library-1.11.11\\Adafruit_GFX.cpp",
+        "output": ".pio\\build\\uno\\lib063\\Adafruit_GFX_Library-1.11.11\\Adafruit_GFX.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\lib063\\Adafruit_GFX_Library-1.11.11\\Adafruit_GrayOLED.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\Adafruit_GFX_Library-1.11.11 \"-I.pio\\libdeps\\uno\\Adafruit BusIO\" -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard lib\\Adafruit_GFX_Library-1.11.11\\Adafruit_GrayOLED.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "lib\\Adafruit_GFX_Library-1.11.11\\Adafruit_GrayOLED.cpp",
+        "output": ".pio\\build\\uno\\lib063\\Adafruit_GFX_Library-1.11.11\\Adafruit_GrayOLED.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\lib063\\Adafruit_GFX_Library-1.11.11\\Adafruit_SPITFT.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\Adafruit_GFX_Library-1.11.11 \"-I.pio\\libdeps\\uno\\Adafruit BusIO\" -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard lib\\Adafruit_GFX_Library-1.11.11\\Adafruit_SPITFT.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "lib\\Adafruit_GFX_Library-1.11.11\\Adafruit_SPITFT.cpp",
+        "output": ".pio\\build\\uno\\lib063\\Adafruit_GFX_Library-1.11.11\\Adafruit_SPITFT.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-gcc.exe -o .pio\\build\\uno\\lib063\\Adafruit_GFX_Library-1.11.11\\glcdfont.c.o -c -std=gnu11 -fno-fat-lto-objects -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\Adafruit_GFX_Library-1.11.11 \"-I.pio\\libdeps\\uno\\Adafruit BusIO\" -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard lib\\Adafruit_GFX_Library-1.11.11\\glcdfont.c",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "lib\\Adafruit_GFX_Library-1.11.11\\glcdfont.c",
+        "output": ".pio\\build\\uno\\lib063\\Adafruit_GFX_Library-1.11.11\\glcdfont.c.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o \".pio\\build\\uno\\lib9a1\\Display Adafruit_ILI9341\\Adafruit_ILI9341.cpp.o\" -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 \"-Ilib\\Display Adafruit_ILI9341\" -Ilib\\Adafruit_GFX_Library-1.11.11 \"-I.pio\\libdeps\\uno\\Adafruit BusIO\" -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard \"lib\\Display Adafruit_ILI9341\\Adafruit_ILI9341.cpp\"",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "lib\\Display Adafruit_ILI9341\\Adafruit_ILI9341.cpp",
+        "output": ".pio\\build\\uno\\lib9a1\\Display Adafruit_ILI9341\\Adafruit_ILI9341.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\lib1d7\\SevenSegment\\SevenSegment.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\SevenSegment -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard lib\\SevenSegment\\SevenSegment.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "lib\\SevenSegment\\SevenSegment.cpp",
+        "output": ".pio\\build\\uno\\lib1d7\\SevenSegment\\SevenSegment.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\lib00e\\Timer1Overflow\\Timer1Overflow.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\Timer1Overflow -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard lib\\Timer1Overflow\\Timer1Overflow.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "lib\\Timer1Overflow\\Timer1Overflow.cpp",
+        "output": ".pio\\build\\uno\\lib00e\\Timer1Overflow\\Timer1Overflow.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\lib2ce\\Nunchuk\\Nunchuk.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\Nunchuk\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard lib\\Nunchuk\\src\\Nunchuk.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "lib\\Nunchuk\\src\\Nunchuk.cpp",
+        "output": ".pio\\build\\uno\\lib2ce\\Nunchuk\\Nunchuk.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\lib403\\Display\\Display.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\Display -Ilib\\Nunchuk\\src -Ilib\\Timer1Overflow -Ilib\\SevenSegment \"-Ilib\\Display Adafruit_ILI9341\" -Ilib\\Adafruit_GFX_Library-1.11.11 \"-I.pio\\libdeps\\uno\\Adafruit BusIO\" -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard lib\\Display\\Display.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "lib\\Display\\Display.cpp",
+        "output": ".pio\\build\\uno\\lib403\\Display\\Display.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\lib789\\IRComm\\IRComm.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\IRComm -Ilib\\Timer1Overflow -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard lib\\IRComm\\IRComm.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "lib\\IRComm\\IRComm.cpp",
+        "output": ".pio\\build\\uno\\lib789\\IRComm\\IRComm.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\lib2a8\\Game\\Game.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Ilib\\Game -Ilib\\IRComm -Ilib\\Display -Ilib\\Nunchuk\\src -Ilib\\Timer1Overflow -Ilib\\SevenSegment \"-Ilib\\Display Adafruit_ILI9341\" -Ilib\\Adafruit_GFX_Library-1.11.11 \"-I.pio\\libdeps\\uno\\Adafruit BusIO\" -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard lib\\Game\\Game.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "lib\\Game\\Game.cpp",
+        "output": ".pio\\build\\uno\\lib2a8\\Game\\Game.cpp.o"
+    },
+    {
+        "command": "C:\\Users\\jefta\\.platformio\\packages\\toolchain-atmelavr\\bin\\avr-g++.exe -o .pio\\build\\uno\\src\\main.cpp.o -c -fno-exceptions -fno-threadsafe-statics -fpermissive -std=gnu++11 -Os -mmcu=atmega328p -Os -Wall -ffunction-sections -fdata-sections -flto -DPLATFORMIO=60116 -DARDUINO_AVR_UNO -DF_CPU=16000000L -DARDUINO_ARCH_AVR -DARDUINO=10808 -Iinclude -Isrc -Ilib\\Game -Ilib\\IRComm -Ilib\\Display -Ilib\\Nunchuk\\src -Ilib\\Timer1Overflow -Ilib\\SevenSegment \"-Ilib\\Display Adafruit_ILI9341\" -Ilib\\Adafruit_GFX_Library-1.11.11 \"-I.pio\\libdeps\\uno\\Adafruit BusIO\" -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\SPI\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\libraries\\Wire\\src -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\cores\\arduino -IC:\\Users\\jefta\\.platformio\\packages\\framework-arduino-avr\\variants\\standard src\\main.cpp",
+        "directory": "C:\\Users\\jefta\\OneDrive - Windesheim Office365\\Documents\\PlatformIO\\Projects\\WhackAMole\\WhackAMole",
+        "file": "src\\main.cpp",
+        "output": ".pio\\build\\uno\\src\\main.cpp.o"
+    }
+]

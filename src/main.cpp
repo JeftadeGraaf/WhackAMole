@@ -47,7 +47,6 @@ ISR(TIMER0_COMPA_vect){
 
 int main(void) {
     sevenSegment.begin();
-    sevenSegment.displayDigit(0);
     timer1.init();
     //Serial.begin(BAUDRATE);
     ir.initialize();

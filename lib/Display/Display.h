@@ -32,7 +32,9 @@ public:
     };
     Difficulty selectedDifficulty = nine; //The current selected difficulty
 
-    void drawGame(Difficulty selectedDifficulty); //Draw the game
+    void drawPixelArray(const uint8_t *pixels, uint8_t pixelSize, int xStart, int yStart, int xSize, int ySize);
+
+    void drawGame(Difficulty selectedDifficulty); // Draw the game
     void drawChooseCharacter(); //Draw the choose character menu
     void drawDifficulty(); //Draw the choose difficulty menu
     void drawGameOverMenu(); //Draw the game over menu
@@ -112,7 +114,6 @@ public:
 private:
     int calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
-    void drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t backgroundPixelSize, int xStart, int yStart); // Draw a pixelarray with its corresponding palette
     
     const uint32_t SCREEN_WIDTH = 320; //Displays screen width
     const uint16_t SCREEN_HEIGHT = 240; //Displays screen height
