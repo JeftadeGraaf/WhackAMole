@@ -132,32 +132,14 @@ uint8_t NunChuk::_read(uint8_t address, uint8_t offset, uint8_t len) {
 	return(n);
 }
 
-<<<<<<< Updated upstream
-// Nunchuck functions
-//Init nunchuk
-bool NunChuk::init_nunchuck(int NUNCHUK_ADDRESS) {
-	//Print connection to nunchuk
-	Serial.print("-------- Connecting to nunchuk at address 0x");
-	Serial.println(NUNCHUK_ADDRESS, HEX);
-=======
 //Init nunchuk
 bool NunChuk::init_nunchuck(){
 	//Serial.print("-------- Connecting to nunchuk at address 0x");
 	//Serial.println(NUNCHUK_ADDRESS, HEX);
->>>>>>> Stashed changes
 
     //Make connection to Nunchuk
 	if (!Nunchuk.begin(NUNCHUK_ADDRESS)) {
         //If nunchuk is not found, print error and return false
-<<<<<<< Updated upstream
-		Serial.println("******** No nunchuk found");
-		Serial.flush();
-		return(false);
-	}
-    //After succesful handshake, print Nunchuk ID
-	Serial.print("-------- Nunchuk with Id: ");
-	Serial.println(Nunchuk.id);
-=======
 		//Serial.println("******** No nunchuk found");
 		//Serial.flush();
 		return(false);
@@ -165,31 +147,10 @@ bool NunChuk::init_nunchuck(){
     //After succesful handshake, print Nunchuk ID
 	//Serial.print("-------- Nunchuk with Id: ");
 	//Serial.println(Nunchuk.id);
->>>>>>> Stashed changes
 	return true;
 }
 
 //Nunchuk test function
-<<<<<<< Updated upstream
-bool NunChuk::nunchuck_show_state_TEST(int NUNCHUK_ADDRESS, int NUNCHUCK_WAIT) {
-    //Print Nunchuk state
-	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
-        //If nunchuk is not found, print error and return false
-		Serial.println("******** No nunchuk found");
-		Serial.flush();
-		return (false);
-	}
-    Serial.println("------State data--------------------------");
-    Serial.print("Joy X: ");
-    Serial.print(Nunchuk.state.joy_x_axis);
-    Serial.print("\t\tButton C: ");
-    Serial.println(Nunchuk.state.c_button);
-
-    Serial.print("Joy Y: ");
-    Serial.print(Nunchuk.state.joy_y_axis);
-    Serial.print("\t\tButton Z: ");
-    Serial.println(Nunchuk.state.z_button);
-=======
 bool NunChuk::nunchuck_show_state_TEST() {
     //Print Nunchuk state
 	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
@@ -208,7 +169,6 @@ bool NunChuk::nunchuck_show_state_TEST() {
     //Serial.print(Nunchuk.state.joy_y_axis);
     //Serial.print("\t\tButton Z: ");
     //Serial.println(Nunchuk.state.z_button);
->>>>>>> Stashed changes
 
 		// wait a while
 		_delay_ms(NUNCHUCK_WAIT);
@@ -216,12 +176,13 @@ bool NunChuk::nunchuck_show_state_TEST() {
 		return(true);
 }
 
-<<<<<<< Updated upstream
 /*
  * preinstantiate object
  */
 NunChuk Nunchuk = NunChuk();
 =======
+=======
+>>>>>>> Stashed changes
 // Preinstantiate Nunchuk object
 NunChuk Nunchuk;
 >>>>>>> Stashed changes

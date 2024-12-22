@@ -67,7 +67,6 @@ ISR(TIMER0_COMPA_vect){
 }
 
 int main(void) {
-    Serial.begin(BAUDRATE);
     ir.initialize();
     sei(); // Enable global interrupts
     uint16_t msg = 0b00000000000;
@@ -76,7 +75,7 @@ int main(void) {
 	display.init();     
 	display.refreshBacklight();
 	display.clearScreen();
-    init_nunchuck();
+    Nunchuk.init_nunchuck();
 
     ir.decodeIRMessage();
 
@@ -103,57 +102,3 @@ int main(void) {
 	//never reach
 	return 0;
 }
-
-//Init nunchuk
-bool init_nunchuck(){
-	Serial.print("-------- Connecting to nunchuk at address 0x");
-	Serial.println(NUNCHUK_ADDRESS, HEX);
-
-    //Make connection to Nunchuk
-	if (!Nunchuk.begin(NUNCHUK_ADDRESS)) {
-        //If nunchuk is not found, print error and return false
-		Serial.println("******** No nunchuk found");
-		Serial.flush();
-		return(false);
-	}
-    //After succesful handshake, print Nunchuk ID
-	Serial.print("-------- Nunchuk with Id: ");
-	Serial.println(Nunchuk.id);
-	return true;
-}
-
-//Nunchuk test function
-bool nunchuck_show_state_TEST() {
-    //Print Nunchuk state
-	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
-        //If nunchuk is not found, print error and return false
-		Serial.println("******** No nunchuk found");
-		Serial.flush();
-		return (false);
-	}
-    Serial.println("------State data--------------------------");
-    Serial.print("Joy X: ");
-    Serial.print(Nunchuk.state.joy_x_axis);
-    Serial.print("\t\tButton C: ");
-    Serial.println(Nunchuk.state.c_button);
-
-    Serial.print("Joy Y: ");
-    Serial.print(Nunchuk.state.joy_y_axis);
-    Serial.print("\t\tButton Z: ");
-    Serial.println(Nunchuk.state.z_button);
-
-		// wait a while
-		_delay_ms(NUNCHUCK_WAIT);
-
-		return(true);
-}
-
-//Init IR settings
-void init_IR_transmitter_timer0(){
-	DDRD |= (1 << DDD6);        // IR LED output
-	TCCR0B |= (1 << CS00);      // no prescaler
-	TCCR0A |= (1 << WGM01);     // CTC mode (reset at OCR)
-	TCCR0A |= (1 << COM0A0);    // toggle mode
-	OCR0A = OCR0A_value;
-}
-
