@@ -191,7 +191,7 @@ void IRComm::validateFrame()
 
     if (start_bits != 0b11) // Check if both bits are not set
     {
-        Serial.println("Start bit error");
+        //Serial.println("Start bit error");
         return;
     }
 
@@ -210,7 +210,7 @@ void IRComm::validateFrame()
     // Compare calculated parity with the actual parity bit (LSB)
     if (parity_check != (decoded_frame & 0x1)) // Check if parity matches the LSB
     {
-        Serial.println("Parity error");
+        //Serial.println("Parity error");
         return;
     }
 
@@ -266,13 +266,6 @@ void IRComm::sendFrame(uint16_t data)
 
     // Stop sending and turn off the IR LED
     stopSending();
-
-    // Optionally, you can print the frame for debugging
-    Serial.print("Sending frame: ");
-    for (int i = 0; i < 16; i++) {
-        Serial.print(tx_frame[i]);
-    }
-    Serial.println();
 }
 
 void IRComm::createFrame(uint16_t data, bool (&frame)[16])

@@ -2,7 +2,6 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <Wire.h>
-#include <HardwareSerial.h>
 #include <Nunchuk.h>
 
 #include "SPI.h"
@@ -68,22 +67,25 @@ ISR(TIMER0_COMPA_vect){
 }
 
 int main(void) {
-
     Serial.begin(BAUDRATE);
-    sevenSegment.begin();
-    timer1.init();  // Initialize Timer1Overflow object
     ir.initialize();
     sei(); // Enable global interrupts
     uint16_t msg = 0b00000000000;
 
-    // Initialize the display
-    display.init();
-    display.drawStartMenu();
+	// Initialize backlight
+	display.init();     
+	display.refreshBacklight();
+	display.clearScreen();
+    init_nunchuck();
 
-    // Initialize the nunchuk
-    Nunchuk.init_nunchuck(NUNCHUK_ADDRESS);
+    ir.decodeIRMessage();
 
+    // pass the timer1 overflow variable from the IR protocol to the Display lib
+    uint32_t* timer1_overflow_count = ir.getOverflowCountPtr();
+    display.setTimingVariable(timer1_overflow_count);
 
+    display.drawStartMenu(); //Draw the initial screen
+    
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
         display.refreshBacklight();
@@ -102,56 +104,56 @@ int main(void) {
 	return 0;
 }
 
-void buttonListener() {
-    //update button state
-    Nunchuk.getState(NUNCHUK_ADDRESS);
-    ZPressed = Nunchuk.state.z_button;
-    CPressed = Nunchuk.state.c_button;
+//Init nunchuk
+bool init_nunchuck(){
+	Serial.print("-------- Connecting to nunchuk at address 0x");
+	Serial.println(NUNCHUK_ADDRESS, HEX);
 
-    //Switch between different screens
-    switch(display.displayedScreen) {
-        case Display::game:
-            display.updateGame(0, ZPressed);
-            break;
-
-        case Display::gameOver:
-            //Go to start menu
-            if(ZPressed){
-                display.drawStartMenu();
-            }
-            break;
-
-        case Display::startMenu:
-            //Update selection
-            display.updateStartMenu(ZPressed);
-            break;
-
-        case Display::chooseCharacter:
-            //Update selection
-            display.updateChooseCharacter(ZPressed);
-            //Go back to start menu
-            if(CPressed){
-                display.drawStartMenu();
-            }
-            break;
-
-        case Display::difficulty:
-            //Update selection
-            display.updateDifficulty(ZPressed);
-            //Go back to choose character screen
-            if(CPressed){
-                display.drawChooseCharacter();
-            }
-            break;
-
-        case Display::highscores:
-            //Go back to start menu
-            if(CPressed){
-                display.drawStartMenu();
-            }
-            break;
-
-        default:
-            Serial.println("ERROR, unknown screen");
-    }
+    //Make connection to Nunchuk
+	if (!Nunchuk.begin(NUNCHUK_ADDRESS)) {
+        //If nunchuk is not found, print error and return false
+		Serial.println("******** No nunchuk found");
+		Serial.flush();
+		return(false);
+	}
+    //After succesful handshake, print Nunchuk ID
+	Serial.print("-------- Nunchuk with Id: ");
+	Serial.println(Nunchuk.id);
+	return true;
 }
+
+//Nunchuk test function
+bool nunchuck_show_state_TEST() {
+    //Print Nunchuk state
+	if (!Nunchuk.getState(NUNCHUK_ADDRESS)) {
+        //If nunchuk is not found, print error and return false
+		Serial.println("******** No nunchuk found");
+		Serial.flush();
+		return (false);
+	}
+    Serial.println("------State data--------------------------");
+    Serial.print("Joy X: ");
+    Serial.print(Nunchuk.state.joy_x_axis);
+    Serial.print("\t\tButton C: ");
+    Serial.println(Nunchuk.state.c_button);
+
+    Serial.print("Joy Y: ");
+    Serial.print(Nunchuk.state.joy_y_axis);
+    Serial.print("\t\tButton Z: ");
+    Serial.println(Nunchuk.state.z_button);
+
+		// wait a while
+		_delay_ms(NUNCHUCK_WAIT);
+
+		return(true);
+}
+
+//Init IR settings
+void init_IR_transmitter_timer0(){
+	DDRD |= (1 << DDD6);        // IR LED output
+	TCCR0B |= (1 << CS00);      // no prescaler
+	TCCR0A |= (1 << WGM01);     // CTC mode (reset at OCR)
+	TCCR0A |= (1 << COM0A0);    // toggle mode
+	OCR0A = OCR0A_value;
+}
+
