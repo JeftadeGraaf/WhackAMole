@@ -11,7 +11,7 @@
 
 class Display {
 public:
-    Display(int backlight_pin, int tft_cs, int tft_dc, SevenSegment &sevenSegment, Timer1Overflow &timer1);
+    Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1, SevenSegment &sevenSegment);
     void init(); //Initialize the display
     void refreshBacklight(); //Change the brightness of the display based on the potmeter value
     void updateGameTimeScore(uint8_t score); //Update the time and score in the game screen
@@ -86,7 +86,7 @@ public:
     int16_t x1, y1; //returned boundary postion
     uint16_t textWidth, textHeight; //returned values of the text width and height
     uint16_t x, y; //Used for postioning
-    String text; //Used to save the to be printed text
+    const char* text; //Used to save the to be printed text
 
     //updateChooseCharacter() variables
     uint8_t moleTextXCoor; //X coordinate of the printed mole text
@@ -118,6 +118,14 @@ private:
     const uint32_t SCREEN_WIDTH = 320; //Displays screen width
     const uint16_t SCREEN_HEIGHT = 240; //Displays screen height
     const uint8_t picturePixelSize = 8; //the size per pixel of used images
+
+    const char title[13] = "Whack A Mole"; //The title of the game
+    const char highscoresText[11] = "Highscores"; //The highscores button text
+    const char character[10] = "Character"; //The character button text
+    const char chooseYour[13] = "Choose your"; //The choose your text
+    const char scoreText[6] = "Score"; //The score text
+    const char moleText[5] = "Mole"; //The mole text
+    const char hammerText[7] = "Hammer"; //The hammer text
 };
 
 #endif

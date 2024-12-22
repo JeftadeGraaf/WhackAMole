@@ -131,7 +131,7 @@ const uint8_t hammerVert[8][5] = {
 
 
 // Initialize the display
-Display::Display(int backlight_pin, int tft_cs, int tft_dc, SevenSegment &sevenSegment, Timer1Overflow &timer1)
+Display::Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1, SevenSegment &sevenSegment)
     : _tft(tft_cs, tft_dc), sevenSegment(sevenSegment), timer1(timer1) {
     // Constructor
     _backlight_pin = backlight_pin;
@@ -152,6 +152,7 @@ void Display::init() {
     _tft.begin();
     _tft.setRotation(1);
     _tft.setTextColor(ILI9341_BLACK);
+    _tft.setFont(&InriaSans_Regular8pt7b);
 }
 
 void Display::refreshBacklight() {
@@ -196,18 +197,18 @@ void Display::drawGame(Difficulty selectedDifficulty){
 
     //Write text
     _tft.setFont(&IrishGrover_Regular8pt7b);
-        _tft.setCursor(calcCenterScreenText("Whack a Mole", 2), 30);
-        _tft.print("Whack a Mole");
+        _tft.setCursor(calcCenterScreenText(title, 2), 30);
+        _tft.print(title);
 
     _tft.setFont(&InriaSans_Regular8pt7b);
         _tft.setTextSize(1);
         _tft.setCursor(2, 15);
         _tft.print("Time");
         
-        _tft.getTextBounds("Score", 0, 0, &x1, &y1, &textWidth, &textHeight);
+        _tft.getTextBounds(scoreText, 0, 0, &x1, &y1, &textWidth, &textHeight);
         // Center the text on the screen
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 15);
-        _tft.print("Score");
+        _tft.print(scoreText);
 
     //Apply settings for selectedDifficulty level, used also in selection process
     if(selectedDifficulty == 4){
@@ -312,16 +313,14 @@ void Display::drawOrRemoveHole(uint8_t heapNumber, bool draw) {
 }
 
 void Display::updateGameTimeScore(uint8_t score){
-    _tft.setFont(&InriaSans_Regular8pt7b);
         _tft.setTextSize(1);
         //Remove old text
         _tft.setTextColor(SKY_BLUE);
         _tft.setCursor(2, 30);
-        _tft.print(String(time));
+        _tft.print(time);
         
-        text = String(oldScore);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
-        _tft.print(text);
+        _tft.print(oldScore);
 
     // update time variable
     if (timer1.overflowCount - gameTimeTracker > 30) {
@@ -335,11 +334,10 @@ void Display::updateGameTimeScore(uint8_t score){
         //Write new text
         _tft.setTextColor(ILI9341_BLACK);
         _tft.setCursor(2, 30);
-        _tft.print(String(time));
+        _tft.print(time);
         
-        text = String(score);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
-        _tft.print(text);
+        _tft.print(score);
 
     oldScore = score;
 }
@@ -352,30 +350,30 @@ void Display::drawChooseCharacter(){
 
     //Write text
     _tft.setFont(&IrishGrover_Regular8pt7b);
-        _tft.setCursor(calcCenterScreenText("Choose your", 2), 40);
-        _tft.print("Choose your");
+        _tft.setCursor(calcCenterScreenText(chooseYour, 2), 40);
+        _tft.print(chooseYour);
 
-        _tft.setCursor(calcCenterScreenText("character", 2), 80);
-        _tft.print("character");
+        _tft.setCursor(calcCenterScreenText(character, 2), 80);
+        _tft.print(character);
 
     _tft.setFont(&InriaSans_Regular8pt7b);
         textYCoor = 120;
 
-        moleTextXCoor = calcCenterScreenText("Mole", 2) - 20;
+        moleTextXCoor = calcCenterScreenText(moleText, 2) - 20;
         _tft.setCursor(moleTextXCoor, textYCoor);
-        _tft.print("Mole");
+        _tft.print(moleText);
         //Draw mole character
         drawPixelArray(*mole, 8, moleTextXCoor, 150, 8, 8);
         drawPixelArray(*hole, 8, moleTextXCoor, 192, 8, 4);
 
         _tft.setTextSize(2);
-        _tft.getTextBounds("Hammer", 0, 0, &x1, &y1, &textWidth, &textHeight);
+        _tft.getTextBounds(hammerText, 0, 0, &x1, &y1, &textWidth, &textHeight);
         // Center the text on the screen
         x = (SCREEN_WIDTH - textWidth) / 2;
 
         hammerTextXCoor = x * 1.5 + 20;
         _tft.setCursor(hammerTextXCoor, textYCoor);
-        _tft.print("Hammer");
+        _tft.print(hammerText);
         //Draw hammerHori character
         drawPixelArray(*hammerHori, 8, x * 2 + 10, 150, 8, 5);
 }
@@ -393,14 +391,13 @@ void Display::updateChooseCharacter(bool buttonPressed){
     //Change selection coördinates
     uint8_t x = 0;
     if(characterMole){
-        text = "Mole";
+        text = moleText;
         x = moleTextXCoor;
     }
     else{
-        text = "Hammer";
+        text = hammerText;
         x = hammerTextXCoor;
     }
-    _tft.setFont(&InriaSans_Regular8pt7b);
     _tft.setTextSize(2);
     _tft.getTextBounds(text, x, textYCoor, &x1, &y1, &textWidth, &textHeight);
     _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, ILI9341_BLACK);
@@ -419,8 +416,8 @@ void Display::drawDifficulty(){
 
     //Write text
     _tft.setFont(&IrishGrover_Regular8pt7b);
-        _tft.setCursor(calcCenterScreenText("Whack a Mole", 2), 30);
-        _tft.print("Whack a Mole");
+        _tft.setCursor(calcCenterScreenText(title, 2), 30);
+        _tft.print(title);
 
     _tft.setFont(&InriaSans_Regular8pt7b);
         _tft.setTextSize(3);
@@ -447,20 +444,19 @@ void Display::drawStartMenu(){
     _tft.setFont(&IrishGrover_Regular8pt7b);
         
         _tft.setTextSize(2);
-        _tft.getTextBounds("Whack a Mole", 0, 0, &x1, &y1, &textWidth, &textHeight);
+        _tft.getTextBounds(title, 0, 0, &x1, &y1, &textWidth, &textHeight);
         // Center the text on the screen
         x = (SCREEN_WIDTH - textWidth) / 2;
         
         _tft.setCursor(x, 30);
-        _tft.print("Whack a Mole");
+        _tft.print(title);
 
     _tft.setFont(&InriaSans_Regular8pt7b);
-        _tft.setTextSize(2);
         _tft.setCursor(30, 80);
         _tft.print("Start");
 
         _tft.setCursor(30, 115);
-        _tft.print("Highscores");
+        _tft.print(highscoresText);
 
     drawPixelArray(*mole, 10, 200, 50, 8, 8);
     drawPixelArray(*hole, 10, 200, 170, 8, 4);
@@ -495,8 +491,9 @@ void Display::drawGameOverMenu(){
 
     //Write text
     _tft.setFont(&IrishGrover_Regular8pt7b);
-        _tft.setCursor(calcCenterScreenText("Whack a Mole", 2), 30);
-        _tft.print("Whack a Mole");
+        _tft.setCursor(calcCenterScreenText(title, 2), 30);
+        _tft.print(title);
+    _tft.setFont(&InriaSans_Regular8pt7b);
 }
 
 void Display::updateGameOver(uint8_t player_score, uint8_t opponent_score, bool mole_win){
@@ -513,12 +510,11 @@ void Display::updateGameOver(uint8_t player_score, uint8_t opponent_score, bool 
     _tft.setCursor(calcCenterScreenText(text, 2), 90);
     _tft.print(text);
 
-    _tft.setFont(&InriaSans_Regular8pt7b);
-        text = "Your score: " + String(player_score);
+        text = "Your score: " + player_score;
         _tft.setCursor(calcCenterScreenText(text, 1), 120);
         _tft.print(text);
 
-        text = "Opponents score: " + String(opponent_score);
+        text = "Opponents score: " + opponent_score;
         _tft.setCursor(calcCenterScreenText(text, 1), 136);
         _tft.print(text);
     
@@ -542,30 +538,32 @@ void Display::drawHighscores(){
 
     //Write text
     _tft.setFont(&IrishGrover_Regular8pt7b);
-        _tft.setCursor(calcCenterScreenText("Whack a Mole", 2), 35);
-        _tft.print("Whack a Mole");
+        text = title;
+        _tft.setCursor(calcCenterScreenText(text, 2), 35);
+        _tft.print(text);
     
     _tft.drawLine(20, 70, 300, 70, ILI9341_BLACK);      //Horizontal
     _tft.drawLine(160, 55, 160, 180, ILI9341_BLACK);    //Vertical
 
     _tft.setFont(&InriaSans_Regular8pt7b);
-        _tft.setCursor(calcCenterScreenText("Highscores", 1), 51);
-        _tft.print("Highscores");
-
-        _tft.setCursor(calcCenterScreenText("Mole", 1) * 1.5, 68);
-        _tft.print("Mole");
-        _tft.setCursor(calcCenterScreenText("Hammer", 1) / 2, 68);
-        _tft.print("Hammer");
+        _tft.setCursor(calcCenterScreenText(highscoresText, 1), 51);
+        _tft.print(highscoresText);
+        text = moleText;
+        _tft.setCursor(calcCenterScreenText(text, 1) * 1.5, 68);
+        _tft.print(text);
+        text = hammerText;
+        _tft.setCursor(calcCenterScreenText(text, 1) / 2, 68);
+        _tft.print(text);
 
         uint8_t highscoresY = 85;
         for(uint8_t i = 0; i < 5; i++){
             _tft.setCursor(24, highscoresY);
-            _tft.print(String(123));            //TODO aanpassen naar highscore
+            _tft.print(123);            //TODO aanpassen naar highscore
             _tft.setCursor(90, highscoresY);    //TODO tweaken voor lengte naam
             _tft.print("opponent");             //TODO aanpassen naar speler naam
 
             _tft.setCursor(164, highscoresY);
-            _tft.print(String(123));            //TODO aanpassen naar highscore
+            _tft.print(123);            //TODO aanpassen naar highscore
             _tft.setCursor(230, highscoresY);   //TODO tweaken voor lengte naam
             _tft.print("opponent");             //TODO aanpassen naar speler naam
             highscoresY+=18;
