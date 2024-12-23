@@ -139,12 +139,10 @@ void Game::buttonListener() {
 
         case Display::gameOver:
             //Update the game over screen when data is recieved
-            if(!display.gameOverUpdated){
-                sendScore(score);
-            }
-            if(!display.gameOverUpdated && opponentsScore != 255){
+            sendScore(score);
+            if(opponentsScore != 255 && display.updatedGameOver == false){
                 display.updateGameOver(score, opponentsScore, moleWon);
-                display.gameOverUpdated = true;
+                display.updatedGameOver = true;
             }
 
             //Go to start menu
@@ -196,6 +194,8 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
         case Game::startGame: {
                 score = 0; //Reset score when recieving start game
                 opponentsScore = 255; //Reset opponents score when recieving start game
+                display.updatedGameOver = false; //Reset updatedGameOver when recieving start game
+
                 display.characterMole = (data & 0x08) != 0; //set character based on bit 3
 
                 uint8_t lastThreeBits = data & 0x7; //Set difficulty based on 3 LSBs
@@ -259,7 +259,7 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             break;
         
         case Game::recieveScore:
-                opponentsScore = (uint8_t) data; //Get score from 8 LSBs    
+                opponentsScore = data & 0xFF; //Get score from 8 LSBs    
                 if((display.characterMole && score > opponentsScore) || (!display.characterMole && score < opponentsScore)){
                     moleWon = true;
                 }

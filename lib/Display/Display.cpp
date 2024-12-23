@@ -184,7 +184,6 @@ void Display::drawPixelArray(const uint8_t *pixels, uint8_t pixelSize,
 
 void Display::drawGame(Difficulty selectedDifficulty){
     displayedScreen = game;
-    gameOverUpdated = false;
     this->characterMole = characterMole;
 
     timer1.resetOverflow();

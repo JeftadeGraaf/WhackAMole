@@ -107,7 +107,8 @@ public:
 
     //Variables for selector and heap generation. updateGame(), drawGame(), updateChooseCharacter() functions
     uint8_t selectedHeap = 0; //Which molehole is selected
-    bool gameOverUpdated = false;
+
+    bool updatedGameOver = false; //If the game over screen is updated
 
     Timer1Overflow &timer1; //Instance of the timer1 overflow object
     SevenSegment &sevenSegment; //Instance of the seven segment object
