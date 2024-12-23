@@ -71,8 +71,6 @@ int main(void) {
             uint16_t data = ir.decodeIRMessage();
             game.reactToRecievedData(data, timer1.overflowCount);
         }
-        
-        _delay_ms(10);
     }
 	//never reach
 	return 0;
