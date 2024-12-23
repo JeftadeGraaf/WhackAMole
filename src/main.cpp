@@ -72,7 +72,7 @@ int main(void) {
             game.reactToRecievedData(data, timer1.overflowCount);
         }
         
-        _delay_ms(10);
+        // _delay_ms(10);
     }
 	//never reach
 	return 0;

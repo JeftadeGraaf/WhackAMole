@@ -484,6 +484,7 @@ void Display::updateStartMenu(bool buttonPressed){
 
 void Display::drawGameOverMenu(){
     displayedScreen = gameOver;
+    sevenSegment.clearDisplay();
     //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
     drawPixelField(37);
