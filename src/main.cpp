@@ -7,10 +7,7 @@
 #include <Game.h>
 #include <SevenSegment.h>
 #include <Timer1Overflow.h>
-
-// OCR value for Timer0, IR transmitter
-// OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
-const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
+#include <Audio.h>
 
 const uint16_t BAUDRATE = 9600;             //UART baud rate
 
@@ -31,6 +28,9 @@ IRComm ir(timer1);
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC, timer1, sevenSegment);
 // Create game object
 Game game(ir, display, timer1);
+// Create audio object
+Audio audio;
+
 
 //Interrupts
 ISR(INT0_vect){
@@ -39,6 +39,7 @@ ISR(INT0_vect){
 
 ISR(TIMER1_OVF_vect){
     timer1.onTimer1Overflow();
+    audio.handleTimer1ISR();
 }
 
 ISR(TIMER0_COMPA_vect){
@@ -58,9 +59,13 @@ int main(void) {
 	display.clearScreen();
     Nunchuk.init_nunchuck();
 
+    audio.setTimingVariable(timer1);
+
     ir.decodeIRMessage();
 
     display.drawStartMenu(); //Draw the initial screen
+
+    audio.playSound(Audio::Sound::StartUp);
     
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
