@@ -2,9 +2,11 @@
 #include <util/delay.h>
 
 // Constructor
-IRComm::IRComm(Timer1Overflow &timer1) : timer1(timer1), half_bit_buffers{{0}}, buffer_position{0}, buffer_ready_flags{false}, active_buffer_idx(0),
-      decoded_frame{0}, bit_index(0), is_tx_active(false), is_tx_high(false),
-      prev_timer_value(0), bit_duration(0), is_first_interrupt(true), is_frame_ready(false), is_frame_valid(false)
+IRComm::IRComm()
+    : half_bit_buffers{{0}}, active_buffer_idx(0), buffer_position{0}, buffer_ready_flags{false},
+      decoded_frame{0}, bit_index(0), is_tx_active(false), is_tx_high(false), overflow_count(0),
+      prev_timer_value(0), bit_duration(0), is_first_interrupt(true), is_frame_ready(false),
+      is_frame_valid(false), tx_frame{0}, timer1_all_overflows(0)
 {
     for (uint8_t i = 0; i < 2; i++)
     {
@@ -42,18 +44,24 @@ void IRComm::onReceiveInterrupt()
     if (is_first_interrupt)
     {
         prev_timer_value = current_timer_value;
-        timer1.IROverflowCount = 0;
+        overflow_count = 0;
         is_first_interrupt = false;
     }
     else
     {
-        bit_duration = ((timer1.IROverflowCount << 16) + current_timer_value - prev_timer_value) / 2;
+        bit_duration = ((overflow_count << 16) + current_timer_value - prev_timer_value) / 2;
 
         prev_timer_value = current_timer_value;
-        timer1.IROverflowCount = 0;
+        overflow_count = 0;
 
         processReceivedBit(current_pin_state, bit_duration);
     }
+}
+
+void IRComm::onTimer1Overflow()
+{
+    overflow_count++;
+    timer1_all_overflows++;
 }
 
 void IRComm::onTimer0CompareMatch()
@@ -166,6 +174,7 @@ void IRComm::processBuffer(uint8_t buffer_idx)
         else
         {
             buffer_ready_flags[buffer_idx] = false;
+            Serial.println("Invalid bit detected");
             return;
         }
 
@@ -187,6 +196,7 @@ void IRComm::validateFrame()
     // Validate start bits
     if (!(decoded_frame[0] && decoded_frame[1]))
     {
+        Serial.println("Start bit error");
         return;
     }
 
@@ -199,6 +209,7 @@ void IRComm::validateFrame()
 
     if (parity_check != decoded_frame[14])
     {
+        Serial.println("Parity error");
         return;
     }
 
@@ -256,6 +267,13 @@ void IRComm::sendFrame(uint16_t data)
 
     // Stop sending and turn off the IR LED
     stopSending();
+
+    // Optionally, you can print the frame for debugging
+    Serial.print("Sending frame: ");
+    for (int i = 0; i < 16; i++) {
+        Serial.print(tx_frame[i]);
+    }
+    Serial.println();
 }
 
 void IRComm::createFrame(uint16_t data, bool (&frame)[16])
@@ -311,4 +329,9 @@ void IRComm::sendHalfBit(bool bit) {
 void IRComm::stopSending() {
     TCCR0A &= ~(1 << COM0A0); // Stop toggling on OC0A
     PORTD &= ~(1 << PD6);     // Turn off IR LED
+}
+
+// Get a pointer to the overflow_count variable
+uint32_t* IRComm::getOverflowCountPtr() {
+    return &timer1_all_overflows;
 }

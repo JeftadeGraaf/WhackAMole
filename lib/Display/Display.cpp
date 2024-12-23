@@ -1,138 +1,180 @@
 #include "Display.h"
+#include "Game.h"
 #include "Nunchuk.h"
-#include "Audio.h"
 
 uint32_t gameTimeTracker = 0;
+uint32_t *timer1_all_overflows;
 
-// Combined palette converted to RGB565 format
-const uint16_t combined_palette[82] = {
-    0x0000,     // 0  - Black (shared)
-    0xFFFF,     // 1  - Original mole[1]
-    0x1082,     // 2  - Original mole[2]
-    0xA427,     // 3  - Original mole[3]
-    0x6AA5,     // 4  - Original mole[4]
-    0xAD11,     // 5  - Original mole[5]
-    0xA4F0,     // 6  - Original mole[6]
-    0xCD8F,     // 7  - Original mole[7]
-    0x9BA6,     // 8  - Original mole[8]
-    0x8B65,     // 9  - Original mole[9]
-    0x82E3,     // 10 - Original mole[10]
-    0xE6D8,     // 11 - Original mole[11]
-    0xC52B,     // 12 - Original mole[12]
-    0x3144,     // 13 - Original mole[13]
-    0xEF5C,     // 14 - Original mole[14]
-    0xD5D1,     // 15 - Original mole[15]
-    0xB489,     // 16 - Original mole[16]
-    0x8BA9,     // 17 - Original mole[17]
-    0x9386,     // 18 - Original mole[18]
-    0x8368,     // 19 - Original mole[19]
-    0x8325,     // 20 - Original mole[20]
-    0x8B23,     // 21 - Original mole[21]
-    0x8303,     // 22 - Original mole[22]
-    0x8B23,     // 23 - Original mole[23]
-    0x82E3,     // 24 - Original mole[24]
-    0xCD6E,     // 25 - Original mole[25]
-    0x7AC2,     // 26 - Original mole[26]
-    0x5204,     // 27 - Original mole[27]
-    0x5A02,     // 28 - Original mole[28]
-    0x5A43,     // 29 - Original mole[29]
-    0x41C7,     // 30 - Original mole[30]
-    0x51E2,     // 31 - Original mole[31]
-    0x59E1,     // 32 - Original mole[32]
-    0x59E1,     // 33 - Original mole[33]
-    0x49A0,     // 34 - Original mole[34]
-    0x3166,     // 35 - Original mole[35]
-    0x2124,     // 36 - Original mole[36]
-    0x2124,     // 37 - Original mole[37]
-    0x3920,     // 38 - Original mole[38]
-    0x20C3,     // 39 - Original mole[39]
-    0x0000,     // 40 - Original mole[0]
-    0x6A20,     // 41 - Original hole[1]
-    0x59E0,     // 42 - Original hole[2]
-    0x59E0,     // 43 - Original hole[3]
-    0x6A41,     // 44 - Original hole[4]
-    0x6A20,     // 45 - Original hole[5]
-    0x4160,     // 46 - Original hole[6]
-    0x59E1,     // 47 - Original hole[7]
-    0x3120,     // 48 - Original hole[8]
-    0x3180,     // 49 - Original hole[9]
-    0x6221,     // 50 - Original hole[10]
-    0x4180,     // 51 - Original hole[11]
-    0x3120,     // 52 - Original hole[12]
-    0x3120,     // 53 - Original hole[13]
-    0x3920,     // 54 - Original hole[14]
-    0x28E0,     // 55 - Original hole[15]
-    0x3800,     // 56 - Original hammer[1]
-    0xFE42,     // 57 - Original hammer[2]
-    0xFDA3,     // 58 - Original hammer[3]
-    0xFD03,     // 59 - Original hammer[4]
-    0xFD23,     // 60 - Original hammer[5]
-    0xFCA3,     // 61 - Original hammer[6]
-    0xF4A3,     // 62 - Original hammer[7]
-    0xF463,     // 63 - Original hammer[8]
-    0xF423,     // 64 - Original hammer[9]
-    0xFBE3,     // 65 - Original hammer[10]
-    0xF986,     // 66 - Original hammer[11]
-    0xEEA2,     // 67 - Original hammer[12]
-    0xAB45,     // 68 - Original hammer[13]
-    0x938B,     // 69 - Original hammer[14]
-    0x8287,     // 70 - Original hammer[15]
-    0xFFFB,     // 71 - Original hammer[16]
-    0x7226,     // 72 - Original hammer[17]
-    0x5984,     // 73 - Original hammer[18]
-    0x59C4,     // 74 - Original hammer[19]
-    0x5123,     // 75 - Original hammer[20]
-    0x5000,     // 76 - Original hammer[21]
-    0x38E0,     // 77 - Original hammer[22]
-    0xAC4E,     // 78 - Original hammer[23]
-    0x3800,     // 79 - Original hammer[24]
-    0x02AA      // 80 - Original hammer[25]
-};
+uint32_t get_t1_overflows(){
+    return *timer1_all_overflows;
+}
 
-// Updated mole sprite with new indices
+void reset_t1_overflows(){
+    *timer1_all_overflows = 0;
+}
+
 const uint8_t mole[8][8] = {
-    {0, 13, 31, 10, 24, 35, 13, 0},
-    {36, 4, 17, 6, 6, 19, 4, 2},
-    {0, 21, 16, 5, 5, 3, 21, 2},
-    {32, 29, 15, 14, 14, 7, 26, 28},
+    {0, 13, 34, 10, 26, 38, 13, 0},
+    {39, 4, 17, 6, 6, 19, 4, 2},
+    {0, 23, 16, 5, 5, 3, 24, 2},
+    {35, 31, 15, 14, 14, 7, 28, 30},
     {4, 21, 11, 1, 1, 11, 8, 20},
-    {9, 12, 7, 1, 1, 7, 12, 18},
-    {25, 8, 22, 3, 3, 10, 9, 27},
-    {0, 2, 0, 30, 30, 0, 0, 0}
+    {9, 12, 25, 1, 1, 7, 12, 18},
+    {27, 8, 22, 3, 3, 10, 9, 29},
+    {0, 2, 0, 33, 32, 0, 0, 0},
+};
+const uint8_t mole_palette[120] = {
+    0, 0, 2,
+    254, 252, 249,
+    20, 17, 18,
+    166, 132, 61,
+    108, 86, 44,
+    175, 162, 139,
+    167, 156, 135,
+    204, 177, 122,
+    154, 119, 48,
+    139, 109, 47,
+    128, 93, 24,
+    229, 219, 198,
+    199, 164, 90,
+    50, 43, 34,
+    238, 234, 227,
+    210, 186, 136,
+    177, 144, 74,
+    140, 118, 75,
+    144, 114, 53,
+    135, 111, 67,
+    131, 101, 40,
+    138, 102, 28,
+    133, 99, 29,
+    138, 101, 28,
+    128, 95, 30,
+    203, 175, 117,
+    123, 90, 21,
+    82, 64, 34,
+    91, 67, 21,
+    91, 72, 31,
+    64, 59, 57,
+    86, 62, 17,
+    88, 63, 14,
+    88, 62, 14,
+    78, 53, 4,
+    48, 46, 53,
+    39, 39, 39,
+    36, 36, 36,
+    57, 38, 0,
+    33, 26, 26,
 };
 
-// Updated hole sprite - using original hole colors
-const uint8_t hole[4][8] = {
-    {0, 0, 0, 44, 44, 53, 52, 48},    // Making sure black is 0, keeping other hole colors at original indices
-    {47, 47, 50, 45, 41, 45, 46, 55},
-    {42, 42, 41, 41, 41, 41, 46, 48},
-    {51, 42, 43, 41, 41, 43, 48, 52}
+const uint8_t hole[8][8] = {
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 4, 4, 14, 13, 9},
+    {7, 7, 10, 5, 1, 5, 6, 15},
+    {2, 2, 1, 1, 1, 1, 6, 8},
+    {11, 2, 3, 1, 1, 3, 8, 12},
+};
+const uint8_t hole_palette[48] = {
+    0, 0, 0,
+    105, 69, 4,
+    90, 61, 6,
+    94, 62, 4,
+    111, 73, 9,
+    108, 71, 4,
+    65, 44, 5,
+    93, 63, 9,
+    54, 37, 5,
+    51, 51, 0,
+    102, 71, 10,
+    69, 48, 5,
+    55, 39, 5,
+    53, 37, 5,
+    58, 39, 0,
+    45, 31, 4,
 };
 
-// Updated hammer horizontal - using original hammer colors
-const uint8_t hammerHori[5][8] = {
-    {76, 74, 80, 0, 0, 0, 0, 0},      // Making sure black is 0, keeping other hammer colors at original indices
-    {56, 73, 70, 65, 64, 63, 61, 62},
-    {56, 75, 68, 59, 60, 58, 57, 67},
-    {79, 72, 69, 0, 0, 0, 0, 0},
-    {77, 78, 71, 0, 0, 0, 0, 0}
+const uint8_t hammerHori[8][8] = {
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
+    {22, 23, 16, 0, 0, 0, 0, 0},
+    {24, 17, 14, 0, 0, 0, 0, 0},
+    {1, 20, 13, 4, 5, 3, 2, 12},
+    {1, 18, 15, 10, 9, 8, 6, 7},
+    {21, 19, 25, 0, 0, 0, 0, 0},
+    {0, 0, 0, 0, 0, 0, 0, 0},
 };
-
-// Updated hammer vertical - using original hammer colors
-const uint8_t hammerVert[8][5] = {
-    {77, 79, 56, 56, 76},
-    {78, 72, 75, 73, 74},
-    {71, 69, 68, 70, 80},
-    {0, 0, 59, 65, 0},
-    {0, 0, 60, 64, 0},
-    {0, 0, 58, 63, 0},
-    {0, 0, 57, 61, 0},
-    {0, 0, 67, 62, 0}
+const uint8_t hammerVert[8][8] = {
+    {0, 1, 2, 2, 25, 1, 0, 0},
+    {0, 20, 21, 22, 19, 13, 0, 0},
+    {0, 18, 16, 14, 15, 17, 0, 0},
+    {0, 0, 10, 4, 0, 0, 0, 0},
+    {0, 0, 9, 5, 0, 0, 0, 0},
+    {0, 0, 8, 3, 0, 0, 0, 0},
+    {0, 0, 6, 12, 0, 0, 0, 0},
+    {0, 0, 7, 23, 0, 0, 0, 0},
+};
+const uint8_t hammerVert_palette[78] = {
+    0, 0, 0,
+    85, 0, 0,
+    61, 2, 0,
+    247, 177, 24,
+    255, 161, 26,
+    247, 166, 25,
+    245, 148, 29,
+    246, 149, 28,
+    245, 139, 29,
+    246, 131, 31,
+    255, 136, 29,
+    255, 51, 51,
+    248, 199, 20,
+    168, 133, 110,
+    175, 108, 43,
+    148, 113, 94,
+    135, 81, 56,
+    255, 255, 218,
+    102, 102, 51,
+    111, 68, 52,
+    92, 57, 34,
+    89, 46, 32,
+    86, 39, 27,
+    255, 233, 21,
+    255, 0, 0,
+    59, 0, 0,
+};
+const uint8_t hammerHori_palette[78] = {
+    0, 0, 0,
+    60, 2, 0,
+    248, 201, 20,
+    251, 180, 24,
+    253, 161, 25,
+    250, 166, 25,
+    250, 150, 29,
+    244, 148, 28,
+    247, 141, 29,
+    246, 133, 31,
+    249, 127, 30,
+    255, 51, 51,
+    235, 215, 19,
+    174, 106, 43,
+    146, 114, 94,
+    135, 81, 56,
+    255, 255, 218,
+    114, 69, 53,
+    93, 48, 33,
+    92, 57, 34,
+    86, 39, 27,
+    85, 0, 0,
+    63, 31, 0,
+    171, 136, 118,
+    59, 2, 0,
+    0, 85, 85,
 };
 
 // Initialize the display
-Display::Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1, SevenSegment &sevenSegment)
-    : _tft(tft_cs, tft_dc), sevenSegment(sevenSegment), timer1(timer1) {
+Display::Display(int backlight_pin, int tft_cs, int tft_dc)
+    : _tft(tft_cs, tft_dc) {
     // Constructor
     _backlight_pin = backlight_pin;
 }
@@ -151,11 +193,10 @@ void Display::init() {
 
     _tft.begin();
     _tft.setRotation(1);
-    _tft.setTextColor(ILI9341_BLACK);
-    _tft.setFont(&InriaSans_Regular8pt7b);
 }
 
 void Display::refreshBacklight() {
+    // Add code to refresh the backlight as needed
     PORTD |= (1<<_backlight_pin);
     // if(!(ADCSRA & (1<<ADSC))){
     //     // OCR0B = ADCH;
@@ -164,30 +205,37 @@ void Display::refreshBacklight() {
     // ADCSRA |= (1<<ADSC);
 }
 
-// Draw a pixelarray with its corresponding palette
-void Display::drawPixelArray(const uint8_t *pixels, uint8_t pixelSize, 
-                            int xStart, int yStart, int xSize, int ySize) {
-    for (int y = 0; y < ySize; y++) {
-        for (int x = 0; x < xSize; x++) {
-            uint8_t pixelIndex = *(pixels + y * xSize + x);
-            
-            if (pixelIndex == 0) continue; // Skip black pixels
+void Display::drawPixelArray(const uint8_t pixels[8][8], const uint8_t palette[], uint8_t backgroundPixelSize, int xStart, int yStart) {
+    for (int y = 0; y < 8; y++) {
+        for (int x = 0; x < 8; x++) {
+            // Get the pixel index from the array
+            uint8_t pixelIndex = pixels[y][x];
 
-            int xPos = xStart + x * pixelSize;
-            int yPos = yStart + y * pixelSize;
-            
-            // Use pre-converted color directly from the palette
-            _tft.fillRect(xPos, yPos, pixelSize, pixelSize, combined_palette[pixelIndex]);
+            // If the pixel is black, don't draw it
+            if (pixelIndex == 0) {
+                continue;
+            }
+
+            // Get the corresponding color from the palette
+            uint8_t red = palette[pixelIndex * 3];
+            uint8_t green = palette[pixelIndex * 3 + 1];
+            uint8_t blue = palette[pixelIndex * 3 + 2];
+
+            // Calculate the position where the pixel will be drawn
+            int xPos = xStart + x * backgroundPixelSize;
+            int yPos = yStart + y * backgroundPixelSize;
+
+            // Draw the pixel
+            _tft.fillRect(xPos, yPos, backgroundPixelSize, backgroundPixelSize, _tft.color565(red, green, blue));
         }
     }
 }
 
 void Display::drawGame(Difficulty selectedDifficulty){
     displayedScreen = game;
-    gameOverUpdated = false;
     this->characterMole = characterMole;
 
-    timer1.resetOverflow();
+    reset_t1_overflows();
     gameTimeTracker = 0;
     time = 60;
 
@@ -196,19 +244,22 @@ void Display::drawGame(Difficulty selectedDifficulty){
     drawPixelField(37);
 
     //Write text
+    _tft.setTextColor(ILI9341_BLACK);
     _tft.setFont(&IrishGrover_Regular8pt7b);
-        _tft.setCursor(calcCenterScreenText(title, 2), 30);
-        _tft.print(title);
+        text = "Whack a Mole";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 30);
+        _tft.print(text);
 
     _tft.setFont(&InriaSans_Regular8pt7b);
         _tft.setTextSize(1);
         _tft.setCursor(2, 15);
         _tft.print("Time");
         
-        _tft.getTextBounds(scoreText, 0, 0, &x1, &y1, &textWidth, &textHeight);
-        // Center the text on the screen
+        text = "Score";
+        calcCenterScreenText(text, 1);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 15);
-        _tft.print(scoreText);
+        _tft.print(text);
 
     //Apply settings for selectedDifficulty level, used also in selection process
     if(selectedDifficulty == 4){
@@ -220,7 +271,7 @@ void Display::drawGame(Difficulty selectedDifficulty){
         Xmax        = 210;
         Ymax        = 170;
         gridSize    = 2;
-        for(uint8_t i = 0; i < (gridSize * gridSize); i++){
+        for(uint8_t i = 1; i <= (gridSize * gridSize); i++){
             drawOrRemoveHole(i, true);
         }
         
@@ -235,7 +286,7 @@ void Display::drawGame(Difficulty selectedDifficulty){
         Xmax        = 230;
         Ymax        = 195;
         gridSize    = 3;
-        for(uint8_t i = 0; i < (gridSize * gridSize); i++){
+        for(uint8_t i = 1; i <= (gridSize * gridSize); i++){
             drawOrRemoveHole(i, true);
         }
 
@@ -250,7 +301,7 @@ void Display::drawGame(Difficulty selectedDifficulty){
         Xmax        = 279;
         Ymax        = 189;
         gridSize    = 4;
-        for(uint8_t i = 0; i < (gridSize * gridSize); i++){
+        for(uint8_t i = 1; i <= (gridSize * gridSize); i++){
             drawOrRemoveHole(i, true);
         }
     }
@@ -258,6 +309,111 @@ void Display::drawGame(Difficulty selectedDifficulty){
     dynamicStartX      = startX;
     dynamicStartY      = startY;
     selectWidthHeight = picturePixelSize * multiplySize;
+}
+
+//TODO joystick (debounce)
+//TODO calculate score
+void Display::updateGame(uint8_t score, bool ZPressed){
+    //Dynamic Time and Score
+    updateGameTimeScore(score);
+
+    oldSelectedHeap = selectedHeap;
+    oldDynamicStartX = dynamicStartX;
+    oldDynamicStartY = dynamicStartY;
+
+    //Read movement
+    if((!characterMole && !hammerJustHit) || characterMole){
+        if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartX != Xmax){
+            dynamicStartX+=Xcrement; //Move right
+            selectedHeap += 1;
+        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartX != startX){
+            dynamicStartX-=Xcrement; //Move left
+            selectedHeap -= 1;
+        }
+
+        if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && dynamicStartY != Ymax){
+            dynamicStartY+=Ycrement; //Move down
+            selectedHeap += gridSize;
+        } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && dynamicStartY != startY){
+            dynamicStartY-=Ycrement; //Move up
+            selectedHeap -= gridSize;
+        }
+    }
+
+    //If character is mole
+    if(characterMole){
+        //Draw selector rectangle
+        _tft.drawRect(dynamicStartX-2, dynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_BLACK);
+        //If other heap is selected, remove old selector
+        if(oldSelectedHeap != selectedHeap){
+            _tft.drawRect(oldDynamicStartX-2, oldDynamicStartY-2, selectWidthHeight+4, selectWidthHeight+4, ILI9341_GREEN);
+        }
+
+        //If Z is pressed and mole is not placed, draw mole
+        if(ZPressed && !molePlaced){
+            gamePtr->sendMoleUp(selectedHeap); //Send placed mole to other console
+            drawOrRemoveMole(selectedHeap, true);
+            molePlaced = 0x1;
+            molePlacedTime = get_t1_overflows();
+            molePlacedHeap = selectedHeap;
+        }
+        //If mole is placed and time is up, remove mole
+        if(molePlaced && (get_t1_overflows() - molePlacedTime >= 60)){
+            drawOrRemoveMole(molePlacedHeap, false);
+            molePlaced = 0x0;
+        }
+    }
+    
+    //If character is hammer
+    else{
+        //If the hammers movement is not blocked
+        if (get_t1_overflows() - lastHammerUse >= 30) { // 30 overflows ≈ 1 second
+            //If hammer finished hitting
+            if(hammerJustHit){
+                //Remove horizontal hammer
+                drawOrRemoveHammer(selectedHeap, false, true);
+                //Place selector hammer and hole
+                drawOrRemoveHammer(selectedHeap, true, false);
+                drawOrRemoveHole(selectedHeap, true);
+                hammerJustHit = false;
+            }
+            //If other heap is selected
+            if(oldSelectedHeap != selectedHeap){
+                //remove old selector
+                drawOrRemoveHammer(oldSelectedHeap, false, false);
+                //Draw selector hammer
+                drawOrRemoveHammer(selectedHeap, true, false);
+            }
+            if(ZPressed) {
+                // Update last usage timestamp
+                lastHammerUse = get_t1_overflows();
+            }
+        }
+        //If the hammer is blocked
+        else if(!hammerJustHit){
+            //Remove selector hammer
+            // if(hammerJustHit == false){
+                drawOrRemoveHammer(selectedHeap, false, false);
+                // Perform hammer action
+                drawOrRemoveHammer(selectedHeap, true, true);
+            // }
+            hammerJustHit = true;
+        }
+        gamePtr->sendHammerMove(selectedHeap, hammerJustHit); //Send hammer position to other console
+    }
+
+    if (time == 0) {
+        // Game over
+        gamePtr->sendScore(score); //Send score to other console
+        bool moleWon = false;
+        if((characterMole && score > gamePtr->opponentsScore) || (!characterMole && !(score < gamePtr->opponentsScore))){
+            moleWon = true;
+        }
+        else{
+            moleWon = false;
+        }
+        drawGameOverMenu(score, gamePtr->opponentsScore, moleWon);
+    }
 }
 
 void Display::calculateHeapPosition(uint8_t heapNumber, uint16_t& xPos, uint16_t& yPos) {
@@ -270,11 +426,11 @@ void Display::drawOrRemoveMole(uint8_t heapNumber, bool draw) {
     calculateHeapPosition(heapNumber, xPos, yPos);
     
     if (draw) {
-        drawPixelArray(*mole, multiplySize, xPos, yPos, 8, 8);
-        drawPixelArray(*hole, multiplySize, xPos, yPos + 4*multiplySize, 8, 4);
+        drawPixelArray(mole, mole_palette, multiplySize, xPos, yPos);
+        drawPixelArray(hole, hole_palette, multiplySize, xPos, yPos);
     } else {
         _tft.fillRect(xPos, yPos, selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
-        drawPixelArray(*hole, multiplySize, xPos, yPos + 4*multiplySize, 8, 4);
+        drawPixelArray(hole, hole_palette, multiplySize, xPos, yPos);
     }
 }
 
@@ -284,18 +440,18 @@ void Display::drawOrRemoveHammer(uint8_t heapNumber, bool draw, bool horizontal)
 
     if (draw) {
         if(!horizontal){
-            drawPixelArray(*hammerVert, multiplySize, xPos + (picturePixelSize * multiplySize), yPos, 5, 8);
+            drawPixelArray(hammerVert, hammerVert_palette, multiplySize, xPos + (picturePixelSize * multiplySize), yPos);
         }
         else{
-            drawPixelArray(*hammerHori, multiplySize, xPos + (2 * multiplySize), yPos, 8, 5);
+            drawPixelArray(hammerHori, hammerHori_palette, multiplySize, dynamicStartX + (2 * multiplySize), dynamicStartY - multiplySize);
         }
     } else {
         if(!horizontal){
             _tft.fillRect(xPos  + (picturePixelSize * multiplySize), yPos, (picturePixelSize * multiplySize), (picturePixelSize * multiplySize), ILI9341_GREEN);
-            drawPixelArray(*hole, multiplySize, xPos, yPos + 4*multiplySize, 8, 4);
+            drawPixelArray(hole, hole_palette, multiplySize, xPos, yPos);
         }
         else{
-            drawPixelArray(*hole, multiplySize, xPos, yPos + 4*multiplySize, 8, 4);
+            drawPixelArray(hole, hole_palette, multiplySize, xPos, yPos);
             _tft.fillRect(xPos + (2 * multiplySize), yPos - multiplySize, (picturePixelSize * multiplySize), (picturePixelSize * multiplySize), ILI9341_GREEN);
         }
     }
@@ -306,40 +462,40 @@ void Display::drawOrRemoveHole(uint8_t heapNumber, bool draw) {
     calculateHeapPosition(heapNumber, xPos, yPos);
 
     if (draw) {
-        drawPixelArray(*hole, multiplySize, xPos, yPos + 4*multiplySize, 8, 4);
+        drawPixelArray(hole, hole_palette, multiplySize, xPos, yPos);
     } else {
         _tft.fillRect(xPos, yPos, selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
     }
 }
 
 void Display::updateGameTimeScore(uint8_t score){
+    _tft.setFont(&InriaSans_Regular8pt7b);
         _tft.setTextSize(1);
         //Remove old text
         _tft.setTextColor(SKY_BLUE);
         _tft.setCursor(2, 30);
-        _tft.print(time);
+        _tft.print(String(time));
         
+        text = String(oldScore);
+        calcCenterScreenText(text, 1);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
-        _tft.print(oldScore);
+        _tft.print(text);
 
     // update time variable
-    if (timer1.overflowCount - gameTimeTracker > 30) {
-        time = 60 - ((timer1.overflowCount) / 30);
-        gameTimeTracker = timer1.overflowCount;
-        if(time < 10){
-            sevenSegment.displayDigit(time);
-        }
+    if (get_t1_overflows() - gameTimeTracker > 30) {
+        time--;
+        gameTimeTracker = get_t1_overflows();
     }
 
         //Write new text
         _tft.setTextColor(ILI9341_BLACK);
         _tft.setCursor(2, 30);
-        _tft.print(time);
+        _tft.print(String(time));
         
+        text = String(score);
+        calcCenterScreenText(text, 1);
         _tft.setCursor(SCREEN_WIDTH - textWidth - 2, 30);
-        _tft.print(score);
-
-    oldScore = score;
+        _tft.print(text);
 }
 
 void Display::drawChooseCharacter(){
@@ -349,33 +505,34 @@ void Display::drawChooseCharacter(){
     drawPixelField(155);
 
     //Write text
+    _tft.setTextColor(ILI9341_BLACK);
     _tft.setFont(&IrishGrover_Regular8pt7b);
-        _tft.setCursor(calcCenterScreenText(chooseYour, 2), 40);
-        _tft.print(chooseYour);
-
-        _tft.setCursor(calcCenterScreenText(character, 2), 80);
-        _tft.print(character);
+        text = "Choose your";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 40);
+        _tft.print(text);
+        text = "character";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 80);
+        _tft.print(text);
 
     _tft.setFont(&InriaSans_Regular8pt7b);
         textYCoor = 120;
-
-        moleTextXCoor = calcCenterScreenText(moleText, 2) - 70;
+        text = "Mole";
+        calcCenterScreenText(text, 2);
+        moleTextXCoor = x / 2 - 20;
         _tft.setCursor(moleTextXCoor, textYCoor);
-        _tft.print(moleText);
+        _tft.print(text);
         //Draw mole character
-        drawPixelArray(*mole, 8, moleTextXCoor, 150, 8, 8);
-        drawPixelArray(*hole, 8, moleTextXCoor, 192, 8, 4);
-
-        _tft.setTextSize(2);
-        _tft.getTextBounds(hammerText, 0, 0, &x1, &y1, &textWidth, &textHeight);
-        // Center the text on the screen
-        x = (SCREEN_WIDTH - textWidth) / 2;
-
+        drawPixelArray(mole, mole_palette, 8, moleTextXCoor, 150);
+        drawPixelArray(hole, hole_palette, 8, moleTextXCoor, 160);
+        text = "Hammer";
+        calcCenterScreenText(text, 2);
         hammerTextXCoor = x * 1.5 + 20;
         _tft.setCursor(hammerTextXCoor, textYCoor);
-        _tft.print(hammerText);
+        _tft.print(text);
         //Draw hammerHori character
-        drawPixelArray(*hammerHori, 8, x * 2 + 10, 150, 8, 5);
+        drawPixelArray(hammerHori, hammerHori_palette, 8, x * 2 + 10, 150);
 }
 
 void Display::updateChooseCharacter(bool buttonPressed){
@@ -391,13 +548,14 @@ void Display::updateChooseCharacter(bool buttonPressed){
     //Change selection coördinates
     uint8_t x = 0;
     if(characterMole){
-        text = moleText;
+        text = "Mole";
         x = moleTextXCoor;
     }
     else{
-        text = hammerText;
+        text = "Hammer";
         x = hammerTextXCoor;
     }
+    _tft.setFont(&InriaSans_Regular8pt7b);
     _tft.setTextSize(2);
     _tft.getTextBounds(text, x, textYCoor, &x1, &y1, &textWidth, &textHeight);
     _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, ILI9341_BLACK);
@@ -415,9 +573,12 @@ void Display::drawDifficulty(){
     drawPixelField(37);
 
     //Write text
+    _tft.setTextColor(ILI9341_BLACK);
     _tft.setFont(&IrishGrover_Regular8pt7b);
-        _tft.setCursor(calcCenterScreenText(title, 2), 30);
-        _tft.print(title);
+        text = "Whack a Mole";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 30);
+        _tft.print(text);
 
     _tft.setFont(&InriaSans_Regular8pt7b);
         _tft.setTextSize(3);
@@ -430,8 +591,40 @@ void Display::drawDifficulty(){
         _tft.setCursor(25, 180);
         _tft.print("16 holes");
 
-    drawPixelArray(*mole, 10, 210, 50, 8, 8);
-    drawPixelArray(*hole, 10, 210, 170, 8, 4);
+    drawPixelArray(mole, mole_palette, 10, 210, 50);
+    drawPixelArray(hole, hole_palette, 10, 210, 130);
+}
+
+void Display::updateDifficulty(bool buttonPressed){
+    _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_GREEN);
+    if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && selectedDifficulty != sixteen){
+        //move down
+        difficultyCircleY += 50;
+        //When moving down, change the difficulty to the value under it
+        if(selectedDifficulty == four){
+            selectedDifficulty = nine;
+        }
+        else if(selectedDifficulty == nine){
+            selectedDifficulty = sixteen;
+        }
+    } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && selectedDifficulty != four){
+        //move up
+        difficultyCircleY -= 50;
+        //When moving down, change the difficulty to the value above it
+        if(selectedDifficulty == sixteen){
+            selectedDifficulty = nine;
+        }
+        else if(selectedDifficulty == nine){
+            selectedDifficulty = four;
+        }
+    }
+    _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_BLACK);
+
+    //Start the game with the selected difficulty when button is pressed
+    if(buttonPressed){
+        gamePtr->sendStart(characterMole, selectedDifficulty); //Send start game process to other console
+        drawGame(selectedDifficulty);
+    }
 }
 
 void Display::drawStartMenu(){
@@ -441,25 +634,23 @@ void Display::drawStartMenu(){
     drawPixelField(155);
 
     //Write text
+    _tft.setTextColor(ILI9341_BLACK);
     _tft.setFont(&IrishGrover_Regular8pt7b);
-        
-        _tft.setTextSize(2);
-        _tft.getTextBounds(title, 0, 0, &x1, &y1, &textWidth, &textHeight);
-        // Center the text on the screen
-        x = (SCREEN_WIDTH - textWidth) / 2;
-        
+        text = "Whack a Mole";
+        calcCenterScreenText(text, 2);
         _tft.setCursor(x, 30);
-        _tft.print(title);
+        _tft.print(text);
 
     _tft.setFont(&InriaSans_Regular8pt7b);
+        _tft.setTextSize(2);
         _tft.setCursor(30, 80);
         _tft.print("Start");
 
         _tft.setCursor(30, 115);
-        _tft.print(highscoresText);
+        _tft.print("Highscores");
 
-    drawPixelArray(*mole, 10, 200, 50, 8, 8);
-    drawPixelArray(*hole, 10, 200, 170, 8, 4);
+    drawPixelArray(mole, mole_palette, 10, 200, 50);
+    drawPixelArray(hole, hole_palette, 10, 200, 130);
 }
 
 void Display::updateStartMenu(bool buttonPressed){
@@ -483,50 +674,57 @@ void Display::updateStartMenu(bool buttonPressed){
     }
 }
 
-void Display::drawGameOverMenu(){
+void Display::drawGameOverMenu(uint8_t player_score, uint8_t opponent_score, bool mole_win){
     displayedScreen = gameOver;
-    sevenSegment.clearDisplay();
     //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
     drawPixelField(37);
 
     //Write text
+    _tft.setTextColor(ILI9341_BLACK);
     _tft.setFont(&IrishGrover_Regular8pt7b);
-        _tft.setCursor(calcCenterScreenText(title, 2), 30);
-        _tft.print(title);
+        text = "Whack a Mole";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 30);
+        _tft.print(text);
+
+        //If player won
+        if(player_score > opponent_score){
+            text = "You Won!";
+        } else {
+            text = "You Lost!";
+        }
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 90);
+        _tft.print(text);
+
     _tft.setFont(&InriaSans_Regular8pt7b);
-}
+        text = "Your score: " + String(player_score);
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(x, 120);
+        _tft.print(text);
 
-void Display::updateGameOver(uint8_t player_score, uint8_t opponent_score, bool mole_win){
-    //If player won
-    if(player_score > opponent_score){
-        text = "You Won!";
-    }
-    else if (player_score < opponent_score){
-        text = "You Lost!";
-    }
-    else{
-        text = "It's a tie!";
-    }
-    _tft.setCursor(calcCenterScreenText(text, 2), 90);
-    _tft.print(text);
+        text = "Opponents score: " + String(opponent_score);
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(x, 136);
+        _tft.print(text);
 
-        _tft.setCursor(calcCenterScreenText(yourScoreText, 1), 120);
-        _tft.print(yourScoreText);
-        _tft.print(player_score);
+        text = "Z: Return to menu";
+        _tft.setCursor(11, 200);
+        _tft.print(text);
 
-        _tft.setCursor(calcCenterScreenText(opponentsScoreText, 1), 136);
-        _tft.print(opponentsScoreText);
-        _tft.print(opponent_score);
-    
+        text = "C: Save name";
+        _tft.setCursor(11, 220);
+        _tft.print(text);
+
     //If mole won, draw mole. Else, draw hammerHori
     if(mole_win){
-        drawPixelArray(*mole, 8, 150, 150, 8, 8);
-        drawPixelArray(*hole, 8, 150, 192, 8, 4);
-        drawPixelArray(*hammerHori, 8, 230, 150, 8, 5);
+        drawPixelArray(mole, mole_palette, 8, 150, 150);
+        drawPixelArray(hole, hole_palette, 8, 150, 160);
+        drawPixelArray(hammerHori, hammerHori_palette, 8, 230, 150);
     } else {
-        drawPixelArray(*hole, 8, 180, 192, 8, 4);
-        drawPixelArray(*hammerHori, 8, 200, 150, 8, 5);
+        drawPixelArray(hole, hole_palette, 8, 180, 160);
+        drawPixelArray(hammerHori, hammerHori_palette, 8, 200, 150);
     }
 }
 
@@ -538,44 +736,52 @@ void Display::drawHighscores(){
     drawPixelField(189);
 
     //Write text
+    _tft.setTextColor(ILI9341_BLACK);
     _tft.setFont(&IrishGrover_Regular8pt7b);
-        text = title;
-        _tft.setCursor(calcCenterScreenText(text, 2), 35);
+        text = "Whack a Mole";
+        calcCenterScreenText(text, 2);
+        _tft.setCursor(x, 35);
         _tft.print(text);
     
     _tft.drawLine(20, 70, 300, 70, ILI9341_BLACK);      //Horizontal
     _tft.drawLine(160, 55, 160, 180, ILI9341_BLACK);    //Vertical
 
     _tft.setFont(&InriaSans_Regular8pt7b);
-        _tft.setCursor(calcCenterScreenText(highscoresText, 1), 51);
-        _tft.print(highscoresText);
-        text = moleText;
-        _tft.setCursor(calcCenterScreenText(text, 1) * 1.5, 68);
+        text = "Highscores";
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(x, 51);
         _tft.print(text);
-        text = hammerText;
-        _tft.setCursor(calcCenterScreenText(text, 1) / 2, 68);
+
+        text = "Mole";
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(x * 1.5, 68);
+        _tft.print(text);
+        text = "Hammer";
+        calcCenterScreenText(text, 1);
+        _tft.setCursor(x / 2, 68);
         _tft.print(text);
 
         uint8_t highscoresY = 85;
         for(uint8_t i = 0; i < 5; i++){
             _tft.setCursor(24, highscoresY);
-            _tft.print(123);            //TODO aanpassen naar highscore
+            _tft.print(String(123));            //TODO aanpassen naar highscore
             _tft.setCursor(90, highscoresY);    //TODO tweaken voor lengte naam
             _tft.print("opponent");             //TODO aanpassen naar speler naam
 
             _tft.setCursor(164, highscoresY);
-            _tft.print(123);            //TODO aanpassen naar highscore
+            _tft.print(String(123));            //TODO aanpassen naar highscore
             _tft.setCursor(230, highscoresY);   //TODO tweaken voor lengte naam
             _tft.print("opponent");             //TODO aanpassen naar speler naam
             highscoresY+=18;
         }
 }
 
-int Display::calcCenterScreenText(String text, uint8_t textSize){
+void Display::calcCenterScreenText(String text, uint8_t textSize){
     _tft.setTextSize(textSize);
     _tft.getTextBounds(text, 0, 0, &x1, &y1, &textWidth, &textHeight);
     // Center the text on the screen
-    return ((SCREEN_WIDTH - textWidth) / 2);
+    x = (SCREEN_WIDTH - textWidth) / 2;
+    y = (SCREEN_HEIGHT - textHeight) / 2;
 }
 
 void Display::drawPixelField(uint8_t y){
@@ -598,4 +804,8 @@ void Display::drawPixelField(uint8_t y){
 
 void Display::clearScreen() {
     _tft.fillScreen(ILI9341_BLACK);
+}
+
+void Display::setTimingVariable(uint32_t *timer1_overflows_32ms){
+    timer1_all_overflows = timer1_overflows_32ms;
 }
