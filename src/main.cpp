@@ -7,6 +7,7 @@
 #include <Game.h>
 #include <SevenSegment.h>
 #include <Timer1Overflow.h>
+#include <Audio.h>
 
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
@@ -23,6 +24,7 @@ uint16_t score = 100;
 #define TFT_CS 10
 
 Timer1Overflow timer1;
+Audio audio(timer1);
 SevenSegment sevenSegment(0x21);
 
 // Instance of IR object
@@ -38,6 +40,7 @@ ISR(INT0_vect){
 }
 
 ISR(TIMER1_OVF_vect){
+    audio.handleTimer1ISR();
     timer1.onTimer1Overflow();
 }
 
@@ -61,6 +64,9 @@ int main(void) {
     ir.decodeIRMessage();
 
     display.drawStartMenu(); //Draw the initial screen
+
+    audio.init();
+    audio.playSound(Audio::Sound::StartUp);
     
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
@@ -71,6 +77,7 @@ int main(void) {
             uint16_t data = ir.decodeIRMessage();
             game.reactToRecievedData(data, timer1.overflowCount);
         }
+        audio.playSound(Audio::Sound::ThemeSong1);
         
         _delay_ms(10);
     }
