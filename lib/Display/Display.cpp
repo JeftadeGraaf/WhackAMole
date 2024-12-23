@@ -129,7 +129,6 @@ const uint8_t hammerVert[8][5] = {
     {0, 0, 67, 62, 0}
 };
 
-
 // Initialize the display
 Display::Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1, SevenSegment &sevenSegment)
     : _tft(tft_cs, tft_dc), sevenSegment(sevenSegment), timer1(timer1) {
@@ -166,7 +165,7 @@ void Display::refreshBacklight() {
 
 // Draw a pixelarray with its corresponding palette
 void Display::drawPixelArray(const uint8_t *pixels, uint8_t pixelSize, 
-                           int xStart, int yStart, int xSize, int ySize) {
+                            int xStart, int yStart, int xSize, int ySize) {
     for (int y = 0; y < ySize; y++) {
         for (int x = 0; x < xSize; x++) {
             uint8_t pixelIndex = *(pixels + y * xSize + x);
@@ -359,7 +358,7 @@ void Display::drawChooseCharacter(){
     _tft.setFont(&InriaSans_Regular8pt7b);
         textYCoor = 120;
 
-        moleTextXCoor = calcCenterScreenText(moleText, 2) - 20;
+        moleTextXCoor = calcCenterScreenText(moleText, 2) - 70;
         _tft.setCursor(moleTextXCoor, textYCoor);
         _tft.print(moleText);
         //Draw mole character

@@ -194,7 +194,7 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
 
     switch(proc){
         case Game::startGame: {
-                score = 0; //Reset score
+                score = 0; //Reset score when recieving start game
                 display.characterMole = (data & 0x08) != 0; //set character based on bit 3
 
                 uint8_t lastThreeBits = data & 0x7; //Set difficulty based on 3 LSBs
@@ -214,7 +214,7 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
                 display.drawGame(display.selectedDifficulty);
             break;
         }
-        //TODO wanneer nieuwe game gestart wordt, wordt mol in verkeerde hol geplaatst
+
         case Game::moleUp:{
             recievedMoleHeap = data & 0xF; //Get mole heap from 4 LSBs
             //If mole is not up, draw mole
@@ -228,31 +228,33 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
         }
 
         case Game::hammerPositionHit:
-                recievedMoleHeap = data & 0xF; //Get mole heap from 4 LSBs
-                recievedHammerHitting = (data & 0x10) != 0; //Get hammer hitting from 5th LSB
+                if(display.displayedScreen == Display::game){
+                    recievedMoleHeap = data & 0xF; //Get mole heap from 4 LSBs
+                    recievedHammerHitting = (data & 0x10) != 0; //Get hammer hitting from 5th LSB
 
-                //Recieved hammers heap has changed
-                if(recievedMoleHeap != oldRecievedMoleHeap){
-                    display.drawOrRemoveHammer(oldRecievedMoleHeap, false, false); //remove cursor from old heap
-                    display.drawOrRemoveHammer(recievedMoleHeap, true, false); //draw cursor on new heap
-                }
+                    //Recieved hammers heap has changed
+                    if(recievedMoleHeap != oldRecievedMoleHeap){
+                        display.drawOrRemoveHammer(oldRecievedMoleHeap, false, false); //remove cursor from old heap
+                        display.drawOrRemoveHammer(recievedMoleHeap, true, false); //draw cursor on new heap
+                    }
 
-                //Recieved that the hammer should be hitting
-                if(recievedHammerHitting && !hammerHitting){
-                    display.drawOrRemoveHammer(recievedMoleHeap, false, false); //remove selector
-                    display.drawOrRemoveHole(recievedMoleHeap, true); //place hole
-                    display.drawOrRemoveHammer(recievedMoleHeap, true, true); //draw hitting hammer
-                    hammerHitting = true;
-                }
-                //Hammer is not hitting anymore, but it was before
-                else if(!recievedHammerHitting && hammerHitting){
-                    display.drawOrRemoveHammer(recievedMoleHeap, false, true); //remove hitting hammer
-                    display.drawOrRemoveHole(recievedMoleHeap, true); //remove hole
-                    display.drawOrRemoveHammer(recievedMoleHeap, true, false); //place selector
-                    hammerHitting = false;
-                }
+                    //Recieved that the hammer should be hitting
+                    if(recievedHammerHitting && !hammerHitting){
+                        display.drawOrRemoveHammer(recievedMoleHeap, false, false); //remove selector
+                        display.drawOrRemoveHole(recievedMoleHeap, true); //place hole
+                        display.drawOrRemoveHammer(recievedMoleHeap, true, true); //draw hitting hammer
+                        hammerHitting = true;
+                    }
+                    //Hammer is not hitting anymore, but it was before
+                    else if(!recievedHammerHitting && hammerHitting){
+                        display.drawOrRemoveHammer(recievedMoleHeap, false, true); //remove hitting hammer
+                        display.drawOrRemoveHole(recievedMoleHeap, true); //remove hole
+                        display.drawOrRemoveHammer(recievedMoleHeap, true, false); //place selector
+                        hammerHitting = false;
+                    }
 
-                oldRecievedMoleHeap = recievedMoleHeap;
+                    oldRecievedMoleHeap = recievedMoleHeap;
+                }
             break;
         
         case Game::recieveScore:
@@ -267,10 +269,8 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             break;
 
         default:
-            //Serial.println("Error: Unknown process");
             break;
     }
-
 }
 
 Game::process Game::readRecievedProcess(uint16_t data){
@@ -428,6 +428,7 @@ void Game::updateDifficulty(bool buttonPressed){
     //Start the game with the selected difficulty when button is pressed
     if(buttonPressed){
         sendStart(display.characterMole, display.selectedDifficulty); //Send start game process to other console
+        score = 0; //Reset score after choosing a character
         display.drawGame(display.selectedDifficulty);
     }
 }
