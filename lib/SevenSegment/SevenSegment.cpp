@@ -3,7 +3,7 @@
 #include <Arduino.h>
 
 // Define the digit patterns for the seven-segment display
-const uint8_t digitPattern[10] = {
+const uint8_t digitPattern[11] = {
     0b00111111, // 0
     0b00000110, // 1
     0b01011011, // 2
@@ -29,5 +29,11 @@ void SevenSegment::displayDigit(uint8_t digit) {
     }
     Wire.beginTransmission(_address);
     Wire.write(digitPattern[digit]); // Send hex digit pattern to the display
+    Wire.endTransmission();
+}
+
+void SevenSegment::clearDisplay() {
+    Wire.beginTransmission(_address);
+    Wire.write(0xFF); // Send 0 to clear the display
     Wire.endTransmission();
 }
