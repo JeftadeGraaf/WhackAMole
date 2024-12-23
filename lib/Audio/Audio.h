@@ -2,6 +2,7 @@
 #define AUDIO_H
 
 #include <avr/io.h>
+#include <Timer1Overflow.h>
 
 // volume control
 #define PWM_DUTY_CYCLE_DIVIDER 20  // divider in the context of 100/x. So a value of 2 will result in a 50% duty cycle
@@ -73,11 +74,12 @@ class Audio {
             uint8_t duration;
         };
 
+        Audio(Timer1Overflow &timer1);
+
         void init();
         void playSound(Sound sound);
         void stopSound();
         void handleTimer1ISR();
-        void setTimingVariable(uint32_t* timer1_overflow_count);
         void test_one_by_one();
     
     private:
@@ -86,7 +88,7 @@ class Audio {
         void enablePWM();
         void disablePWM();
 
-        uint32_t* timer1_overflow_count;
+        Timer1Overflow t1_class;
         
         uint8_t current_sound;
         uint16_t current_note;

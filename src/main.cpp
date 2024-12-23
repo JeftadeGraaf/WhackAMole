@@ -29,7 +29,7 @@ Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC, timer1, sevenSegment);
 // Create game object
 Game game(ir, display, timer1);
 // Create audio object
-Audio audio;
+Audio audio(timer1);
 
 
 //Interrupts
@@ -58,8 +58,6 @@ int main(void) {
 	display.refreshBacklight();
 	display.clearScreen();
     Nunchuk.init_nunchuck();
-
-    audio.setTimingVariable(timer1);
 
     ir.decodeIRMessage();
 

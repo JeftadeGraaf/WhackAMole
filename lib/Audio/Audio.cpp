@@ -1,9 +1,10 @@
 #include <Audio.h>
 #include <avr/io.h>
 #include <util/delay.h>
+#include <Timer1Overflow.h>
 
-Audio::Audio()
-    : timer1_overflow_count{0}
+Audio::Audio(Timer1Overflow &timer1)
+    : t1_class{timer1}
     , current_sound{0}
     , current_note{0}
     , remaining_note_time{0}
@@ -190,14 +191,6 @@ uint8_t Audio::freqToOCRTop(uint16_t freq) {
     return bestOcrTop;
 }
 
-void Audio::setTimingVariable(uint32_t* timer1_overflow_count) {
-    if (timer1_overflow_count == nullptr) {
-        // Handle the error, e.g., set a flag or assert
-        return;
-    }
-    this->timer1_overflow_count = timer1_overflow_count;
-}
-
 void Audio::init(){
     // Set pin 3 as output for the speaker
     DDRD |= (1 << PD3);
@@ -258,12 +251,12 @@ void Audio::disablePWM() {
 
 void Audio::audioPlayer(NoteDuration *sound_array, uint8_t sound_array_length) {
     if (!firstNoteStartTimeIsSet) {
-        note_start_time = *timer1_overflow_count;
+        note_start_time = t1_class.overflowCount;
         firstNoteStartTimeIsSet = true;
     }
 
     // Check if the current note is complete
-    if (*timer1_overflow_count - note_start_time >= sound_array[current_note].duration) {
+    if (t1_class.overflowCount - note_start_time >= sound_array[current_note].duration) {
         current_note++;
 
         if (current_note >= sound_array_length) {
@@ -271,7 +264,7 @@ void Audio::audioPlayer(NoteDuration *sound_array, uint8_t sound_array_length) {
             disablePWM();
             return;
         }
-        note_start_time = *timer1_overflow_count;  // Start the next note
+        note_start_time = t1_class.overflowCount;  // Start the next note
     }
 
     // Handle rest or note
@@ -292,7 +285,7 @@ void Audio::stopSound() {
 }
 
 void Audio::playSound(Sound sound) {
-    if (is_playing_sound || timer1_overflow_count == nullptr) {
+    if (is_playing_sound) {
         return;
     }
 
