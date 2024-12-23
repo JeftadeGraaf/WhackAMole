@@ -513,13 +513,13 @@ void Display::updateGameOver(uint8_t player_score, uint8_t opponent_score, bool 
     _tft.setCursor(calcCenterScreenText(text, 2), 90);
     _tft.print(text);
 
-        text = "Your score: " + player_score;
-        _tft.setCursor(calcCenterScreenText(text, 1), 120);
-        _tft.print(text);
+        _tft.setCursor(calcCenterScreenText(yourScoreText, 1), 120);
+        _tft.print(yourScoreText);
+        _tft.print(player_score);
 
-        text = "Opponents score: " + opponent_score;
-        _tft.setCursor(calcCenterScreenText(text, 1), 136);
-        _tft.print(text);
+        _tft.setCursor(calcCenterScreenText(opponentsScoreText, 1), 136);
+        _tft.print(opponentsScoreText);
+        _tft.print(opponent_score);
     
     //If mole won, draw mole. Else, draw hammerHori
     if(mole_win){

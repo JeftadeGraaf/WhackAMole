@@ -9,11 +9,6 @@
 #include <Timer1Overflow.h>
 #include <Audio.h>
 
-const uint16_t BAUDRATE = 9600;             //UART baud rate
-
-//Game variables
-uint16_t score = 100;
-
 //Display pins
 #define BACKLIGHT_PIN 5
 #define TFT_DC 9
@@ -50,7 +45,6 @@ ISR(TIMER0_COMPA_vect){
 int main(void) {
     sevenSegment.begin();
     timer1.init();
-    //Serial.begin(BAUDRATE);
     ir.initialize();
     sei(); // Enable global interrupts
 
@@ -75,6 +69,8 @@ int main(void) {
             uint16_t data = ir.decodeIRMessage();
             game.reactToRecievedData(data, timer1.overflowCount);
         }
+
+        _delay_ms(10);
     }
 	//never reach
 	return 0;

@@ -42,7 +42,7 @@ public:
     process readRecievedProcess(uint16_t data); //Read the process ID from the recieved data
 
     uint8_t score = 0; //Player score
-    uint8_t opponentsScore = 0; //Opponents score
+    uint8_t opponentsScore = 255; //Opponents score
     bool moleWon = false; //Saves if the mole has won after the game
 
 private:

@@ -126,6 +126,8 @@ private:
     const char scoreText[6] = "Score"; //The score text
     const char moleText[5] = "Mole"; //The mole text
     const char hammerText[7] = "Hammer"; //The hammer text
+    const char yourScoreText[13] = "Your score: "; //The your score text
+    const char opponentsScoreText[18] = "Opponents score: "; //The opponent score text
 };
 
 #endif
