@@ -78,7 +78,7 @@ public:
     uint8_t time = 60;    //starting time
     uint8_t oldScore = 0; //starting score
     uint32_t lastHammerUse = 0; //Time a hit with the hammer was performed
-    bool hammerJustHit = false; //Saves if the hammer is in the process of hitting
+    bool hammerJustHit = false; //Saves if the hammer finished hitting
     //refresh
     int _backlight_pin; //Pin of the backlight
 

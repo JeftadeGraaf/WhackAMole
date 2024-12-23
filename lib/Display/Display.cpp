@@ -189,7 +189,7 @@ void Display::drawGame(Difficulty selectedDifficulty){
 
     timer1.resetOverflow();
     gameTimeTracker = 0;
-    gameStartTime = timer1.overflowCount;
+    // gameStartTime = timer1.overflowCount;
     time = 60;
 
     //Draw sky and field
@@ -325,7 +325,7 @@ void Display::updateGameTimeScore(uint8_t score){
 
     // update time variable
     if (timer1.overflowCount - gameTimeTracker > 30) {
-        time = 60 - (timer1.overflowCount - gameStartTime) / 30;
+        time--;
         gameTimeTracker = timer1.overflowCount;
         if(time < 10){
             sevenSegment.displayDigit(time);

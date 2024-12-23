@@ -8,28 +8,20 @@
 #include <SevenSegment.h>
 #include <Timer1Overflow.h>
 
-// OCR value for Timer0, IR transmitter
-// OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
-const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
-
-const uint16_t BAUDRATE = 9600;             //UART baud rate
-
-//Game variables
-uint16_t score = 100;
-
-//Display pins
+//Display pins needed for initialization
 #define BACKLIGHT_PIN 5
 #define TFT_DC 9
 #define TFT_CS 10
 
+//Create a timer object
 Timer1Overflow timer1;
+//Create a seven segment object
 SevenSegment sevenSegment(0x21);
-
-// Instance of IR object
+//Create an IR object
 IRComm ir(timer1);
-// Create display object
+//Create a display object
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC, timer1, sevenSegment);
-// Create game object
+//Create a game object
 Game game(ir, display, timer1);
 
 //Interrupts

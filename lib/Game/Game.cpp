@@ -299,22 +299,23 @@ void Game::updateGame(bool ZPressed){
     //Dynamic Time and Score
     display.updateGameTimeScore(score);
 
-    //Read movement
+    //Change the selector position based on nunchuk input. If the hammer is hitting, the selector is blocked
     if((!display.characterMole && !display.hammerJustHit) || display.characterMole){
+        //Checks are performed to see which direction the nunchuk is moved, and if the selector is at the edge of the screen
         if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.dynamicStartX != display.Xmax){
             display.dynamicStartX += display.Xcrement; //Move right
-            display.selectedHeap += 1;
+            display.selectedHeap += 1; //Selected heap is changed to the right
         } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.dynamicStartX != display.startX){
             display.dynamicStartX -= display.Xcrement; //Move left
-            display.selectedHeap -= 1;
+            display.selectedHeap -= 1; //Selected heap is changed to the left
         }
 
         if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.dynamicStartY != display.Ymax){
             display.dynamicStartY += display.Ycrement; //Move down
-            display.selectedHeap += display.gridSize;
+            display.selectedHeap += display.gridSize; //Selected heap is changed down
         } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.dynamicStartY != display.startY){
             display.dynamicStartY -= display.Ycrement; //Move up
-            display.selectedHeap -= display.gridSize;
+            display.selectedHeap -= display.gridSize; //Selected heap is changed up
         }
     }
 
@@ -322,6 +323,7 @@ void Game::updateGame(bool ZPressed){
     if(display.characterMole){
         //Draw selector rectangle
         display._tft.drawRect(display.dynamicStartX-2, display.dynamicStartY-2, display.selectWidthHeight+4, display.selectWidthHeight+4, ILI9341_BLACK);
+        
         //If other heap is selected, remove old selector
         if(display.oldSelectedHeap != display.selectedHeap){
             display._tft.drawRect(display.oldDynamicStartX-2, display.oldDynamicStartY-2, display.selectWidthHeight+4, display.selectWidthHeight+4, ILI9341_GREEN);
@@ -335,23 +337,8 @@ void Game::updateGame(bool ZPressed){
             display.molePlacedTime = timer1.overflowCount; //Save the time the mole was placed
             display.molePlacedHeap = display.selectedHeap; //Save the heap the mole was placed in
         }
-
-        if((display.molePlaced && recievedHammerHitting) && (display.selectedHeap == recievedMoleHeap)){
-            moleWasHit = true;
-        }
-
-        //If mole is placed and time is up, remove mole
-        if(display.molePlaced && (timer1.overflowCount - display.molePlacedTime >= timeMoleUp)){ //Check if mole has been placed for 2 seconds
-            display.drawOrRemoveMole(display.molePlacedHeap, false);
-            if (!moleWasHit && (timer1.overflowCount - scoreIncrementedTime >= timeMoleUp)) {
-                score += moleAvoidPoints;
-                scoreIncrementedTime = timer1.overflowCount;
-            }
-            display.molePlaced = false;
-            moleWasHit = false;
-        }
-
         
+        moleScoreCalculator(); //Calculate the moles score based on recieved and local data
     }
 
     //If character is hammer
@@ -401,9 +388,13 @@ void Game::updateGame(bool ZPressed){
 }
 
 void Game::updateDifficulty(bool buttonPressed){
+    //Remove the old selected difficulty circle
     display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_GREEN);
+
+    //Read movement and change selected difficulty accordingly
+    //If joystick is moved down, move the circle down and change the difficulty to the value under it
     if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.selectedDifficulty != Display::sixteen){
-        //move down
+        //move down by changing the Y value of the circle
         display.difficultyCircleY += 50;
         //When moving down, change the difficulty to the value under it
         if(display.selectedDifficulty == Display::four){
@@ -412,10 +403,11 @@ void Game::updateDifficulty(bool buttonPressed){
         else if(display.selectedDifficulty == Display::nine){
             display.selectedDifficulty = Display::sixteen;
         }
+    //If joystick is moved up, move the circle up and change the difficulty to the value above it
     } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.selectedDifficulty != Display::four){
         //move up
         display.difficultyCircleY -= 50;
-        //When moving down, change the difficulty to the value above it
+        //When moving up, change the difficulty to the value above it
         if(display.selectedDifficulty == Display::sixteen){
             display.selectedDifficulty = Display::nine;
         }
@@ -423,17 +415,19 @@ void Game::updateDifficulty(bool buttonPressed){
             display.selectedDifficulty = Display::four;
         }
     }
+    //Place the new selected difficulty circle
     display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_BLACK);
 
     //Start the game with the selected difficulty when button is pressed
     if(buttonPressed){
-        sendStart(display.characterMole, display.selectedDifficulty); //Send start game process to other console
+        sendStart(display.characterMole, display.selectedDifficulty); //Send start game process to other console, contains character and difficulty
         score = 0; //Reset score after choosing a character
-        display.drawGame(display.selectedDifficulty);
+        display.drawGame(display.selectedDifficulty); //Draw the game screen with the selected difficulty
     }
 }
 
 void Game::loopRecievedProcess(){
+    //This process needs to be looped because of the time check
     if(proc == moleUp){
         if((recievedMoleIsUp && display.hammerJustHit) &&
         (display.selectedHeap == recievedMoleHeap) &&
@@ -448,12 +442,30 @@ void Game::loopRecievedProcess(){
             recievedMoleIsUp = false;
         }
     }
-
 }
 
 void Game::gameOver(){
-//Reset variables for next game
+    //Reset variables for next game
     display.selectedHeap = 0;
     display.oldSelectedHeap = 0;
     display.drawGameOverMenu();
+}
+
+void Game::moleScoreCalculator(){
+    //If mole is placed and the hammer is hitting the same hole, the mole was hit
+    if((display.molePlaced && recievedHammerHitting) && (display.selectedHeap == recievedMoleHeap)){
+        moleWasHit = true;
+    }
+
+    //If mole is placed and time is up, remove mole
+    if(display.molePlaced && (timer1.overflowCount - display.molePlacedTime >= timeMoleUp)){
+        display.drawOrRemoveMole(display.molePlacedHeap, false); //Remove the placed mole
+        //If the mole wasn't hit, increment the score
+        if (!moleWasHit && (timer1.overflowCount - scoreIncrementedTime >= timeMoleUp)) {
+            score += moleAvoidPoints;
+            scoreIncrementedTime = timer1.overflowCount; //Avoid score incrementing multiple times
+        }
+        display.molePlaced = false;
+        moleWasHit = false;
+    }
 }
