@@ -1,7 +1,7 @@
 #ifndef TIMER1OVERFLOW_H
 #define TIMER1OVERFLOW_H
 
-#include <Arduino.h>
+#include <avr/io.h>
 
 class Timer1Overflow {
 public:

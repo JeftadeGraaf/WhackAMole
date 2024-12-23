@@ -1,7 +1,7 @@
 #ifndef IR_COMM_H
 #define IR_COMM_H
 
-#include <Arduino.h>
+#include <avr/io.h>
 #include <Timer1Overflow.h>
 
 class IRComm

@@ -166,7 +166,6 @@ void IRComm::processBuffer(uint8_t buffer_idx)
         else
         {
             buffer_ready_flags[buffer_idx] = false;
-            // Serial.println("Invalid bit detected");
             return;
         }
 
@@ -188,7 +187,6 @@ void IRComm::validateFrame()
     // Validate start bits
     if (!(decoded_frame[0] && decoded_frame[1]))
     {
-        Serial.println("Start bit error");
         return;
     }
 
@@ -201,7 +199,6 @@ void IRComm::validateFrame()
 
     if (parity_check != decoded_frame[14])
     {
-        Serial.println("Parity error");
         return;
     }
 
@@ -259,13 +256,6 @@ void IRComm::sendFrame(uint16_t data)
 
     // Stop sending and turn off the IR LED
     stopSending();
-
-    // Optionally, you can print the frame for debugging
-    Serial.print("Sending frame: ");
-    for (int i = 0; i < 16; i++) {
-        Serial.print(tx_frame[i]);
-    }
-    Serial.println();
 }
 
 void IRComm::createFrame(uint16_t data, bool (&frame)[16])
