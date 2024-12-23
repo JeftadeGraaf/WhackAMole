@@ -1,7 +1,7 @@
 #ifndef SEVENSEGMENT_H
 #define SEVENSEGMENT_H
 
-#include <Arduino.h>
+#include <avr/io.h>
 
 class SevenSegment {
 public:

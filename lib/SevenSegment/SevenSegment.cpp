@@ -1,6 +1,6 @@
 #include <SevenSegment.h>
 #include <Wire.h>
-#include <Arduino.h>
+#include <avr/io.h>
 
 // Define the digit patterns for the seven-segment display
 const uint8_t digitPattern[11] = {
