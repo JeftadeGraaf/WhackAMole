@@ -80,9 +80,9 @@ int main(void) {
     
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
-        display.refreshBacklight();
+        // display.refreshBacklight();
 
-        game.buttonListener();
+        // game.buttonListener();
 
         // if(ir.isBufferReady()){
         //     uint16_t data = ir.decodeIRMessage();
@@ -93,7 +93,7 @@ int main(void) {
 
         // _delay_ms(10);
 
-        audio.playSound(Audio::Sound::ThemeSong1);
+        audio.test_one_by_one();
     }
 	//never reach
 	return 0;
