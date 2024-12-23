@@ -1,5 +1,6 @@
 #include "Display.h"
 #include "Nunchuk.h"
+#include "Audio.h"
 
 uint32_t gameTimeTracker = 0;
 uint32_t gameStartTime = 0;

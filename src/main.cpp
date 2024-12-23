@@ -7,8 +7,14 @@
 #include <Game.h>
 #include <SevenSegment.h>
 #include <Timer1Overflow.h>
+#include <Audio.h>
 
-//Display pins needed for initialization
+const uint16_t BAUDRATE = 9600;             //UART baud rate
+
+//Game variables
+uint16_t score = 100;
+
+//Display pins
 #define BACKLIGHT_PIN 5
 #define TFT_DC 9
 #define TFT_CS 10
@@ -23,6 +29,9 @@ IRComm ir(timer1);
 Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC, timer1, sevenSegment);
 //Create a game object
 Game game(ir, display, timer1);
+// Create audio object
+Audio audio(timer1);
+
 
 //Interrupts
 ISR(INT0_vect){
@@ -31,6 +40,7 @@ ISR(INT0_vect){
 
 ISR(TIMER1_OVF_vect){
     timer1.onTimer1Overflow();
+    audio.handleTimer1ISR();
 }
 
 ISR(TIMER0_COMPA_vect){
@@ -53,6 +63,8 @@ int main(void) {
     ir.decodeIRMessage();
 
     display.drawStartMenu(); //Draw the initial screen
+
+    audio.playSound(Audio::Sound::StartUp);
     
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
