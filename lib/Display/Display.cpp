@@ -3,7 +3,6 @@
 #include "Audio.h"
 
 uint32_t gameTimeTracker = 0;
-uint32_t gameStartTime = 0;
 
 // Combined palette converted to RGB565 format
 const uint16_t combined_palette[82] = {
@@ -190,7 +189,6 @@ void Display::drawGame(Difficulty selectedDifficulty){
 
     timer1.resetOverflow();
     gameTimeTracker = 0;
-    // gameStartTime = timer1.overflowCount;
     time = 60;
 
     //Draw sky and field
@@ -326,7 +324,7 @@ void Display::updateGameTimeScore(uint8_t score){
 
     // update time variable
     if (timer1.overflowCount - gameTimeTracker > 30) {
-        time--;
+        time = 60 - ((timer1.overflowCount) / 30);
         gameTimeTracker = timer1.overflowCount;
         if(time < 10){
             sevenSegment.displayDigit(time);
