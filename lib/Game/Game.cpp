@@ -324,7 +324,11 @@ void Game::updateGame(bool ZPressed){
         display._tft.drawRect(display.dynamicStartX-2, display.dynamicStartY-2, display.selectWidthHeight+4, display.selectWidthHeight+4, ILI9341_BLACK);
         //If other heap is selected, remove old selector
         if(display.oldSelectedHeap != display.selectedHeap){
-            display._tft.drawRect(display.oldDynamicStartX-2, display.oldDynamicStartY-2, display.selectWidthHeight+4, display.selectWidthHeight+4, ILI9341_GREEN);
+            display.redrawBackGround(display.oldDynamicStartX, display.oldDynamicStartY, display.selectWidthHeight, display.selectWidthHeight);
+            display.drawOrRemoveHole(display.oldSelectedHeap, true);
+            if(display.molePlaced){
+                display.drawOrRemoveMole(display.molePlacedHeap, true);
+            }
         }
 
         //If Z is pressed and mole is not placed, draw mole
@@ -402,7 +406,7 @@ void Game::updateGame(bool ZPressed){
 
 void Game::updateDifficulty(bool buttonPressed){
     if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.selectedDifficulty != Display::sixteen){
-        display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_GREEN);
+        display.redrawBackGround(display.difficultyCircleX - 5, display.difficultyCircleY - 5, 10, 10);
         //move down
         display.difficultyCircleY += 50;
         //When moving down, change the difficulty to the value under it
@@ -414,7 +418,7 @@ void Game::updateDifficulty(bool buttonPressed){
         }
         display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_BLACK);
     } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.selectedDifficulty != Display::four){
-        display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_GREEN);
+        display.redrawBackGround(display.difficultyCircleX - 5, display.difficultyCircleY - 5, 10, 10);
         //move up
         display.difficultyCircleY -= 50;
         //When moving down, change the difficulty to the value above it

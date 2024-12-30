@@ -113,9 +113,11 @@ public:
 
     Timer1Overflow &timer1; //Instance of the timer1 overflow object
     SevenSegment &sevenSegment; //Instance of the seven segment object
+
+    void redrawBackGround(uint16_t x, uint8_t y, uint8_t width, uint8_t height);
 private:
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
-    
+
     const uint32_t SCREEN_WIDTH = 320; //Displays screen width
     const uint16_t SCREEN_HEIGHT = 240; //Displays screen height
     const uint8_t picturePixelSize = 8; //the size per pixel of used images

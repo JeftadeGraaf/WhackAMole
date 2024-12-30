@@ -158,7 +158,7 @@ void Display::init() {
 void Display::refreshBacklight() {
     PORTD |= (1<<_backlight_pin);
     // if(!(ADCSRA & (1<<ADSC))){
-    //     // OCR0B = ADCH;
+         // OCR0B = ADCH;
     // }
 
     // ADCSRA |= (1<<ADSC);
@@ -273,7 +273,7 @@ void Display::drawOrRemoveMole(uint8_t heapNumber, bool draw) {
         drawPixelArray(*mole, multiplySize, xPos, yPos, 8, 8);
         drawPixelArray(*hole, multiplySize, xPos, yPos + 4*multiplySize, 8, 4);
     } else {
-        _tft.fillRect(xPos, yPos, selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
+        redrawBackGround(xPos, yPos, selectWidthHeight, selectWidthHeight);
         drawPixelArray(*hole, multiplySize, xPos, yPos + 4*multiplySize, 8, 4);
     }
 }
@@ -291,12 +291,12 @@ void Display::drawOrRemoveHammer(uint8_t heapNumber, bool draw, bool horizontal)
         }
     } else {
         if(!horizontal){
-            _tft.fillRect(xPos  + (picturePixelSize * multiplySize), yPos, (picturePixelSize * multiplySize), (picturePixelSize * multiplySize), ILI9341_GREEN);
+            redrawBackGround(xPos  + (picturePixelSize * multiplySize), yPos, (picturePixelSize * multiplySize), (picturePixelSize * multiplySize));
             drawPixelArray(*hole, multiplySize, xPos, yPos + 4*multiplySize, 8, 4);
         }
         else{
             drawPixelArray(*hole, multiplySize, xPos, yPos + 4*multiplySize, 8, 4);
-            _tft.fillRect(xPos + (2 * multiplySize), yPos - multiplySize, (picturePixelSize * multiplySize), (picturePixelSize * multiplySize), ILI9341_GREEN);
+            redrawBackGround(xPos + (2 * multiplySize), yPos - multiplySize, (picturePixelSize * multiplySize), (picturePixelSize * multiplySize));
         }
     }
 }
@@ -308,7 +308,7 @@ void Display::drawOrRemoveHole(uint8_t heapNumber, bool draw) {
     if (draw) {
         drawPixelArray(*hole, multiplySize, xPos, yPos + 4*multiplySize, 8, 4);
     } else {
-        _tft.fillRect(xPos, yPos, selectWidthHeight, selectWidthHeight, ILI9341_GREEN);
+        redrawBackGround(xPos, yPos, selectWidthHeight, selectWidthHeight);
     }
 }
 
@@ -602,6 +602,39 @@ void Display::drawPixelField(uint8_t y){
 
             // Draw the rectangle with the random green shade
             _tft.fillRect(i * backgroundPixelSize, j * backgroundPixelSize, backgroundPixelSize, backgroundPixelSize, color);
+        }
+    }
+}
+
+void Display::redrawBackGround(uint16_t x, uint8_t y, uint8_t width, uint8_t height) {
+    int xRounded = ((x-2) / 10) * 10; // Round down to the nearest 10
+    int yRounded = ((y-2) / 10) * 10; // Round down to the nearest 10
+
+    int xRounded2 = ((x-2 + width + 4 + 9) / 10) * 10; // Round up to the nearest 10
+    int yRounded2 = ((y-2 + height + 4 + 9) / 10) * 10; // Round up to the nearest 10
+
+    width = xRounded2 - xRounded;
+    height = yRounded2 - yRounded;
+
+    // Iterate over the grid based on the specified width and height
+    for (uint16_t j = yRounded / backgroundPixelSize; j < (height + yRounded) / backgroundPixelSize; j++) {
+        // Ensure we don't go out of bounds of backgroundBitmap
+        if (j >= 24) break;
+
+        uint64_t row = backgroundBitmap[j];
+
+        for (uint16_t i = xRounded / backgroundPixelSize; i < (width + xRounded) / backgroundPixelSize; i++) {
+            // Calculate square's top-left corner position using the original method
+            uint16_t xPos = i * backgroundPixelSize;
+            uint16_t yPos = j * backgroundPixelSize;
+
+            uint64_t mask = 0x3ULL << (62 - i * 2); // Exact same mask as original
+            uint8_t extractedBits = (row & mask) >> (62 - i * 2); // Exact same bit extraction
+
+            uint16_t color = greenBiasedColors[extractedBits];
+
+            // Draw the square
+            _tft.fillRect(xPos, yPos, backgroundPixelSize, backgroundPixelSize, color);
         }
     }
 }
