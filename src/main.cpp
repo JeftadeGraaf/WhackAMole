@@ -66,7 +66,7 @@ int main(void) {
     display.drawStartMenu(); //Draw the initial screen
 
     audio.init();
-    audio.playSound(Audio::Sound::StartUp);
+    //audio.playSound(Audio::Sound::StartUp);
     
 	while (1) {
         // Refresh the backlight (simulate brightness adjustments)
