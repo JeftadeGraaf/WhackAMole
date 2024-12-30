@@ -114,7 +114,6 @@ public:
     Timer1Overflow &timer1; //Instance of the timer1 overflow object
     SevenSegment &sevenSegment; //Instance of the seven segment object
 private:
-    int calcCenterScreenText(String text, uint8_t textSize); //Used to calculate the center of the screen for a given text
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
     
     const uint32_t SCREEN_WIDTH = 320; //Displays screen width
@@ -128,6 +127,22 @@ private:
     const char scoreText[6] = "Score"; //The score text
     const char moleText[5] = "Mole"; //The mole text
     const char hammerText[7] = "Hammer"; //The hammer text
+
+    const uint64_t backgroundBitmap[24] PROGMEM = {
+        0xC8A6D57B93E1F04A, 0x1D5E7A2C0B9F4638, 0x7E3D9B1F6C5A2048, 0x4B1E0D8F3A6C7592,
+        0x9F2B8C1D6E5A0437, 0x3D8E1B5F7A2C0649, 0x1F0C5A2E8D7B9364, 0x6C5A1D3E7B9F0428,
+        0xE9B4F16D2C8A5037, 0x5A1D3E7B9F0C8642, 0x8D1B5F3A6C7E2049, 0x2C8A6D1B5F3E9074,
+        0x7B4F1D9E3A6C8502, 0x1D3E7B9F0C5A2846, 0x6C8A2D1B5F3E9074, 0xF1D2E8B4C7A5036,
+        0x4A1D3E7B9F0C8652, 0x9E3A6C8D1B5F2074, 0x2C8A6D1B5F3E9074, 0x7B4F1D9E3A6C8502,
+        0xD2E8B4C7A5F1036, 0x5A1D3E7B9F0C8642, 0x8D1B5F3A6C7E2049, 0xE9B4F16D2C8A5037
+    };  //The background bitmap
+
+   const uint16_t greenBiasedColors[4] = {
+        0x07E0,  // Base green color
+        0x0760,  // Slightly darker green
+        0x07C0,  // Slightly lighter green
+        0x0620   // Muted green with more blue
+    };
 };
 
 #endif

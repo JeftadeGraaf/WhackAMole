@@ -11,9 +11,9 @@ public:
 
 private:
     // Hex digit patterns for the 7-segment display (common anode)
-    const uint8_t digitPattern[10] = {
+    const uint8_t digitPattern[11] = {
         0xC0, 0xF9, 0xA4, 0xB0, 0x99, 0x92, 0x82, 0xF8,
-        0x80, 0x90
+        0x80, 0x90, 0xFF
     };
     uint8_t _address;
 };

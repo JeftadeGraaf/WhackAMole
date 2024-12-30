@@ -4,7 +4,7 @@
 uint32_t gameTimeTracker = 0;
 
 // Combined palette converted to RGB565 format
-const uint16_t combined_palette[82] = {
+const PROGMEM uint16_t combined_palette[82] = {
     0x0000,     // 0  - Black (shared)
     0xFFFF,     // 1  - Original mole[1]
     0x1082,     // 2  - Original mole[2]
@@ -177,7 +177,7 @@ void Display::drawPixelArray(const uint8_t *pixels, uint8_t pixelSize,
             int yPos = yStart + y * pixelSize;
             
             // Use pre-converted color directly from the palette
-            _tft.fillRect(xPos, yPos, pixelSize, pixelSize, combined_palette[pixelIndex]);
+            _tft.fillRect(xPos, yPos, pixelSize, pixelSize, pgm_read_word(&combined_palette[pixelIndex]));
         }
     }
 }
@@ -193,7 +193,7 @@ void Display::drawGame(Difficulty selectedDifficulty){
 
     //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
-    drawPixelField(37);
+    drawPixelField(40);
 
     //Write text
     _tft.setFont(&IrishGrover_Regular8pt7b);
@@ -345,8 +345,8 @@ void Display::updateGameTimeScore(uint8_t score){
 void Display::drawChooseCharacter(){
     displayedScreen = chooseCharacter;
     //Draw sky and field
-    _tft.fillRect(0, 0, SCREEN_WIDTH, 155, SKY_BLUE);
-    drawPixelField(155);
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 150, SKY_BLUE);
+    drawPixelField(150);
 
     //Write text
     _tft.setFont(&IrishGrover_Regular8pt7b);
@@ -359,12 +359,12 @@ void Display::drawChooseCharacter(){
     _tft.setFont(&InriaSans_Regular8pt7b);
         textYCoor = 120;
 
-        moleTextXCoor = calcCenterScreenText(moleText, 2) - 20;
+        moleTextXCoor = calcCenterScreenText(moleText, 2) - 70;
         _tft.setCursor(moleTextXCoor, textYCoor);
         _tft.print(moleText);
         //Draw mole character
         drawPixelArray(*mole, 8, moleTextXCoor, 150, 8, 8);
-        drawPixelArray(*hole, 8, moleTextXCoor, 192, 8, 4);
+        drawPixelArray(*hole, 8, moleTextXCoor, 190, 8, 4);
 
         _tft.setTextSize(2);
         _tft.getTextBounds(hammerText, 0, 0, &x1, &y1, &textWidth, &textHeight);
@@ -410,8 +410,8 @@ void Display::updateChooseCharacter(bool buttonPressed){
 void Display::drawDifficulty(){
     displayedScreen = difficulty;
     //Draw sky and field
-    _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
-    drawPixelField(37);
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 40, SKY_BLUE);
+    drawPixelField(40);
 
     //Write text
     _tft.setFont(&IrishGrover_Regular8pt7b);
@@ -438,8 +438,8 @@ void Display::drawDifficulty(){
 void Display::drawStartMenu(){
     displayedScreen = startMenu;
     //Draw sky and field
-    _tft.fillRect(0, 0, SCREEN_WIDTH, 155, SKY_BLUE);
-    drawPixelField(155);
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 150, SKY_BLUE);
+    drawPixelField(150);
 
     _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);
 
@@ -491,8 +491,8 @@ void Display::updateStartMenu(bool buttonPressed){
 void Display::drawGameOverMenu(){
     displayedScreen = gameOver;
     //Draw sky and field
-    _tft.fillRect(0, 0, SCREEN_WIDTH, 37, SKY_BLUE);
-    drawPixelField(37);
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 40, SKY_BLUE);
+    drawPixelField(40);
 
     //Write text
     _tft.setFont(&IrishGrover_Regular8pt7b);
@@ -546,8 +546,8 @@ void Display::updateGameOver(uint8_t player_score, uint8_t opponent_score, bool 
 void Display::drawHighscores(){
     displayedScreen = highscores;
     //Draw sky and field
-    _tft.fillRect(0, 0, SCREEN_WIDTH, 189, SKY_BLUE);
-    drawPixelField(189);
+    _tft.fillRect(0, 0, SCREEN_WIDTH, 190, SKY_BLUE);
+    drawPixelField(190);
 
     //Write text
     _tft.setFont(&IrishGrover_Regular8pt7b);
@@ -591,19 +591,17 @@ int Display::calcCenterScreenText(const char* text, uint8_t textSize){
 }
 
 void Display::drawPixelField(uint8_t y){
-    for(uint16_t j = 0; j < SCREEN_HEIGHT / backgroundPixelSize; j++){
-        for (uint16_t i = 0; i < SCREEN_WIDTH / backgroundPixelSize; i++)
-        {
-            // Generate random RGB values biased towards green
-            uint8_t red = 32 + rand() % 32;     // Red: 32 to 63 (brighter)
-            uint8_t green = 200 + rand() % 56;  // Green: 200 to 255 (dominant)
-            uint8_t blue = 16 + rand() % 32;    // Blue: 16 to 47 (reduced range)
+    for(uint16_t j = y / backgroundPixelSize; j < SCREEN_HEIGHT / backgroundPixelSize; j++){
+        uint64_t row = backgroundBitmap[j];
+        for (uint16_t i = 0; i < SCREEN_WIDTH / backgroundPixelSize; i++){
+           
+            uint64_t mask = 0x3ULL << (62 - i * 2); // Create a mask with 2 bits set at the desired index
+            uint8_t extractedBits = (row & mask) >> (62 - i * 2); // Extract the 2 bits using the mask and shift them to the right
 
-            // Convert to RGB565
-            uint16_t color = ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
+            uint16_t color  = greenBiasedColors[extractedBits];
 
             // Draw the rectangle with the random green shade
-            _tft.fillRect(i * backgroundPixelSize, y + j * backgroundPixelSize, backgroundPixelSize, backgroundPixelSize, color);
+            _tft.fillRect(i * backgroundPixelSize, j * backgroundPixelSize, backgroundPixelSize, backgroundPixelSize, color);
         }
     }
 }

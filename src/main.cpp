@@ -64,6 +64,7 @@ int main(void) {
     ir.decodeIRMessage();
 
     display.drawStartMenu(); //Draw the initial screen
+    sevenSegment.displayDigit(10);
 
     audio.init();
     //audio.playSound(Audio::Sound::StartUp);
