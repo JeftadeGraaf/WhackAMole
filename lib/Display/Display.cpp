@@ -420,13 +420,13 @@ void Display::drawDifficulty(){
 
     _tft.setFont(&InriaSans_Regular8pt7b);
         _tft.setTextSize(3);
-        _tft.setCursor(25, 80);
+        _tft.setCursor(30, 80);
         _tft.print("4 holes");
 
-        _tft.setCursor(25, 130);
+        _tft.setCursor(30, 130);
         _tft.print("9 holes");
 
-        _tft.setCursor(25, 180);
+        _tft.setCursor(30, 180);
         _tft.print("16 holes");
 
     _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_BLACK);
