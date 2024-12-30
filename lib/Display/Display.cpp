@@ -382,11 +382,11 @@ void Display::updateChooseCharacter(bool buttonPressed){
     //Selection logic
     if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && characterMole == true){
         characterMole = false; //Move right
+        _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);
     } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && characterMole == false){
         characterMole = true; //Move left
+        _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);
     }
-
-    _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);
 
     //Change selection coördinates
     uint8_t x = 0;
@@ -398,7 +398,6 @@ void Display::updateChooseCharacter(bool buttonPressed){
         text = hammerText;
         x = hammerTextXCoor;
     }
-    _tft.setTextSize(2);
     _tft.getTextBounds(text, x, textYCoor, &x1, &y1, &textWidth, &textHeight);
     _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, ILI9341_BLACK);
 
@@ -430,6 +429,8 @@ void Display::drawDifficulty(){
         _tft.setCursor(25, 180);
         _tft.print("16 holes");
 
+    _tft.fillCircle(difficultyCircleX, difficultyCircleY, 5, ILI9341_BLACK);
+
     drawPixelArray(*mole, 10, 210, 50, 8, 8);
     drawPixelArray(*hole, 10, 210, 170, 8, 4);
 }
@@ -439,6 +440,8 @@ void Display::drawStartMenu(){
     //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 155, SKY_BLUE);
     drawPixelField(155);
+
+    _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);
 
     //Write text
     _tft.setFont(&IrishGrover_Regular8pt7b);
@@ -463,17 +466,19 @@ void Display::drawStartMenu(){
 }
 
 void Display::updateStartMenu(bool buttonPressed){
-    _tft.fillCircle(startCircleX, startCircleY, 5, SKY_BLUE);
     if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && startButtonSelected){
+        _tft.fillCircle(startCircleX, startCircleY, 5, SKY_BLUE);
         //move down
         startCircleY += 35;
         startButtonSelected = false;
+        _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);
     } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && !startButtonSelected){
+        _tft.fillCircle(startCircleX, startCircleY, 5, SKY_BLUE);
         //move up
         startCircleY -= 35;
         startButtonSelected = true;
+        _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);
     }
-    _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);
 
     if(buttonPressed && startButtonSelected){
         drawChooseCharacter();
@@ -578,7 +583,7 @@ void Display::drawHighscores(){
         }
 }
 
-int Display::calcCenterScreenText(String text, uint8_t textSize){
+int Display::calcCenterScreenText(const char* text, uint8_t textSize){
     _tft.setTextSize(textSize);
     _tft.getTextBounds(text, 0, 0, &x1, &y1, &textWidth, &textHeight);
     // Center the text on the screen

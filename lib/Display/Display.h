@@ -42,6 +42,8 @@ public:
     void drawStartMenu(); //Draw the start menu
     void drawHighscores(); //Draw the highscores screen
 
+    int calcCenterScreenText(const char *text, uint8_t textSize);
+
     void clearScreen(); //Turn screen black
 
     enum Screens {

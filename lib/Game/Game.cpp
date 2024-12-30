@@ -401,8 +401,8 @@ void Game::updateGame(bool ZPressed){
 }
 
 void Game::updateDifficulty(bool buttonPressed){
-    display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_GREEN);
     if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.selectedDifficulty != Display::sixteen){
+        display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_GREEN);
         //move down
         display.difficultyCircleY += 50;
         //When moving down, change the difficulty to the value under it
@@ -412,7 +412,9 @@ void Game::updateDifficulty(bool buttonPressed){
         else if(display.selectedDifficulty == Display::nine){
             display.selectedDifficulty = Display::sixteen;
         }
+        display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_BLACK);
     } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.selectedDifficulty != Display::four){
+        display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_GREEN);
         //move up
         display.difficultyCircleY -= 50;
         //When moving down, change the difficulty to the value above it
@@ -422,8 +424,8 @@ void Game::updateDifficulty(bool buttonPressed){
         else if(display.selectedDifficulty == Display::nine){
             display.selectedDifficulty = Display::four;
         }
+        display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_BLACK);
     }
-    display._tft.fillCircle(display.difficultyCircleX, display.difficultyCircleY, 5, ILI9341_BLACK);
 
     //Start the game with the selected difficulty when button is pressed
     if(buttonPressed){
