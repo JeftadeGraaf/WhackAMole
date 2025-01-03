@@ -15,6 +15,7 @@ void Timer1Overflow::init() {
 void Timer1Overflow::onTimer1Overflow() {
     IROverflowCount++;
     overflowCount++;
+    joystickDebounceCount++;
 }
 
 void Timer1Overflow::resetIR() {
@@ -23,4 +24,8 @@ void Timer1Overflow::resetIR() {
 
 void Timer1Overflow::resetOverflow() {
     overflowCount = 0;
+}
+
+void Timer1Overflow::resetJoystickDebounce() {
+    joystickDebounceCount = 0;
 }

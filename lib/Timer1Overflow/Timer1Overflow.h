@@ -11,8 +11,11 @@ public:
     void resetIR();
     void resetOverflow();
 
+    void resetJoystickDebounce();
+
     uint32_t overflowCount = 0;
     uint16_t IROverflowCount = 0;
+   uint16_t joystickDebounceCount = 0; 
 };
 
 #endif // TIMER1OVERFLOW_H
