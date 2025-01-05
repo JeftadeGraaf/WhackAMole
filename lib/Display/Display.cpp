@@ -3,130 +3,119 @@
 
 uint32_t gameTimeTracker = 0;
 
-// Combined palette converted to RGB565 format
-const uint16_t combined_palette[82] PROGMEM = {
-    0x0000,     // 0  - Black (shared)
-    0xFFFF,     // 1  - Original mole[1]
-    0x1082,     // 2  - Original mole[2]
-    0xA427,     // 3  - Original mole[3]
-    0x6AA5,     // 4  - Original mole[4]
-    0xAD11,     // 5  - Original mole[5]
-    0xA4F0,     // 6  - Original mole[6]
-    0xCD8F,     // 7  - Original mole[7]
-    0x9BA6,     // 8  - Original mole[8]
-    0x8B65,     // 9  - Original mole[9]
-    0x82E3,     // 10 - Original mole[10]
-    0xE6D8,     // 11 - Original mole[11]
-    0xC52B,     // 12 - Original mole[12]
-    0x3144,     // 13 - Original mole[13]
-    0xEF5C,     // 14 - Original mole[14]
-    0xD5D1,     // 15 - Original mole[15]
-    0xB489,     // 16 - Original mole[16]
-    0x8BA9,     // 17 - Original mole[17]
-    0x9386,     // 18 - Original mole[18]
-    0x8368,     // 19 - Original mole[19]
-    0x8325,     // 20 - Original mole[20]
-    0x8B23,     // 21 - Original mole[21]
-    0x8303,     // 22 - Original mole[22]
-    0x8B23,     // 23 - Original mole[23]
-    0x82E3,     // 24 - Original mole[24]
-    0xCD6E,     // 25 - Original mole[25]
-    0x7AC2,     // 26 - Original mole[26]
-    0x5204,     // 27 - Original mole[27]
-    0x5A02,     // 28 - Original mole[28]
-    0x5A43,     // 29 - Original mole[29]
-    0x41C7,     // 30 - Original mole[30]
-    0x51E2,     // 31 - Original mole[31]
-    0x59E1,     // 32 - Original mole[32]
-    0x59E1,     // 33 - Original mole[33]
-    0x49A0,     // 34 - Original mole[34]
-    0x3166,     // 35 - Original mole[35]
-    0x2124,     // 36 - Original mole[36]
-    0x2124,     // 37 - Original mole[37]
-    0x3920,     // 38 - Original mole[38]
-    0x20C3,     // 39 - Original mole[39]
-    0x0000,     // 40 - Original mole[0]
-    0x6A20,     // 41 - Original hole[1]
-    0x59E0,     // 42 - Original hole[2]
-    0x59E0,     // 43 - Original hole[3]
-    0x6A41,     // 44 - Original hole[4]
-    0x6A20,     // 45 - Original hole[5]
-    0x4160,     // 46 - Original hole[6]
-    0x59E1,     // 47 - Original hole[7]
-    0x3120,     // 48 - Original hole[8]
-    0x3180,     // 49 - Original hole[9]
-    0x6221,     // 50 - Original hole[10]
-    0x4180,     // 51 - Original hole[11]
-    0x3120,     // 52 - Original hole[12]
-    0x3120,     // 53 - Original hole[13]
-    0x3920,     // 54 - Original hole[14]
-    0x28E0,     // 55 - Original hole[15]
-    0x3800,     // 56 - Original hammer[1]
-    0xFE42,     // 57 - Original hammer[2]
-    0xFDA3,     // 58 - Original hammer[3]
-    0xFD03,     // 59 - Original hammer[4]
-    0xFD23,     // 60 - Original hammer[5]
-    0xFCA3,     // 61 - Original hammer[6]
-    0xF4A3,     // 62 - Original hammer[7]
-    0xF463,     // 63 - Original hammer[8]
-    0xF423,     // 64 - Original hammer[9]
-    0xFBE3,     // 65 - Original hammer[10]
-    0xF986,     // 66 - Original hammer[11]
-    0xEEA2,     // 67 - Original hammer[12]
-    0xAB45,     // 68 - Original hammer[13]
-    0x938B,     // 69 - Original hammer[14]
-    0x8287,     // 70 - Original hammer[15]
-    0xFFFB,     // 71 - Original hammer[16]
-    0x7226,     // 72 - Original hammer[17]
-    0x5984,     // 73 - Original hammer[18]
-    0x59C4,     // 74 - Original hammer[19]
-    0x5123,     // 75 - Original hammer[20]
-    0x5000,     // 76 - Original hammer[21]
-    0x38E0,     // 77 - Original hammer[22]
-    0xAC4E,     // 78 - Original hammer[23]
-    0x3800,     // 79 - Original hammer[24]
-    0x02AA      // 80 - Original hammer[25]
+// Combined palette in direct hex values (RGB565 format)
+const uint16_t combined_palette[] PROGMEM = {
+    0x0000,  // 0  - Black
+    0xFFFF,  // 1  - White
+    0x1082,  // 2  - Grayish Blue
+    0xA427,  // 3  - Light Brown
+    0x6AA5,  // 4  - Grayish Teal
+    0xAD11,  // 5  - Pink-Brown
+    0xA4F0,  // 6  - Mauve
+    0xCD8F,  // 7  - Light Pink
+    0x9BA6,  // 8  - Grayish Purple
+    0x8B65,  // 9  - Dull Purple
+    0x82E3,  // 10 - Gray-Brown
+    0xE6D8,  // 11 - Light Pink-White
+    0xC52B,  // 12 - Pink
+    0x3144,  // 13 - Dark Gray-Blue
+    0xEF5C,  // 14 - Light Pink
+    0xD5D1,  // 15 - Light Gray-Pink
+    0xB489,  // 16 - Grayish Pink
+    0x8BA9,  // 17 - Gray-Purple
+    0x9386,  // 18 - Dull Pink
+    0x8368,  // 19 - Gray
+    0x8325,  // 20 - Dark Gray
+    0x8B23,  // 21 - Purple-Gray
+    0x8303,  // 22 - Dark Gray
+    0xCD6E,  // 23 - Light Pink
+    0x7AC2,  // 24 - Gray-Blue
+    0x5204,  // 25 - Dark Blue-Gray
+    0x5A02,  // 26 - Dark Gray-Blue
+    0x5A43,  // 27 - Gray-Blue
+    0x41C7,  // 28 - Dark Blue
+    0x51E2,  // 29 - Blue-Gray
+    0x59E1,  // 30 - Gray-Blue
+    0x49A0,  // 31 - Dark Gray-Blue
+    0x3166,  // 32 - Very Dark Blue
+    0x2124,  // 33 - Darkest Blue
+    0x3920,  // 34 - Dark Blue-Black
+    0x20C3,  // 35 - Almost Black Blue
+    0x6A20,  // 36 - Medium Gray-Blue
+    0x59E0,  // 37 - Light Gray-Blue
+    0x6A41,  // 38 - Blue-Tinted Gray
+    0x4160,  // 39 - Dark Gray-Blue
+    0x3120,  // 40 - Very Dark Blue
+    0x3180,  // 41 - Dark Blue-Gray
+    0x6221,  // 42 - Medium Blue-Gray
+    0x4180,  // 43 - Dark Gray-Blue
+    0x3920,  // 44 - Very Dark Blue
+    0x28E0,  // 45 - Darkest Gray-Blue
+    0x3800,  // 46 - Almost Black Blue
+    0xFE42,  // 47 - Near White
+    0xFDA3,  // 48 - Very Light Pink
+    0xFD03,  // 49 - Light Pink-White
+    0xFD23,  // 50 - Light Pink
+    0xFCA3,  // 51 - Light Pink-Gray
+    0xF4A3,  // 52 - Light Gray-Pink
+    0xF463,  // 53 - Gray-Pink
+    0xF423,  // 54 - Pink-Gray
+    0xFBE3,  // 55 - Very Light Pink
+    0xF986,  // 56 - Light Gray-Pink
+    0xEEA2,  // 57 - Gray-Pink
+    0xAB45,  // 58 - Medium Gray
+    0x938B,  // 59 - Dark Gray
+    0x8287,  // 60 - Very Dark Gray
+    0xFFFB,  // 61 - Almost White
+    0x7226,  // 62 - Medium Gray
+    0x5984,  // 63 - Dark Gray-Blue
+    0x59C4,  // 64 - Blue-Gray
+    0x5123,  // 65 - Dark Blue-Gray
+    0x5000,  // 66 - Very Dark Blue
+    0x38E0,  // 67 - Darkest Blue
+    0xAC4E,  // 68 - Light Gray
+    0x02AA   // 69 - Very Dark Blue-Green
 };
 
-// Updated mole sprite with new indices
+// Mole sprite (8x8)
 const uint8_t mole[8][8] PROGMEM = {
-    {0, 13, 31, 10, 24, 35, 13, 0},
-    {36, 4, 17, 6, 6, 19, 4, 2},
-    {0, 21, 16, 5, 5, 3, 21, 2},
-    {32, 29, 15, 14, 14, 7, 26, 28},
-    {4, 21, 11, 1, 1, 11, 8, 20},
-    {9, 12, 7, 1, 1, 7, 12, 18},
-    {25, 8, 22, 3, 3, 10, 9, 27},
-    {0, 2, 0, 30, 30, 0, 0, 0}
+    {0, 13, 29, 10, 19, 32, 13, 0},   // Row 0
+    {33, 4, 17, 6, 6, 17, 4, 2},      // Row 1
+    {0, 21, 16, 5, 5, 3, 21, 2},      // Row 2
+    {30, 27, 15, 14, 14, 7, 24, 26},  // Row 3
+    {4, 21, 11, 1, 1, 11, 8, 20},     // Row 4
+    {9, 12, 7, 1, 1, 7, 12, 18},      // Row 5
+    {23, 8, 22, 3, 3, 10, 9, 25},     // Row 6
+    {0, 2, 0, 28, 28, 0, 0, 0}        // Row 7
 };
 
-// Updated hole sprite - using original hole colors
+// Hole sprite (4x8)
 const uint8_t hole[4][8] PROGMEM = {
-    {0, 0, 0, 44, 44, 53, 52, 48},    // Making sure black is 0, keeping other hole colors at original indices
-    {47, 47, 50, 45, 41, 45, 46, 55},
-    {42, 42, 41, 41, 41, 41, 46, 48},
-    {51, 42, 43, 41, 41, 43, 48, 52}
+    {0, 0, 0, 38, 38, 40, 43, 40},    // Row 0
+    {37, 37, 42, 36, 36, 36, 39, 45}, // Row 1
+    {37, 37, 36, 36, 36, 36, 39, 40}, // Row 2
+    {43, 37, 37, 36, 36, 37, 40, 43}  // Row 3
 };
 
-// Updated hammer horizontal - using original hammer colors
+// Hammer horizontal sprite (5x8)
 const uint8_t hammerHori[5][8] PROGMEM = {
-    {76, 74, 80, 0, 0, 0, 0, 0},      // Making sure black is 0, keeping other hammer colors at original indices
-    {56, 73, 70, 65, 64, 63, 61, 62},
-    {56, 75, 68, 59, 60, 58, 57, 67},
-    {79, 72, 69, 0, 0, 0, 0, 0},
-    {77, 78, 71, 0, 0, 0, 0, 0}
+    {66, 64, 69, 0, 0, 0, 0, 0},      // Row 0
+    {46, 63, 60, 55, 54, 53, 51, 52}, // Row 1
+    {46, 65, 58, 49, 50, 48, 47, 57}, // Row 2
+    {46, 62, 59, 0, 0, 0, 0, 0},      // Row 3
+    {67, 68, 61, 0, 0, 0, 0, 0}       // Row 4
 };
 
-// Updated hammer vertical - using original hammer colors
+// Hammer vertical sprite (8x5)
 const uint8_t hammerVert[8][5] PROGMEM = {
-    {77, 79, 56, 56, 76},
-    {78, 72, 75, 73, 74},
-    {71, 69, 68, 70, 80},
-    {0, 0, 59, 65, 0},
-    {0, 0, 60, 64, 0},
-    {0, 0, 58, 63, 0},
-    {0, 0, 57, 61, 0},
-    {0, 0, 67, 62, 0}
+    {67, 46, 46, 46, 66},             // Row 0
+    {68, 62, 65, 63, 64},             // Row 1
+    {61, 59, 58, 60, 69},             // Row 2
+    {0, 0, 49, 55, 0},                // Row 3
+    {0, 0, 50, 54, 0},                // Row 4
+    {0, 0, 48, 53, 0},                // Row 5
+    {0, 0, 47, 51, 0},                // Row 6
+    {0, 0, 57, 52, 0}                 // Row 7
 };
 
 
@@ -275,11 +264,10 @@ void Display::drawOrRemoveMole(uint8_t heapNumber, bool draw) {
     
     if (draw) {
         drawPixelArray(*mole, multiplySize, xPos, yPos, 8, 8);
-        drawPixelArray(*hole, multiplySize, xPos, yPos + 4*multiplySize, 8, 4);
     } else {
         redrawBackGround(xPos, yPos, selectWidthHeight, selectWidthHeight);
-        drawPixelArray(*hole, multiplySize, xPos, yPos + 4*multiplySize, 8, 4);
     }
+    drawPixelArray(*hole, multiplySize, xPos, yPos + 4*multiplySize, 8, 4);
 }
 
 void Display::drawOrRemoveHammer(uint8_t heapNumber, bool draw, bool horizontal) {

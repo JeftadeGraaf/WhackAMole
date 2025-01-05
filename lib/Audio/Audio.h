@@ -78,7 +78,6 @@ class Audio {
         void playSound(Sound sound);
         void stopSound();
         void handleTimer1ISR();
-        void setTimingVariable(uint32_t* timer1_overflow_count);
         void test_one_by_one();
     
     private:

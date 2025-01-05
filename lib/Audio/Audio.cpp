@@ -299,6 +299,11 @@ void Audio::playSound(Sound sound) {
     current_sound = sound;
 }
 
+void Audio::stopSound() {
+    is_playing_sound = false;
+    disablePWM();
+}
+
 void Audio::test_one_by_one() {
     while (1) {
         _delay_ms(1000);
