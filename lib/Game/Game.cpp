@@ -300,21 +300,27 @@ void Game::updateGame(bool ZPressed){
     display.updateGameTimeScore(score);
 
     //Read movement
-    if((!display.characterMole && !display.hammerJustHit) || display.characterMole){
-        if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.dynamicStartX != display.Xmax){
-            display.dynamicStartX += display.Xcrement; //Move right
-            display.selectedHeap += 1;
-        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.dynamicStartX != display.startX){
-            display.dynamicStartX -= display.Xcrement; //Move left
-            display.selectedHeap -= 1;
-        }
+    if((!display.characterMole && !display.hammerPlaced) || display.characterMole){
+        if(timer1.joystickDebounceCount > 5){
+            if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.dynamicStartX != display.Xmax){
+                display.dynamicStartX += display.Xcrement; //Move right
+                display.selectedHeap += 1;
+                timer1.resetJoystickDebounce();
+            } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.dynamicStartX != display.startX){
+                display.dynamicStartX -= display.Xcrement; //Move left
+                display.selectedHeap -= 1;
+                timer1.resetJoystickDebounce();
+            }
 
-        if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.dynamicStartY != display.Ymax){
-            display.dynamicStartY += display.Ycrement; //Move down
-            display.selectedHeap += display.gridSize;
-        } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.dynamicStartY != display.startY){
-            display.dynamicStartY -= display.Ycrement; //Move up
-            display.selectedHeap -= display.gridSize;
+            if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && display.dynamicStartY != display.Ymax){
+                display.dynamicStartY += display.Ycrement; //Move down
+                display.selectedHeap += display.gridSize;
+                timer1.resetJoystickDebounce();
+            } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && display.dynamicStartY != display.startY){
+                display.dynamicStartY -= display.Ycrement; //Move up
+                display.selectedHeap -= display.gridSize;
+                timer1.resetJoystickDebounce();
+            }
         }
     }
 
@@ -361,15 +367,15 @@ void Game::updateGame(bool ZPressed){
     //If character is hammer
     else{
         //If the hammers movement is not blocked
-        if (timer1.overflowCount - display.lastHammerUse >= timeHammerDown) { // 30 overflows ≈ 1 second
+        if (timer1.overflowCount - display.hammerPlacedTime >= timeHammerDown) { // 30 overflows ≈ 1 second
             //If hammer finished hitting
-            if(display.hammerJustHit){
+            if(display.hammerPlaced){
                 //Remove horizontal hammer
                 display.drawOrRemoveHammer(display.selectedHeap, false, true);
                 //Place selector hammer and hole
                 display.drawOrRemoveHammer(display.selectedHeap, true, false);
                 display.drawOrRemoveHole(display.selectedHeap, true);
-                display.hammerJustHit = false;
+                display.hammerPlaced = false;
             }
             //If other heap is selected
             if(display.oldSelectedHeap != display.selectedHeap){
@@ -380,18 +386,18 @@ void Game::updateGame(bool ZPressed){
             }
             if(ZPressed) {
                 // Update last usage timestamp
-                display.lastHammerUse = timer1.overflowCount;
+                display.hammerPlacedTime = timer1.overflowCount;
             }
         }
         //If the hammer is blocked
-        else if(!display.hammerJustHit){
+        else if(!display.hammerPlaced){
             //Remove selector hammer
             display.drawOrRemoveHammer(display.selectedHeap, false, false);
             // Perform hammer action
             display.drawOrRemoveHammer(display.selectedHeap, true, true);
-            display.hammerJustHit = true;
+            display.hammerPlaced = true;
         }
-        sendHammerMove(display.selectedHeap, display.hammerJustHit); //Send hammer position to other console
+        sendHammerMove(display.selectedHeap, display.hammerPlaced); //Send hammer position to other console
     }
 
     display.oldSelectedHeap = display.selectedHeap;
@@ -440,7 +446,7 @@ void Game::updateDifficulty(bool buttonPressed){
 
 void Game::loopRecievedProcess(){
     if(proc == moleUp){
-        if((recievedMoleIsUp && display.hammerJustHit) &&
+        if((recievedMoleIsUp && display.hammerPlaced) &&
         (display.selectedHeap == recievedMoleHeap) &&
         (timer1.overflowCount - scoreIncrementedTime >= timeHammerDown)){
             score += hammerHitMolePoints;

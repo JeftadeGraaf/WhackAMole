@@ -79,8 +79,10 @@ public:
     //updateGame() variables
     uint8_t time = 60;    //starting time
     uint8_t oldScore = 0; //starting score
-    uint32_t lastHammerUse = 0; //Time a hit with the hammer was performed
-    bool hammerJustHit = false; //Saves if the hammer is in the process of hitting
+    bool hammerPlaced = false; //If mole is placed
+    uint32_t hammerPlacedTime; //Time mole is placed
+    uint8_t hammerPlacedHeap; //Heap mole is placed in
+    uint8_t hammerSelectedHeap;
     //refresh
     int _backlight_pin; //Pin of the backlight
 
@@ -115,6 +117,9 @@ public:
     SevenSegment &sevenSegment; //Instance of the seven segment object
 
     void redrawBackGround(uint16_t x, uint8_t y, uint8_t width, uint8_t height);
+
+    // Declare debounce variables (e.g., global or static)
+    const uint8_t debounceDelay = 5;
 private:
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
 

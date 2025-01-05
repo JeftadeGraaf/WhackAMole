@@ -258,6 +258,10 @@ void Display::drawGame(Difficulty selectedDifficulty){
     dynamicStartX      = startX;
     dynamicStartY      = startY;
     selectWidthHeight = picturePixelSize * multiplySize;
+
+    if(!characterMole){
+        drawOrRemoveHammer(selectedHeap, true, false);
+    }
 }
 
 void Display::calculateHeapPosition(uint8_t heapNumber, uint16_t& xPos, uint16_t& yPos) {
@@ -378,14 +382,18 @@ void Display::drawChooseCharacter(){
         drawPixelArray(*hammerHori, 8, x * 2 + 10, 150, 8, 5);
 }
 
-void Display::updateChooseCharacter(bool buttonPressed){
-    //Selection logic
-    if(Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && characterMole == true){
-        characterMole = false; //Move right
-        _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);
-    } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && characterMole == false){
-        characterMole = true; //Move left
-        _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);
+void Display::updateChooseCharacter(bool buttonPressed){  
+    // Selection logic with debounce
+    if(timer1.joystickDebounceCount > 5){
+        if (Nunchuk.state.joy_x_axis > Nunchuk.centerValue + Nunchuk.deadzone && characterMole == true) {
+            characterMole = false; // Move right
+            _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);
+            timer1.resetJoystickDebounce(); // Update last move time
+        } else if (Nunchuk.state.joy_x_axis < Nunchuk.centerValue - Nunchuk.deadzone && characterMole == false) {
+            characterMole = true; // Move left
+            _tft.drawRect(x1 - 4, y1 - 4, textWidth + 8, textHeight + 8, SKY_BLUE);
+            timer1.resetJoystickDebounce(); // Update last move time
+        }
     }
 
     //Change selection coördinates
@@ -466,24 +474,46 @@ void Display::drawStartMenu(){
 }
 
 void Display::updateStartMenu(bool buttonPressed){
-    if(Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && startButtonSelected){
-        _tft.fillCircle(startCircleX, startCircleY, 5, SKY_BLUE);
-        //move down
-        startCircleY += 35;
-        startButtonSelected = false;
-        _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);
-    } else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && !startButtonSelected){
-        _tft.fillCircle(startCircleX, startCircleY, 5, SKY_BLUE);
-        //move up
-        startCircleY -= 35;
-        startButtonSelected = true;
-        _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);
+    // Selection logic with debounce
+    if (timer1.joystickDebounceCount > 5) {
+        // Moving down
+        if (Nunchuk.state.joy_y_axis < Nunchuk.centerValue - Nunchuk.deadzone && startButtonSelected == true) {
+            // Clear the current selection
+            _tft.fillCircle(startCircleX, startCircleY, 5, SKY_BLUE);
+
+            // Update the selector's position and state
+            startCircleY += 35; // Move the selector down
+            startButtonSelected = false;
+
+            // Redraw the selector in the new position
+            _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);
+
+            // Reset the debounce counter
+            timer1.resetJoystickDebounce();
+        }
+        // Moving up
+        else if (Nunchuk.state.joy_y_axis > Nunchuk.centerValue + Nunchuk.deadzone && startButtonSelected == false) {
+            // Clear the current selection
+            _tft.fillCircle(startCircleX, startCircleY, 5, SKY_BLUE);
+
+            // Update the selector's position and state
+            startCircleY -= 35; // Move the selector up
+            startButtonSelected = true;
+
+            // Redraw the selector in the new position
+            _tft.fillCircle(startCircleX, startCircleY, 5, ILI9341_BLACK);
+
+            // Reset the debounce counter
+            timer1.resetJoystickDebounce();
+        }
     }
 
-    if(buttonPressed && startButtonSelected){
+
+
+    // Button press handling
+    if (buttonPressed && startButtonSelected) {
         drawChooseCharacter();
-    }
-    else if(buttonPressed && !startButtonSelected){
+    } else if (buttonPressed && !startButtonSelected) {
         drawHighscores();
     }
 }
