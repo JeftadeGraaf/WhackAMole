@@ -366,38 +366,61 @@ void Game::updateGame(bool ZPressed){
 
     //If character is hammer
     else{
-        //If the hammers movement is not blocked
-        if (timer1.overflowCount - display.hammerPlacedTime >= timeHammerDown) { // 30 overflows ≈ 1 second
-            //If hammer finished hitting
-            if(display.hammerPlaced){
-                //Remove horizontal hammer
-                display.drawOrRemoveHammer(display.selectedHeap, false, true);
-                //Place selector hammer and hole
-                display.drawOrRemoveHammer(display.selectedHeap, true, false);
-                display.drawOrRemoveHole(display.selectedHeap, true);
+        // If the hammer is currently placed
+        if (display.hammerPlaced)
+        {
+            if (timer1.overflowCount - display.hammerPlacedTime >= timeHammerDown)
+            {
+                // Remove the horizontal hammer
+                display.drawOrRemoveHammer(display.hammerPlacedHeap, false, true);
+
+                // Place a hole where the hammer was
+                display.drawOrRemoveHole(display.hammerPlacedHeap, true);
+
+                display.drawOrRemoveHammer(display.hammerPlacedHeap, true, false);
+
+                // Reset hammer state
                 display.hammerPlaced = false;
             }
-            //If other heap is selected
-            if(display.oldSelectedHeap != display.selectedHeap){
-                //remove old selector
-                display.drawOrRemoveHammer(display.oldSelectedHeap, false, false);
-                //Draw selector hammer
+            else
+            {
+                // Hammer still active; do not process further actions
+                return;
+            }
+        }
+
+        // If Z is pressed and the hammer is not already placed
+        if (ZPressed)
+        {
+            // Remove the selector hammer from the current heap
+            display.drawOrRemoveHammer(display.selectedHeap, false, false);
+
+            // Place the horizontal hammer (hammer hit action)
+            display.drawOrRemoveHammer(display.selectedHeap, true, true);
+
+            // Update hammer state
+            display.hammerPlaced = true;
+            display.hammerPlacedTime = timer1.overflowCount;
+            display.hammerPlacedHeap = display.selectedHeap;
+        }
+
+        // Handle heap selection changes
+        if (display.selectedHeap != display.oldSelectedHeap)
+        {
+            // Remove any existing selector hammer from the old heap
+            display.drawOrRemoveHammer(display.oldSelectedHeap, false, false);
+
+            // If Z is pressed, ensure the horizontal hammer is displayed correctly on the new heap
+            if (ZPressed)
+            {
+                display.drawOrRemoveHammer(display.selectedHeap, true, true);
+            }
+            else
+            {
+                // Draw the selector hammer on the new heap
                 display.drawOrRemoveHammer(display.selectedHeap, true, false);
             }
-            if(ZPressed) {
-                // Update last usage timestamp
-                display.hammerPlacedTime = timer1.overflowCount;
-            }
         }
-        //If the hammer is blocked
-        else if(!display.hammerPlaced){
-            //Remove selector hammer
-            display.drawOrRemoveHammer(display.selectedHeap, false, false);
-            // Perform hammer action
-            display.drawOrRemoveHammer(display.selectedHeap, true, true);
-            display.hammerPlaced = true;
-        }
-        sendHammerMove(display.selectedHeap, display.hammerPlaced); //Send hammer position to other console
     }
 
     display.oldSelectedHeap = display.selectedHeap;
