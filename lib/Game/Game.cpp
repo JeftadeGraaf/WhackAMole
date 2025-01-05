@@ -219,10 +219,16 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             recievedMoleHeap = data & 0xF; //Get mole heap from 4 LSBs
             //If mole is not up, draw mole
             if(!recievedMoleIsUp){
+            if (display.hammerPlaced && display.hammerPlacedHeap == recievedMoleHeap) {
+                // Draw the mole under the hammer
                 display.drawOrRemoveMole(recievedMoleHeap, true);
-                recievedMoleIsUp = true;
-                processCurrentTime = timer1.overflowCount;
-                oldRecievedMoleHeap = recievedMoleHeap;
+                display.drawOrRemoveHammer(recievedMoleHeap, true, true);
+            } else {
+                display.drawOrRemoveMole(recievedMoleHeap, true);
+            }
+            recievedMoleIsUp = true;
+            processCurrentTime = timer1.overflowCount;
+            oldRecievedMoleHeap = recievedMoleHeap;
             }
             break;
         }
@@ -327,7 +333,10 @@ void Game::updateGame(bool ZPressed){
     //If character is mole
     if(display.characterMole){
         //Draw selector rectangle
-        display._tft.drawRect(display.dynamicStartX-2, display.dynamicStartY-2, display.selectWidthHeight+4, display.selectWidthHeight+4, ILI9341_BLACK);
+        uint16_t dynamicStartX = display.dynamicStartX;
+        uint16_t dynamicStartY = display.dynamicStartY;
+        display.calculateHeapPosition(display.selectedHeap, dynamicStartX, dynamicStartY);
+        display._tft.drawRect(dynamicStartX-2, dynamicStartY-2, display.selectWidthHeight+4, display.selectWidthHeight+4, ILI9341_BLACK);
         //If other heap is selected, remove old selector
         if(display.oldSelectedHeap != display.selectedHeap){
             display.redrawBackGround(display.oldDynamicStartX, display.oldDynamicStartY, display.selectWidthHeight, display.selectWidthHeight);
@@ -478,7 +487,20 @@ void Game::loopRecievedProcess(){
         //If mole is up, check if it has been up for 2 seconds
         if(recievedMoleIsUp && (timer1.overflowCount - processCurrentTime >= timeMoleUp)) {
             //Remove mole after 2 seconds
-            display.drawOrRemoveMole(oldRecievedMoleHeap, false);
+            if(oldRecievedMoleHeap == display.hammerPlacedHeap){
+                if(display.hammerPlaced){
+                    display.drawOrRemoveHammer(oldRecievedMoleHeap, false, true);
+                    display.drawOrRemoveMole(oldRecievedMoleHeap, false);
+                    display.drawOrRemoveHole(oldRecievedMoleHeap, true);
+                    display.drawOrRemoveHammer(oldRecievedMoleHeap, true, true);
+                } else {
+                    display.drawOrRemoveHammer(oldRecievedMoleHeap, false, false);
+                    display.drawOrRemoveMole(oldRecievedMoleHeap, false);
+                    display.drawOrRemoveHammer(oldRecievedMoleHeap, true, false);
+                }
+            } else {
+                display.drawOrRemoveMole(oldRecievedMoleHeap, false);
+            }
             recievedMoleIsUp = false;
         }
     }

@@ -444,6 +444,7 @@ void Display::drawDifficulty(){
 }
 
 void Display::drawStartMenu(){
+    sevenSegment.displayDigit(10);
     displayedScreen = startMenu;
     //Draw sky and field
     _tft.fillRect(0, 0, SCREEN_WIDTH, 150, SKY_BLUE);
@@ -549,7 +550,7 @@ void Display::updateGameOver(uint8_t player_score, uint8_t opponent_score, bool 
         calcCenterScreenText(text, 1);
         _tft.setCursor(SCREEN_WIDTH/2 - textWidth, 120);
         _tft.print(text);
-
+    
         _tft.setCursor(SCREEN_WIDTH/2 + 10, 120); 
         _tft.print(player_score);      
 
