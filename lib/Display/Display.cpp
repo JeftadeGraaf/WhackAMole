@@ -4,7 +4,7 @@
 uint32_t gameTimeTracker = 0;
 
 // Combined palette converted to RGB565 format
-const PROGMEM uint16_t combined_palette[82] = {
+const uint16_t combined_palette[82] PROGMEM = {
     0x0000,     // 0  - Black (shared)
     0xFFFF,     // 1  - Original mole[1]
     0x1082,     // 2  - Original mole[2]
@@ -89,7 +89,7 @@ const PROGMEM uint16_t combined_palette[82] = {
 };
 
 // Updated mole sprite with new indices
-const uint8_t mole[8][8] = {
+const uint8_t mole[8][8] PROGMEM = {
     {0, 13, 31, 10, 24, 35, 13, 0},
     {36, 4, 17, 6, 6, 19, 4, 2},
     {0, 21, 16, 5, 5, 3, 21, 2},
@@ -101,7 +101,7 @@ const uint8_t mole[8][8] = {
 };
 
 // Updated hole sprite - using original hole colors
-const uint8_t hole[4][8] = {
+const uint8_t hole[4][8] PROGMEM = {
     {0, 0, 0, 44, 44, 53, 52, 48},    // Making sure black is 0, keeping other hole colors at original indices
     {47, 47, 50, 45, 41, 45, 46, 55},
     {42, 42, 41, 41, 41, 41, 46, 48},
@@ -109,7 +109,7 @@ const uint8_t hole[4][8] = {
 };
 
 // Updated hammer horizontal - using original hammer colors
-const uint8_t hammerHori[5][8] = {
+const uint8_t hammerHori[5][8] PROGMEM = {
     {76, 74, 80, 0, 0, 0, 0, 0},      // Making sure black is 0, keeping other hammer colors at original indices
     {56, 73, 70, 65, 64, 63, 61, 62},
     {56, 75, 68, 59, 60, 58, 57, 67},
@@ -118,7 +118,7 @@ const uint8_t hammerHori[5][8] = {
 };
 
 // Updated hammer vertical - using original hammer colors
-const uint8_t hammerVert[8][5] = {
+const uint8_t hammerVert[8][5] PROGMEM = {
     {77, 79, 56, 56, 76},
     {78, 72, 75, 73, 74},
     {71, 69, 68, 70, 80},
@@ -164,12 +164,12 @@ void Display::refreshBacklight() {
     // ADCSRA |= (1<<ADSC);
 }
 
-// Draw a pixelarray with its corresponding palette
-void Display::drawPixelArray(const uint8_t *pixels, uint8_t pixelSize, 
+void Display::drawPixelArray(const uint8_t *pixels PROGMEM, uint8_t pixelSize, 
                            int xStart, int yStart, int xSize, int ySize) {
     for (int y = 0; y < ySize; y++) {
         for (int x = 0; x < xSize; x++) {
-            uint8_t pixelIndex = *(pixels + y * xSize + x);
+            // Read pixel from PROGMEM
+            uint8_t pixelIndex = pgm_read_byte(pixels + y * xSize + x);
             
             if (pixelIndex == 0) continue; // Skip black pixels
 

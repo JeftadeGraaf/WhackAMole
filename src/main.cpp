@@ -78,7 +78,7 @@ int main(void) {
             uint16_t data = ir.decodeIRMessage();
             game.reactToRecievedData(data, timer1.overflowCount);
         }
-        //audio.playSound(Audio::Sound::ThemeSong1);
+        audio.playSound(Audio::Sound::ThemeSong0);
         
         _delay_ms(10);
     }
