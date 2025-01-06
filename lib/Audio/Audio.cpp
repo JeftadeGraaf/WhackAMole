@@ -13,9 +13,6 @@ Audio::Audio(Timer1Overflow &timer1)
     , firstNoteStartTimeIsSet{false}
 
     // note, duration [in 32ms ticks]
-    , buttonPress{
-        NoteDuration{C4, NOTELENGTH_SHORT}
-        } 
     , startUp{
         NoteDuration{C4, NOTELENGTH_SHORT},
         NoteDuration{E4, NOTELENGTH_SHORT},
@@ -23,11 +20,11 @@ Audio::Audio(Timer1Overflow &timer1)
         NoteDuration{C5, NOTELENGTH_SHORT}
     }
     , gameOver{
-        NoteDuration{G4, NOTELENGTH_MEDIUM},
-        NoteDuration{FS4, NOTELENGTH_MEDIUM},
-        NoteDuration{F4, NOTELENGTH_MEDIUM},
-        NoteDuration{E4, NOTELENGTH_MEDIUM},
-        NoteDuration{DS4, NOTELENGTH_MEDIUM}
+        NoteDuration{G3, NOTELENGTH_MEDIUM},
+        NoteDuration{FS3, NOTELENGTH_MEDIUM},
+        NoteDuration{F3, NOTELENGTH_MEDIUM},
+        NoteDuration{E3, NOTELENGTH_MEDIUM},
+        NoteDuration{DS3, NOTELENGTH_MEDIUM}
     }
     , gameWin{
         NoteDuration{C4, NOTELENGTH_MEDIUM},
@@ -38,10 +35,6 @@ Audio::Audio(Timer1Overflow &timer1)
     , moleUp{
         NoteDuration{C4, NOTELENGTH_SHORT},
         NoteDuration{G4, NOTELENGTH_SHORT}
-    }
-    , moleDown{
-        NoteDuration{G4, NOTELENGTH_SHORT},
-        NoteDuration{C4, NOTELENGTH_SHORT}
     }
     , hammerHit{
         NoteDuration{G4, NOTELENGTH_SHORT},
@@ -79,24 +72,6 @@ Audio::Audio(Timer1Overflow &timer1)
         NoteDuration{REST, NOTELENGTH_MEDIUM},
         NoteDuration{G3, NOTELENGTH_MEDIUM},
         NoteDuration{REST, NOTELENGTH_MEDIUM}
-    }
-    , themeSong1{
-        NoteDuration{C5, NOTELENGTH_MEDIUM},
-        NoteDuration{REST, NOTELENGTH_MEDIUM},
-        NoteDuration{C5, NOTELENGTH_MEDIUM},
-        NoteDuration{REST, NOTELENGTH_MEDIUM},
-        NoteDuration{D5, NOTELENGTH_MEDIUM},
-        NoteDuration{REST, NOTELENGTH_MEDIUM},
-        NoteDuration{D5, NOTELENGTH_MEDIUM},
-        NoteDuration{REST, NOTELENGTH_MEDIUM},
-
-        NoteDuration{G5, NOTELENGTH_DOTTED_MEDIUM},
-        NoteDuration{E5, NOTELENGTH_MEDIUM},
-        NoteDuration{C5, NOTELENGTH_MEDIUM},
-        NoteDuration{REST, 24}, // rest for 3 mediums
-
-        NoteDuration{REST, 64} // rest for 8 mediums / 1 bar
-
     }
 {
     this->timer1 = &timer1;
@@ -211,9 +186,6 @@ void Audio::handleTimer1ISR() {
     }
 
     switch (current_sound) {
-        case ButtonPress:
-            audioPlayer(buttonPress, buttonPress_LENGTH);
-            break;
         case StartUp:
             audioPlayer(startUp, startUp_LENGTH);
             break;
@@ -226,9 +198,6 @@ void Audio::handleTimer1ISR() {
         case MoleUp:
             audioPlayer(moleUp, moleUp_LENGTH);
             break;
-        case MoleDown:
-            audioPlayer(moleDown, moleDown_LENGTH);
-            break;
         case HammerHit:
             audioPlayer(hammerHit, hammerHit_LENGTH);
             break;
@@ -237,9 +206,6 @@ void Audio::handleTimer1ISR() {
             break;
         case ThemeSong0:
             audioPlayer(themeSong0, themeSong0_LENGTH);
-            break;
-        case ThemeSong1:
-            audioPlayer(themeSong1, themeSong1_LENGTH);
             break;
     }
 }
@@ -264,8 +230,7 @@ void Audio::audioPlayer(NoteDuration *sound_array, uint8_t sound_array_length) {
         current_note++;
 
         if (current_note >= sound_array_length) {
-            is_playing_sound = false;  // End of sound is reached, stop playback
-            disablePWM();
+            stopSound();
             return;
         }
         note_start_time = timer1->overflowCount;  // Start the next note
@@ -307,8 +272,6 @@ void Audio::stopSound() {
 void Audio::test_one_by_one() {
     while (1) {
         _delay_ms(1000);
-        playSound(ButtonPress);
-        _delay_ms(1000);
         playSound(StartUp);
         _delay_ms(1000);
         playSound(GameOver);
@@ -316,8 +279,6 @@ void Audio::test_one_by_one() {
         playSound(GameWin);
         _delay_ms(1000);
         playSound(MoleUp);
-        _delay_ms(1000);
-        playSound(MoleDown);
         _delay_ms(1000);
         playSound(HammerHit);
         _delay_ms(1000);

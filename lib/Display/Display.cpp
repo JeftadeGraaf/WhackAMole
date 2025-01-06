@@ -120,8 +120,8 @@ const uint8_t hammerVert[8][5] PROGMEM = {
 
 
 // Initialize the display
-Display::Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1, SevenSegment &sevenSegment)
-    : _tft(tft_cs, tft_dc), sevenSegment(sevenSegment), timer1(timer1) {
+Display::Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1, SevenSegment &sevenSegment, Audio &audio)
+    : _tft(tft_cs, tft_dc), sevenSegment(sevenSegment), timer1(timer1), audio(audio) {
     // Constructor
     _backlight_pin = backlight_pin;
 }
@@ -172,6 +172,7 @@ void Display::drawPixelArray(const uint8_t *pixels PROGMEM, uint8_t pixelSize,
 }
 
 void Display::drawGame(Difficulty selectedDifficulty){
+    audio.stopSound();
     displayedScreen = game;
     gameOverUpdated = false;
     this->characterMole = characterMole;
@@ -524,9 +525,11 @@ void Display::updateGameOver(uint8_t player_score, uint8_t opponent_score, bool 
     //If player won
     if(player_score > opponent_score){
         text = "You Won!";
+        audio.playSound(Audio::Sound::GameWin);
     }
     else if (player_score < opponent_score){
         text = "You Lost!";
+        audio.playSound(Audio::Sound::GameOver);
     }
     else{
         text = "It's a tie!";

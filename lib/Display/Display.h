@@ -6,17 +6,19 @@
 #include "Fonts/IrishGrover_Regular8pt7b.h"
 #include <Timer1Overflow.h>
 #include <SevenSegment.h>
+#include <Audio.h>
 
 #include <SPI.h>
 
 class Display {
 public:
-    Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1, SevenSegment &sevenSegment);
+    Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1, SevenSegment &sevenSegment, Audio &audio);
     void init(); //Initialize the display
     void refreshBacklight(); //Change the brightness of the display based on the potmeter value
     void updateGameTimeScore(uint8_t score); //Update the time and score in the game screen
     // void updateGame(uint8_t score, bool buttonPressed); //Update the game, hammer position, mole position, score and time
     void updateChooseCharacter(bool buttonPressed); //Update the choose character menu based on user input
+    void drawSelectionRect(bool isSelected);
     // void updateDifficulty(bool buttonPressed); //Update the difficulty menu based on user input
     void updateStartMenu(bool buttonPressed); //Update the startmenu based on user input
 
@@ -115,6 +117,7 @@ public:
 
     Timer1Overflow &timer1; //Instance of the timer1 overflow object
     SevenSegment &sevenSegment; //Instance of the seven segment object
+    Audio &audio; //Instance of the audio object
 
     void redrawBackGround(uint16_t x, uint8_t y, uint8_t width, uint8_t height);
 

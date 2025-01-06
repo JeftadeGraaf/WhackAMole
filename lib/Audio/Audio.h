@@ -12,16 +12,13 @@
 #define NOTELENGTH_DOTTED_MEDIUM 12
 #define NOTELENGTH_LONG 16
 
-#define buttonPress_LENGTH 1
 #define startUp_LENGTH 4
 #define gameOver_LENGTH 5
 #define gameWin_LENGTH 4
 #define moleUp_LENGTH 2
-#define moleDown_LENGTH 2
 #define hammerHit_LENGTH 2
 #define hammerMiss_LENGTH 2
 #define themeSong0_LENGTH 24
-#define themeSong1_LENGTH 13
 
 class Audio {
     public:
@@ -29,10 +26,8 @@ class Audio {
         
         enum Sound : uint8_t {
             ThemeSong0 = 0,
-            ThemeSong1 = 1,
 
             MoleUp = 2,
-            MoleDown = 3,
 
             HammerHit = 4,
             HammerMiss = 5,
@@ -40,7 +35,6 @@ class Audio {
             GameOver = 6,
             GameWin = 7,
 
-            ButtonPress = 8,
             StartUp = 9
         };
 
@@ -52,6 +46,12 @@ class Audio {
             C3 = 131,
             D3 = 147,
             G3 = 196,
+
+            FS3 = 185,
+            F3 = 174,
+            E3 = 165,
+            DS3 = 155,
+            
 
             C4 = 262,
             D4 = 294,
@@ -96,16 +96,13 @@ class Audio {
 
         Timer1Overflow* timer1;
 
-        NoteDuration buttonPress[buttonPress_LENGTH];
         NoteDuration startUp[startUp_LENGTH];
         NoteDuration gameOver[gameOver_LENGTH];
         NoteDuration gameWin[gameWin_LENGTH];
         NoteDuration moleUp[moleUp_LENGTH];
-        NoteDuration moleDown[moleDown_LENGTH];
         NoteDuration hammerHit[hammerHit_LENGTH];
         NoteDuration hammerMiss[hammerMiss_LENGTH];
         NoteDuration themeSong0[themeSong0_LENGTH];
-        NoteDuration themeSong1[themeSong1_LENGTH];
 
 };
 

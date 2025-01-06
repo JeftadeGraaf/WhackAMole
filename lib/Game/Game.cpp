@@ -3,10 +3,11 @@
 #include "Game.h"
 
 // Constructor
-Game::Game(IRComm &ir, Display &display, Timer1Overflow &timer1) :
+Game::Game(IRComm &ir, Display &display, Timer1Overflow &timer1, Audio &audio) :
     ir(ir),
     display(display),
-    timer1(timer1)
+    timer1(timer1),
+    audio(audio)
     {
 }
 
@@ -155,11 +156,13 @@ void Game::buttonListener() {
             break;
 
         case Display::startMenu:
+            audio.playSound(Audio::Sound::ThemeSong0);
             //Update selection
             display.updateStartMenu(ZPressed);
             break;
 
         case Display::chooseCharacter:
+            audio.playSound(Audio::Sound::ThemeSong0);
             //Update selection
             display.updateChooseCharacter(ZPressed);
             //Go back to start menu
@@ -169,6 +172,7 @@ void Game::buttonListener() {
             break;
 
         case Display::difficulty:
+            audio.playSound(Audio::Sound::ThemeSong0);
             //Update selection
             updateDifficulty(ZPressed);
             //Go back to choose character screen
@@ -178,6 +182,7 @@ void Game::buttonListener() {
             break;
 
         case Display::highscores:
+            audio.playSound(Audio::Sound::ThemeSong0);
             //Go back to start menu
             if(CPressed){
                 display.drawStartMenu();
@@ -223,9 +228,11 @@ void Game::reactToRecievedData(uint16_t data, uint32_t timer1_overflow_count){
             if (display.hammerPlaced && display.hammerPlacedHeap == recievedMoleHeap) {
                 // Draw the mole under the hammer
                 display.drawOrRemoveMole(recievedMoleHeap, true);
+                audio.playSound(Audio::Sound::MoleUp);
                 display.drawOrRemoveHammer(recievedMoleHeap, true, true);
             } else {
                 display.drawOrRemoveMole(recievedMoleHeap, true);
+                audio.playSound(Audio::Sound::MoleUp);
             }
             recievedMoleIsUp = true;
             processCurrentTime = timer1.overflowCount;
@@ -351,6 +358,7 @@ void Game::updateGame(bool ZPressed){
         if(ZPressed && !display.molePlaced){
             sendMoleUp(display.selectedHeap); //Send placed mole to other console
             display.drawOrRemoveMole(display.selectedHeap, true); //Draw the mole on the selected heap
+            audio.playSound(Audio::Sound::MoleUp);
             display.molePlaced = true; //A mole has been placed
             display.molePlacedTime = timer1.overflowCount; //Save the time the mole was placed
             display.molePlacedHeap = display.selectedHeap; //Save the heap the mole was placed in
@@ -483,6 +491,7 @@ void Game::loopRecievedProcess(){
         (display.selectedHeap == recievedMoleHeap) &&
         (timer1.overflowCount - scoreIncrementedTime >= timeHammerDown)){
             score += hammerHitMolePoints;
+            audio.playSound(Audio::Sound::HammerHit);
             scoreIncrementedTime = timer1.overflowCount;
         }
         //If mole is up, check if it has been up for 2 seconds

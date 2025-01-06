@@ -25,9 +25,9 @@ SevenSegment sevenSegment(0x21);
 // Instance of IR object
 IRComm ir(timer1);
 // Create display object
-Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC, timer1, sevenSegment);
+Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC, timer1, sevenSegment, audio);
 // Create game object
-Game game(ir, display, timer1);
+Game game(ir, display, timer1, audio);
 
 //Interrupts
 ISR(INT0_vect){
@@ -61,7 +61,7 @@ int main(void) {
     sevenSegment.displayDigit(10);
 
     audio.init();
-    //audio.playSound(Audio::Sound::StartUp);
+    audio.playSound(Audio::Sound::StartUp);
     
 	while (1) {
         game.buttonListener();
@@ -70,8 +70,7 @@ int main(void) {
             uint16_t data = ir.decodeIRMessage();
             game.reactToRecievedData(data, timer1.overflowCount);
         }
-        audio.playSound(Audio::Sound::ThemeSong0);
-        
+            
         _delay_ms(10);
     }
 	//never reach

@@ -6,6 +6,7 @@
 #include "Nunchuk.h"
 #include "IRComm.h"
 #include <Timer1Overflow.h>
+#include <Audio.h>
 
 #define hammerHitMolePoints 1
 #define moleAvoidPoints 1
@@ -14,7 +15,7 @@
 
 class Game {
 public:
-    Game(IRComm &ir, Display &display, Timer1Overflow &timer1);
+    Game(IRComm &ir, Display &display, Timer1Overflow &timer1, Audio &audio);
 
     uint8_t heapCoordinatesToHeapNumber(uint8_t x, uint8_t y, uint8_t gridWidth);
     void sendStart(bool opponentIsMole, uint8_t difficulty);
@@ -50,6 +51,7 @@ private:
     IRComm& ir;
     Display& display;
     Timer1Overflow &timer1;
+    Audio &audio;
 
     uint32_t scoreIncrementedTime; //Time score is incremented
 
