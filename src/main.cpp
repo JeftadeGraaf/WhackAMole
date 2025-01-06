@@ -11,12 +11,7 @@
 
 // OCR value for Timer0, IR transmitter
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
-const uint8_t OCR0A_value = (16000000 / (2 * 1 * 56000)) - 1;
-
-const uint16_t BAUDRATE = 9600;             //UART baud rate
-
-//Game variables
-uint16_t score = 100;
+const uint8_t OCR0A_value = 141;
 
 //Display pins
 #define BACKLIGHT_PIN 5
@@ -58,7 +53,6 @@ int main(void) {
 	// Initialize backlight
 	display.init();     
 	display.refreshBacklight();
-	display.clearScreen();
     Nunchuk.init_nunchuck();
 
     ir.decodeIRMessage();
@@ -70,8 +64,6 @@ int main(void) {
     //audio.playSound(Audio::Sound::StartUp);
     
 	while (1) {
-        // Refresh the backlight (simulate brightness adjustments)
-        display.refreshBacklight();
         game.buttonListener();
 
         if(ir.isBufferReady()){

@@ -559,6 +559,7 @@ void Display::updateGameOver(uint8_t player_score, uint8_t opponent_score, bool 
         drawPixelArray(*hole, 8, 180, 192, 8, 4);
         drawPixelArray(*hammerHori, 8, 200, 150, 8, 5);
     }
+    sevenSegment.displayDigit(10);
 }
 
 //TODO highscores opslaan en displayen (EEPROM)

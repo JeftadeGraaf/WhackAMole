@@ -144,6 +144,7 @@ void Game::buttonListener() {
                 if(proc == recieveScore){
                     display.updateGameOver(score, opponentsScore, moleWon);
                     display.gameOverUpdated = true;
+                    score = 0;
                 }
             }
 
