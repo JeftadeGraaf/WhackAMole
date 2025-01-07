@@ -8,7 +8,8 @@
 
 constexpr uint8_t IDLEN = 4; // Number of ID bytes
 
-struct ncState {
+struct ncState
+{
     uint8_t joy_x_axis;
     uint8_t joy_y_axis;
     uint16_t accel_x_axis;
@@ -18,7 +19,8 @@ struct ncState {
     bool c_button;
 };
 
-struct ncCal {
+struct ncCal
+{
     uint16_t x0;
     uint16_t y0;
     uint16_t z0;
@@ -34,10 +36,11 @@ struct ncCal {
     uint16_t chksum;
 };
 
-const uint8_t NUNCHUK_ADDRESS = 0x52;       //Nunchuk I2c address
-const uint16_t NUNCHUCK_WAIT = 1000;        //Wait for nunchuk test function
+const uint8_t NUNCHUK_ADDRESS = 0x52; // Nunchuk I2c address
+const uint16_t NUNCHUCK_WAIT = 1000;  // Wait for nunchuk test function
 
-class NunChuk {
+class NunChuk
+{
 public:
     NunChuk();
 
@@ -57,7 +60,7 @@ public:
 
 private:
     bool _getId(uint8_t address);
-    uint8_t _read(uint8_t address, uint8_t offset, uint8_t len, uint8_t* buffer);
+    uint8_t _read(uint8_t address, uint8_t offset, uint8_t len, uint8_t *buffer);
 };
 
 // Nunchuk globally declared in Nunchuk.cpp

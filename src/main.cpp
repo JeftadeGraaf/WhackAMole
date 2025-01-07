@@ -13,7 +13,7 @@
 // OCR2A = (Clock_freq / (2 * Prescaler * Target_freq)) - 1
 const uint8_t OCR0A_value = 141;
 
-//Display pins
+// Display pins
 #define BACKLIGHT_PIN 5
 #define TFT_DC 9
 #define TFT_CS 10
@@ -25,54 +25,60 @@ SevenSegment sevenSegment(0x21);
 // Instance of IR object
 IRComm ir(timer1);
 // Create display object
-Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC,timer1, sevenSegment, audio);
+Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC, timer1, sevenSegment, audio);
 // Create game object
 Game game(ir, display, timer1, audio);
 
-//Interrupts
-ISR(INT0_vect){
+// Interrupts
+ISR(INT0_vect)
+{
     ir.onReceiveInterrupt();
 }
 
-ISR(TIMER1_OVF_vect){
+ISR(TIMER1_OVF_vect)
+{
     audio.handleTimer1ISR();
     timer1.onTimer1Overflow();
 }
 
-ISR(TIMER0_COMPA_vect){
+ISR(TIMER0_COMPA_vect)
+{
     ir.onTimer0CompareMatch();
 }
 
-int main(void) {
+int main(void)
+{
     sevenSegment.begin();
     timer1.init();
-    //Serial.begin(BAUDRATE);
+    // Serial.begin(BAUDRATE);
     ir.initialize();
     sei(); // Enable global interrupts
 
-	// Initialize backlight
-	display.init();     
-	display.refreshBacklight();
+    // Initialize backlight
+    display.init();
+    display.refreshBacklight();
     Nunchuk.init_nunchuck();
 
     ir.decodeIRMessage();
 
-    display.drawStartMenu(); //Draw the initial screen
+    display.drawStartMenu(); // Draw the initial screen
     sevenSegment.displayDigit(10);
 
     audio.init();
     audio.playSound(Audio::Sound::StartUp);
-    
-	while (1) {
+
+    while (1)
+    {
         game.buttonListener();
 
-        if(ir.isBufferReady()){
+        if (ir.isBufferReady())
+        {
             uint16_t data = ir.decodeIRMessage();
             game.reactToRecievedData(data, timer1.overflowCount);
         }
-            
+
         _delay_ms(10);
     }
-	//never reach
-	return 0;
+    // never reach
+    return 0;
 }

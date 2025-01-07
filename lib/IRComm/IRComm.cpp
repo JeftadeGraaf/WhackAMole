@@ -3,8 +3,8 @@
 
 // Constructor
 IRComm::IRComm(Timer1Overflow &timer1) : timer1(timer1), half_bit_buffers{{0}}, buffer_position{0}, buffer_ready_flags{false}, active_buffer_idx(0),
-      decoded_frame{0}, bit_index(0), is_tx_active(false), is_tx_high(false),
-      prev_timer_value(0), bit_duration(0), is_first_interrupt(true), is_frame_ready(false), is_frame_valid(false)
+                                         decoded_frame{0}, bit_index(0), is_tx_active(false), is_tx_high(false),
+                                         prev_timer_value(0), bit_duration(0), is_first_interrupt(true), is_frame_ready(false), is_frame_valid(false)
 {
     for (uint8_t i = 0; i < 2; i++)
     {
@@ -13,24 +13,22 @@ IRComm::IRComm(Timer1Overflow &timer1) : timer1(timer1), half_bit_buffers{{0}}, 
     }
 }
 
-
-
 // Public Methods
 void IRComm::initialize()
 {
-    DDRD |= (1 << DDD6) | (1 << DDD5);          // Set PD6 and PD5 as output (IR LED)
-    TCCR0A = (1 << WGM01);                      // Configure Timer0 in CTC mode
-    TCCR0B = (1 << CS00);                       // Set no prescaler (fastest clock)
-    OCR0A = 210;                                // Set OCR0A for ~889 µs pulse width
+    DDRD |= (1 << DDD6) | (1 << DDD5); // Set PD6 and PD5 as output (IR LED)
+    TCCR0A = (1 << WGM01);             // Configure Timer0 in CTC mode
+    TCCR0B = (1 << CS00);              // Set no prescaler (fastest clock)
+    OCR0A = 210;                       // Set OCR0A for ~889 µs pulse width
 
     TCCR1A = 0;
-    TCCR1B |= (1 << CS11);                      // Prescaler of 8 for Timer1
+    TCCR1B |= (1 << CS11); // Prescaler of 8 for Timer1
     TCNT1 = 0;
-    TIMSK1 |= (1 << TOIE1);                     // Enable Timer1 overflow interrupt
+    TIMSK1 |= (1 << TOIE1); // Enable Timer1 overflow interrupt
 
-    EICRA |= (1 << ISC00);                      // Trigger on any logical change for INT0
-    EIMSK |= (1 << INT0);                       // Enable INT0 interrupt
-    DDRD &= ~(1 << DDD2);                       // Set PD2 as input (IR receiver)
+    EICRA |= (1 << ISC00); // Trigger on any logical change for INT0
+    EIMSK |= (1 << INT0);  // Enable INT0 interrupt
+    DDRD &= ~(1 << DDD2);  // Set PD2 as input (IR receiver)
 }
 
 // Interrupt Handlers
@@ -65,11 +63,11 @@ void IRComm::onTimer0CompareMatch()
 
     if (is_tx_high)
     {
-        PORTD |= (1 << PD6);  // Set PD6 high (IR LED)
+        PORTD |= (1 << PD6); // Set PD6 high (IR LED)
     }
     else
     {
-        PORTD &= ~(1 << PD6);  // Set PD6 low (IR LED)
+        PORTD &= ~(1 << PD6); // Set PD6 low (IR LED)
     }
 
     is_tx_high = !is_tx_high;
@@ -148,7 +146,7 @@ void IRComm::processBuffer(uint8_t buffer_idx)
 {
     uint8_t bit_idx = 0;
 
-    volatile bool* buffer = half_bit_buffers[buffer_idx];  // Reference the current buffer
+    volatile bool *buffer = half_bit_buffers[buffer_idx]; // Reference the current buffer
 
     for (uint8_t i = 0; i < 32; i += 2)
     {
@@ -170,7 +168,7 @@ void IRComm::processBuffer(uint8_t buffer_idx)
             return;
         }
 
-        bit_idx++;  // Move to the next bit position
+        bit_idx++; // Move to the next bit position
     }
 
     is_frame_ready = true;
@@ -215,8 +213,8 @@ bool IRComm::isBufferReady()
 
 uint16_t IRComm::decodeIRMessage()
 {
-    decodeBuffer();    // Decode the buffer into the frame
-    validateFrame();   // Validate the frame
+    decodeBuffer();  // Decode the buffer into the frame
+    validateFrame(); // Validate the frame
 
     // Extract the message (12-bit data field) from the frame
     uint16_t message = 0;
@@ -227,18 +225,19 @@ uint16_t IRComm::decodeIRMessage()
     }
 
     is_frame_valid = false; // Reset the frame validity flag for the next message
-    return message; // Return the extracted message
+    return message;         // Return the extracted message
 }
 
 // Sending-related initialization functions
-void IRComm::initTimer0() {
+void IRComm::initTimer0()
+{
     // Set OC0A (PD6) and OC0B (PD5) as output for PWM
     DDRD |= (1 << DDD6) | (1 << DDD5);
 
     // Configure Timer 0
     TCCR0A = (1 << WGM01); // CTC mode
     TCCR0B = (1 << CS00);  // No prescaler (fastest clock)
-  
+
     // Set OCR0A for 38 kHz frequency
     OCR0A = 210; // 38.1 kHz (16 MHz / (2 * (OCR0A + 1)))
 }
@@ -247,13 +246,14 @@ void IRComm::initTimer0() {
 void IRComm::sendFrame(uint16_t data)
 {
     // Create the frame to send
-    createFrame(data, tx_frame);  // Fill tx_frame with the 16-bit frame
+    createFrame(data, tx_frame); // Fill tx_frame with the 16-bit frame
 
     // Start sending the starting burst
     sendStartingBurst();
 
     // Send the frame bit by bit
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 16; i++)
+    {
         sendHalfBit(tx_frame[i]);
     }
 
@@ -262,7 +262,8 @@ void IRComm::sendFrame(uint16_t data)
 
     // Optionally, you can print the frame for debugging
     Serial.print("Sending frame: ");
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 16; i++)
+    {
         Serial.print(tx_frame[i]);
     }
     Serial.println();
@@ -275,42 +276,48 @@ void IRComm::createFrame(uint16_t data, bool (&frame)[16])
     frame[1] = 1;
 
     // Fill the frame with the 12 data bits
-    for (int i = 0; i < 12; i++) {
+    for (int i = 0; i < 12; i++)
+    {
         frame[i + 2] = (data >> (11 - i)) & 0x01;
     }
 
     // Calculate the parity bit (even parity)
     bool parity = false;
-    for (int i = 2; i < 14; i++) {
+    for (int i = 2; i < 14; i++)
+    {
         parity ^= frame[i];
     }
     frame[14] = parity;
 }
 
-
 // Send the starting burst of the frame
-void IRComm::sendStartingBurst() {
+void IRComm::sendStartingBurst()
+{
     // Start sending the burst signal
     TCCR0A |= (1 << COM0A0);
-    _delay_ms(9); // Time for 9 ms burst
+    _delay_ms(9);             // Time for 9 ms burst
     TCCR0A &= ~(1 << COM0A0); // Stop toggling on OC0A
     PORTD &= ~(1 << PD6);     // Explicitly turn off the IR LED
-    _delay_ms(4.5); // Time for 4.5 ms pause
+    _delay_ms(4.5);           // Time for 4.5 ms pause
 }
 
 // Send a half bit (1 or 0) for IR communication
-void IRComm::sendHalfBit(bool bit) {
-    if (bit) {
+void IRComm::sendHalfBit(bool bit)
+{
+    if (bit)
+    {
         // Send 1: 10 pulse
         TCCR0A |= (1 << COM0A0);
         _delay_us(IR_PULSE_DURATION); // Time for the pulse
         TCCR0A &= ~(1 << COM0A0);
-        PORTD &= ~(1 << PD6); // Turn off IR LED
+        PORTD &= ~(1 << PD6);         // Turn off IR LED
         _delay_us(IR_PULSE_DURATION); // Time for the pause
-    } else {
+    }
+    else
+    {
         // Send 0: 01 pulse
-        TCCR0A &= ~(1 << COM0A0); // No toggle on OC0A
-        PORTD &= ~(1 << PD6);     // Turn off IR LED
+        TCCR0A &= ~(1 << COM0A0);     // No toggle on OC0A
+        PORTD &= ~(1 << PD6);         // Turn off IR LED
         _delay_us(IR_PULSE_DURATION); // Time for the pulse
         TCCR0A |= (1 << COM0A0);
         _delay_us(IR_PULSE_DURATION); // Time for the pause
@@ -318,7 +325,8 @@ void IRComm::sendHalfBit(bool bit) {
 }
 
 // Stop sending the frame and turn off the IR LED
-void IRComm::stopSending() {
+void IRComm::stopSending()
+{
     TCCR0A &= ~(1 << COM0A0); // Stop toggling on OC0A
     PORTD &= ~(1 << PD6);     // Turn off IR LED
 }

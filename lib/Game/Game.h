@@ -13,7 +13,8 @@
 #define timeMoleUp (uint8_t)25
 #define timeHammerDown (uint8_t)30
 
-class Game {
+class Game
+{
 public:
     Game(IRComm &ir, Display &display, Timer1Overflow &timer1, Audio &audio);
 
@@ -31,7 +32,8 @@ public:
     void updateGame(bool ZPressed);
     void updateDifficulty(bool buttonPressed);
 
-    enum process{
+    enum process
+    {
         startGame = 1,
         moleUp = 2,
         hammerPositionHit = 3,
@@ -41,30 +43,30 @@ public:
     process proc;
     process readRecievedProcess(uint16_t data);
 
-    uint8_t score = 0; //Player score
-    uint8_t opponentsScore = 0; //Opponents score
+    uint8_t score = 0;          // Player score
+    uint8_t opponentsScore = 0; // Opponents score
     bool moleWon = false;
 
 private:
     void gameOver();
 
-    IRComm& ir;
-    Display& display;
+    IRComm &ir;
+    Display &display;
     Timer1Overflow &timer1;
     Audio &audio;
 
-    uint32_t scoreIncrementedTime; //Time score is incremented
+    uint32_t scoreIncrementedTime; // Time score is incremented
 
-    bool recievedMoleIsUp = false; //If mole is up
-    bool moleWasHit = false; //If mole was hit
-    uint32_t processCurrentTime; //Time the mole went up or hammer is hit
-    uint8_t recievedMoleHeap; //Recieved mole heap
-    uint8_t oldRecievedMoleHeap = 0; //previous recieved mole heap
-    bool hammerHitting = false; //If hammer is hitting
-    bool recievedHammerHitting = false; //Recieved hammer hitting
+    bool recievedMoleIsUp = false;      // If mole is up
+    bool moleWasHit = false;            // If mole was hit
+    uint32_t processCurrentTime;        // Time the mole went up or hammer is hit
+    uint8_t recievedMoleHeap;           // Recieved mole heap
+    uint8_t oldRecievedMoleHeap = 0;    // previous recieved mole heap
+    bool hammerHitting = false;         // If hammer is hitting
+    bool recievedHammerHitting = false; // Recieved hammer hitting
 
-    const uint8_t NUNCHUK_ADDRESS = 0x52;       //Nunchuk I2c address
-    //Save button state
+    const uint8_t NUNCHUK_ADDRESS = 0x52; // Nunchuk I2c address
+    // Save button state
     bool ZPressed;
     bool CPressed;
 };

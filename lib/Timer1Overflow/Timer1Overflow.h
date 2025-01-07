@@ -3,7 +3,8 @@
 
 #include <Arduino.h>
 
-class Timer1Overflow {
+class Timer1Overflow
+{
 public:
     void init();
 
@@ -15,7 +16,7 @@ public:
 
     uint32_t overflowCount = 0;
     uint16_t IROverflowCount = 0;
-   uint16_t joystickDebounceCount = 0; 
+    uint16_t joystickDebounceCount = 0;
 };
 
 #endif // TIMER1OVERFLOW_H
