@@ -37,33 +37,33 @@ Audio::Audio(Timer1Overflow &timer1)
           NoteDuration{FS4, NOTELENGTH_SHORT}}
 
       ,
-      themeSong0{// 3 measures of bass
-                 NoteDuration{C4, NOTELENGTH_MEDIUM},
-                 NoteDuration{REST, NOTELENGTH_MEDIUM},
-                 NoteDuration{G3, NOTELENGTH_MEDIUM},
-                 NoteDuration{REST, NOTELENGTH_MEDIUM},
-                 NoteDuration{D4, NOTELENGTH_MEDIUM},
-                 NoteDuration{REST, NOTELENGTH_MEDIUM},
-                 NoteDuration{G3, NOTELENGTH_MEDIUM},
-                 NoteDuration{REST, NOTELENGTH_MEDIUM},
+      themeSong0{
+          NoteDuration{C4, NOTELENGTH_MEDIUM},
+          NoteDuration{REST, NOTELENGTH_MEDIUM},
+          NoteDuration{G3, NOTELENGTH_MEDIUM},
+          NoteDuration{REST, NOTELENGTH_MEDIUM},
+          NoteDuration{D4, NOTELENGTH_MEDIUM},
+          NoteDuration{REST, NOTELENGTH_MEDIUM},
+          NoteDuration{G3, NOTELENGTH_MEDIUM},
+          NoteDuration{REST, NOTELENGTH_MEDIUM},
 
-                 NoteDuration{G4, NOTELENGTH_MEDIUM},
-                 NoteDuration{REST, NOTELENGTH_MEDIUM},
-                 NoteDuration{G3, NOTELENGTH_MEDIUM},
-                 NoteDuration{REST, NOTELENGTH_MEDIUM},
-                 NoteDuration{C4, NOTELENGTH_MEDIUM},
-                 NoteDuration{REST, NOTELENGTH_MEDIUM},
-                 NoteDuration{G3, NOTELENGTH_MEDIUM},
-                 NoteDuration{REST, NOTELENGTH_MEDIUM},
+          NoteDuration{G4, NOTELENGTH_MEDIUM},
+          NoteDuration{REST, NOTELENGTH_MEDIUM},
+          NoteDuration{G3, NOTELENGTH_MEDIUM},
+          NoteDuration{REST, NOTELENGTH_MEDIUM},
+          NoteDuration{C4, NOTELENGTH_MEDIUM},
+          NoteDuration{REST, NOTELENGTH_MEDIUM},
+          NoteDuration{G3, NOTELENGTH_MEDIUM},
+          NoteDuration{REST, NOTELENGTH_MEDIUM},
 
-                 NoteDuration{C4, NOTELENGTH_MEDIUM},
-                 NoteDuration{REST, NOTELENGTH_MEDIUM},
-                 NoteDuration{G3, NOTELENGTH_MEDIUM},
-                 NoteDuration{REST, NOTELENGTH_MEDIUM},
-                 NoteDuration{C4, NOTELENGTH_MEDIUM},
-                 NoteDuration{REST, NOTELENGTH_MEDIUM},
-                 NoteDuration{G3, NOTELENGTH_MEDIUM},
-                 NoteDuration{REST, NOTELENGTH_MEDIUM}}
+          NoteDuration{C4, NOTELENGTH_MEDIUM},
+          NoteDuration{REST, NOTELENGTH_MEDIUM},
+          NoteDuration{G3, NOTELENGTH_MEDIUM},
+          NoteDuration{REST, NOTELENGTH_MEDIUM},
+          NoteDuration{C4, NOTELENGTH_MEDIUM},
+          NoteDuration{REST, NOTELENGTH_MEDIUM},
+          NoteDuration{G3, NOTELENGTH_MEDIUM},
+          NoteDuration{REST, NOTELENGTH_MEDIUM}}
 {
     this->timer1 = &timer1;
 }
