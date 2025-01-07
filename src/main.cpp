@@ -25,7 +25,7 @@ SevenSegment sevenSegment(0x21);
 // Instance of IR object
 IRComm ir(timer1);
 // Create display object
-Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC, timer1, sevenSegment, audio);
+Display display(BACKLIGHT_PIN, TFT_CS, TFT_DC,timer1, sevenSegment, audio);
 // Create game object
 Game game(ir, display, timer1, audio);
 

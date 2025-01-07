@@ -12,14 +12,16 @@
 
 class Display {
 public:
+    Timer1Overflow &timer1; //Instance of the timer1 overflow object
+    SevenSegment &sevenSegment; //Instance of the seven segment object
+    Audio &audio; //Instance of the audio object
+
+    Adafruit_ILI9341 _tft; //An instance of the display
     Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1, SevenSegment &sevenSegment, Audio &audio);
     void init(); //Initialize the display
     void refreshBacklight(); //Change the brightness of the display based on the potmeter value
     void updateGameTimeScore(uint8_t score); //Update the time and score in the game screen
-    // void updateGame(uint8_t score, bool buttonPressed); //Update the game, hammer position, mole position, score and time
     void updateChooseCharacter(bool buttonPressed); //Update the choose character menu based on user input
-    void drawSelectionRect(bool isSelected);
-    // void updateDifficulty(bool buttonPressed); //Update the difficulty menu based on user input
     void updateStartMenu(bool buttonPressed); //Update the startmenu based on user input
 
     void drawOrRemoveHole(uint8_t heapNumber, bool draw); //Draw or remove the hole
@@ -34,7 +36,7 @@ public:
     };
     Difficulty selectedDifficulty = nine; //The current selected difficulty
 
-    void drawPixelArray(const uint8_t *pixels, uint8_t pixelSize, int xStart, int yStart, int xSize, int ySize);
+    void drawPixelArray(const uint8_t *pixels PROGMEM, uint8_t pixelSize, int xStart, int yStart, int xSize, int ySize);
 
     void drawGame(Difficulty selectedDifficulty); // Draw the game
     void drawChooseCharacter(); //Draw the choose character menu
@@ -57,8 +59,6 @@ public:
         highscores
     };
     Screens displayedScreen; //The current displayed screen
-
-    Adafruit_ILI9341 _tft; //An instance of the display
 
     bool characterMole = true; //Saves the selected playable character
     bool molePlaced; //If mole is placed
@@ -115,14 +115,8 @@ public:
     uint8_t selectedHeap = 0; //Which molehole is selected
     bool gameOverUpdated = false;
 
-    Timer1Overflow &timer1; //Instance of the timer1 overflow object
-    SevenSegment &sevenSegment; //Instance of the seven segment object
-    Audio &audio; //Instance of the audio object
-
     void redrawBackGround(uint16_t x, uint8_t y, uint8_t width, uint8_t height);
 
-    // Declare debounce variables (e.g., global or static)
-    const uint8_t debounceDelay = 5;
 private:
     void drawPixelField(uint8_t y); //Used to draw a field of certain height. The field consists of different shades of green pixels
 
@@ -138,7 +132,7 @@ private:
     const char moleText[5] = "Mole"; //The mole text
     const char hammerText[7] = "Hammer"; //The hammer text
 
-    const uint64_t backgroundBitmap[24] PROGMEM = {
+    const uint64_t backgroundBitmap[24] = {
         0xC8A6D57B93E1F04A, 0x1D5E7A2C0B9F4638, 0x7E3D9B1F6C5A2048, 0x4B1E0D8F3A6C7592,
         0x9F2B8C1D6E5A0437, 0x3D8E1B5F7A2C0649, 0x1F0C5A2E8D7B9364, 0x6C5A1D3E7B9F0428,
         0xE9B4F16D2C8A5037, 0x5A1D3E7B9F0C8642, 0x8D1B5F3A6C7E2049, 0x2C8A6D1B5F3E9074,

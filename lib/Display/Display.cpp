@@ -3,7 +3,7 @@
 
 uint32_t gameTimeTracker = 0;
 
-// Combined palette in direct hex values (RGB565 format)
+// Combined palette in hex values (RGB565 format)
 const uint16_t combined_palette[] PROGMEM = {
     0x0000,  // 0  - Black
     0xFFFF,  // 1  - White
@@ -121,7 +121,7 @@ const uint8_t hammerVert[8][5] PROGMEM = {
 
 // Initialize the display
 Display::Display(int backlight_pin, int tft_cs, int tft_dc, Timer1Overflow &timer1, SevenSegment &sevenSegment, Audio &audio)
-    : _tft(tft_cs, tft_dc), sevenSegment(sevenSegment), timer1(timer1), audio(audio) {
+    : timer1(timer1), sevenSegment(sevenSegment), audio(audio), _tft(tft_cs, tft_dc) {
     // Constructor
     _backlight_pin = backlight_pin;
 }
